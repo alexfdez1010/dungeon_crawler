@@ -1,6 +1,5 @@
 use crate::prelude::*;
 
-mod empty;
 mod rooms;
 mod automata;
 mod drunkard;
@@ -21,6 +20,7 @@ pub struct MapBuilder {
     pub monster_spawns : Vec<Point>,
     pub player_start : Point,
     pub amulet_start : Point,
+    pub final_boss_start : Point,
     pub theme : Box<dyn MapTheme>
 }
 
@@ -37,7 +37,7 @@ impl MapBuilder {
             0 => DungeonTheme::new(),
             _ => ForestTheme::new()
         };
-            
+         
         mb  
     }
 
@@ -147,6 +147,46 @@ impl MapBuilder {
             spawnable_tiles.remove(target_index);
         }
         spawns
+    }
+
+    fn buid_walls_around(&mut self){
+        for y in 1..SCREEN_HEIGHT {
+            let idx = map_idx(0, y);
+            self.map.tiles[idx] = TileType::Wall;
+        }
+
+        for y in 1..SCREEN_HEIGHT {
+            let idx = map_idx(SCREEN_WIDTH-1, y);
+            self.map.tiles[idx] = TileType::Wall;
+        }
+
+        for x in 1..SCREEN_WIDTH {
+            let idx = map_idx(x, 0);
+            self.map.tiles[idx] = TileType::Wall;
+        }
+
+        for x in 1..SCREEN_WIDTH {
+            let idx = map_idx(x, SCREEN_HEIGHT-1);
+            self.map.tiles[idx] = TileType::Wall;
+        }
+    }
+
+    fn get_adjacent_position(&self, pos: &Point) -> Option<Point> {
+        
+        let possible_pos = [
+            Point::new(pos.x - 1, pos.y),
+            Point::new(pos.x + 1, pos.y),
+            Point::new(pos.x, pos.y - 1),
+            Point::new(pos.x, pos.y + 1),
+        ];
+
+        for p in possible_pos.iter() {
+            if self.map.can_enter_tile(*p) {
+                return Some(*p);
+            }
+        }
+
+        None
     }
 }
 

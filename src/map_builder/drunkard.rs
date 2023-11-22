@@ -15,6 +15,7 @@ impl MapArchitect for DrunkardsWalkArchitect {
             monster_spawns : Vec::new(),
             player_start : Point::zero(),
             amulet_start : Point::zero(),
+            final_boss_start : Point::zero(),
             theme: super::themes::DungeonTheme::new()
         };
 
@@ -40,9 +41,12 @@ impl MapArchitect for DrunkardsWalkArchitect {
                 .filter(|(_,dist)| *dist > &2000.0)
                 .for_each(|(idx, _)| mb.map.tiles[idx] = TileType::Wall);
         }
+        mb.buid_walls_around(); 
+        
         mb.monster_spawns = mb.spawn_monsters(&center, rng);
         mb.player_start = center;
         mb.amulet_start = mb.find_most_distant();
+        mb.final_boss_start = mb.get_adjacent_position(&mb.amulet_start).unwrap();
         mb
     }
 }

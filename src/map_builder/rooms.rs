@@ -12,14 +12,17 @@ impl MapArchitect for RoomsArchitect {
             monster_spawns : Vec::new(),
             player_start : Point::zero(),
             amulet_start : Point::zero(),
+            final_boss_start : Point::zero(),
             theme: super::themes::DungeonTheme::new()
         };
 
         mb.fill(TileType::Wall);
         mb.build_random_rooms(rng);
+        mb.buid_walls_around(); 
         mb.build_corridors(rng);
         mb.player_start = mb.rooms[0].center();
         mb.amulet_start = mb.find_most_distant();
+        mb.final_boss_start = mb.get_adjacent_position(&mb.amulet_start).unwrap();
 
         for room in mb.rooms.iter().skip(1) {
             mb.monster_spawns.push(room.center());

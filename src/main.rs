@@ -15,7 +15,7 @@ mod prelude {
     pub const SCREEN_HEIGHT: i32 = 50;
     pub const DISPLAY_WIDTH: i32 = SCREEN_WIDTH / 2;
     pub const DISPLAY_HEIGHT: i32 = SCREEN_HEIGHT / 2;
-    pub const FINAL_LEVEL: usize = 2;
+    pub const FINAL_LEVEL: usize = 1;
     pub use crate::components::*;
     pub use crate::spawner::*;
     pub use crate::map::*;
@@ -65,7 +65,6 @@ impl State {
         let mut rng = RandomNumberGenerator::new();
         let map_builder = MapBuilder::new(&mut rng);
         spawn_player(&mut self.ecs, map_builder.player_start);
-        spawn_amulet_of_yala(&mut self.ecs, map_builder.amulet_start);
         spawn_level(&mut self.ecs, &mut rng, 0, &map_builder.monster_spawns);
         self.resources.insert(map_builder.map);
         self.resources.insert(Camera::new(map_builder.player_start));
@@ -141,6 +140,7 @@ impl State {
         
         if map_level == FINAL_LEVEL as usize {
             spawn_amulet_of_yala(&mut self.ecs, map_builder.amulet_start);
+            spawn_final_boss(&mut self.ecs, map_builder.final_boss_start);
         }
         else {
             let exit_idx = map_builder.map.point2d_to_index(map_builder.amulet_start);
@@ -191,7 +191,7 @@ impl GameState for State {
 fn main() -> BError {
     let context = BTermBuilder::new()
         .with_title("Dungeon Crawler")
-        .with_fps_cap(30.0)
+        .with_fps_cap(120.0)
         .with_dimensions(DISPLAY_WIDTH, DISPLAY_HEIGHT)
         .with_tile_dimensions(32, 32)
         .with_resource_path("resources/")

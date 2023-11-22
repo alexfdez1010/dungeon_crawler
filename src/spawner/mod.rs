@@ -37,6 +37,27 @@ pub fn spawn_amulet_of_yala(ecs: &mut World, pos: Point){
     );
 }
 
+pub fn spawn_final_boss(ecs: &mut World, pos: Point){
+    ecs.push(
+        (
+            Enemy,
+            pos,
+            Render{
+                color : ColorPair::new(WHITE, BLACK),
+                glyph : to_cp437('E')
+            },
+            Name("Ettin".to_string()),
+            Health{
+                current : 15,
+                max : 15
+            },
+            FieldOfView::new(20),
+            Damage(5),
+            ChasingPlayer
+        )
+    );
+}
+
 pub fn spawn_level(
     ecs: &mut World,
     rng: &mut RandomNumberGenerator,

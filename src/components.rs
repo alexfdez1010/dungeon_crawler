@@ -2,6 +2,8 @@ pub use crate::prelude::*;
 
 use std::collections::HashSet;
 
+
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Render {
     pub color : ColorPair,
@@ -15,9 +17,6 @@ pub struct Player{
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Enemy;
-
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub struct MovingRandomly;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct WantsToMove {
@@ -96,3 +95,8 @@ pub struct Damage(pub i32);
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Weapon;
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct ProvidesVision{
+    pub range_difference : i32
+}

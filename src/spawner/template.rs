@@ -91,10 +91,9 @@ impl Templates {
         if let Some(effects) = &template.provides {
             effects.iter().for_each(|(provides, n)| {
                 match provides.as_str() {
-                    "Healing" => commands.add_component(entity,
-                        ProvidesHealing{ amount: *n}),
-                    "MagicMap" => commands.add_component(entity,
-                        ProvidesDungeonMap{}),
+                    "Healing" => commands.add_component(entity,ProvidesHealing{ amount: *n}),
+                    "MagicMap" => commands.add_component(entity, ProvidesDungeonMap{}),
+                    "Vision" => commands.add_component(entity, ProvidesVision{ range_difference: *n}),
                     _ => {
                         println!("Warning: we don't know how to provide {}"
                             , provides);

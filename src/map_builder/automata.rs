@@ -11,6 +11,7 @@ impl MapArchitect for CellularAutomataArchitect {
             monster_spawns : Vec::new(),
             player_start : Point::zero(),
             amulet_start : Point::zero(),
+            final_boss_start : Point::zero(),
             theme: super::themes::DungeonTheme::new()
         };
 
@@ -18,10 +19,13 @@ impl MapArchitect for CellularAutomataArchitect {
         for _ in 0..10 {
             self.iteration(&mut mb.map);
         }
+        mb.buid_walls_around(); 
+        
         let start = self.find_start(&mb.map);
         mb.monster_spawns = mb.spawn_monsters(&start, rng);
         mb.player_start = start;
         mb.amulet_start = mb.find_most_distant();
+        mb.final_boss_start = mb.get_adjacent_position(&mb.amulet_start).unwrap();
         mb
     }
 }
