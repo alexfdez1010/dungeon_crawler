@@ -32,12 +32,6 @@ jobs:
       - name: Get the release version from the tag
         shell: bash
         run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
-      
-      - name: Install dependencies on Ubuntu
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y fontconfig
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
@@ -55,7 +49,7 @@ jobs:
         shell: bash
         run: |
           binary_name="dungeon_crawler"
-          dirname="$binary_name-${{ env.VERSION }}-${{ matrix.target }}"
+          dirname="$binary_name-${{ matrix.target }}"
           mkdir "$dirname"
           if [ "${{ matrix.os }}" = "windows-latest" ]; then
             mv "target/${{ matrix.target }}/release/$binary_name.exe" "$dirname"
