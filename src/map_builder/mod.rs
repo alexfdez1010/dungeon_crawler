@@ -7,7 +7,6 @@ mod prefab;
 mod themes;
 
 use automata::CellularAutomataArchitect;
-use rooms::RoomsArchitect;
 use drunkard::DrunkardsWalkArchitect;
 use prefab::apply_prefab;
 use themes::*;
