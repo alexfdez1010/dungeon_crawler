@@ -27,11 +27,11 @@ pub struct Templates {
     pub entities : Vec<Template>,
 }
 
+const TEMPLATE_FILE : &[u8] = include_bytes!("../../resources/template.ron");
+
 impl Templates {
     pub fn load() -> Self {
-        let file = File::open("resources/template.ron")
-            .expect("Failed opening file");
-        from_reader(file).expect("Unable to load templates")
+        ron::de::from_bytes(TEMPLATE_FILE).expect("Failed to load templates")
     }
 
     pub fn spawn_entities(

@@ -188,7 +188,11 @@ impl GameState for State {
     }
 }
 
+embedded_resource!(TILE_FONT, "../resources/dungeonfont.png");
+
 fn main() -> BError {
+    link_resource!(TILE_FONT, "resources/dungeonfont.png");
+    
     let context = BTermBuilder::new()
         .with_title("Dungeon Crawler")
         .with_fps_cap(120.0)
