@@ -56,11 +56,12 @@ impl Map {
 }
 
 impl Algorithm2D for Map{
+
     fn dimensions(&self) -> Point {
         Point::new(SCREEN_WIDTH, SCREEN_HEIGHT)
     }
 
-    fn in_bounds(&self, point : Point) -> bool {
+    fn in_bounds(&self, _point : Point) -> bool {
         true
     }
 }
@@ -68,7 +69,7 @@ impl Algorithm2D for Map{
 impl BaseMap for Map {
     fn get_available_exits(&self, _idx: usize) -> SmallVec<[(usize, f32); 10]> {
         let mut exits = SmallVec::new();
-        let loc = self.index_to_point2d(_idx);
+        let loc = module_point(self.index_to_point2d(_idx));
         if let Some(idx) = self.valid_exit(loc, Point::new(-1, 0)) {
             exits.push((idx, 1.0))
         }
@@ -84,11 +85,16 @@ impl BaseMap for Map {
         exits
     }
 
-    fn get_pathing_distance(&self, _idx1: usize, _idx2: usize) -> f32 {
-        DistanceAlg::Pythagoras.distance2d(
-            module_point(self.index_to_point2d(_idx1)), 
-            module_point(self.index_to_point2d(_idx2))
-        )
+    fn get_pathing_distance(&self, idx1: usize, idx2: usize) -> f32 {
+        let start = module_point(self.index_to_point2d(idx1));
+        let end = module_point(self.index_to_point2d(idx2));
+        
+        let diff_x = (start.x - end.x).abs();
+        let diff_x = std::cmp::min(diff_x, SCREEN_WIDTH - diff_x).pow(2);
+        let diff_y = (start.y - end.y).abs();
+        let diff_y = std::cmp::min(diff_y, SCREEN_HEIGHT - diff_y).pow(2);  
+
+        ((diff_x + diff_y) as f32).sqrt()
     }
 
     fn is_opaque(&self, idx: usize) -> bool {

@@ -54,7 +54,7 @@ Templates(
             glyph : '/',
             levels : [ 2 ],
             frequency: 1,
-            base_damage: Some(3)
+            base_damage: Some(4)
         ),
         Template(
             entity_type: Enemy,

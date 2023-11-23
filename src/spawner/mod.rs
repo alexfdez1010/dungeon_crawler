@@ -16,7 +16,7 @@ pub fn spawn_player(ecs : &mut World, pos : Point) {
                 current : 10,
                 max : 10
             },
-            FieldOfView::new(8),
+            FieldOfView::new(5),
             Damage(1)
         )
     );
@@ -48,10 +48,10 @@ pub fn spawn_final_boss(ecs: &mut World, pos: Point){
             },
             Name("Ettin".to_string()),
             Health{
-                current : 15,
-                max : 15
+                current : 20,
+                max : 20
             },
-            FieldOfView::new(20),
+            FieldOfView::new(8),
             Damage(5),
             ChasingPlayer
         )

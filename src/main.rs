@@ -15,7 +15,7 @@ mod prelude {
     pub const SCREEN_HEIGHT: i32 = 50;
     pub const DISPLAY_WIDTH: i32 = SCREEN_WIDTH / 2;
     pub const DISPLAY_HEIGHT: i32 = SCREEN_HEIGHT / 2;
-    pub const FINAL_LEVEL: usize = 1;
+    pub const FINAL_LEVEL: usize = 2;
     pub use crate::components::*;
     pub use crate::spawner::*;
     pub use crate::map::*;
