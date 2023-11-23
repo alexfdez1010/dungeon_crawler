@@ -52,7 +52,7 @@ impl MapBuilder {
             1024.0
         );
 
-        const UNREACHABLE : &f32 = &f32::MAX;
+        const UNREACHABLE: &f32 = &2000.0;
         self.map.index_to_point2d
         (
             dijkstra_map.map
