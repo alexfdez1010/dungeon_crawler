@@ -13,6 +13,14 @@ pub fn map_idx(x: i32, y: i32) -> usize {
     ((y * SCREEN_WIDTH) + x) as usize
 }
 
+pub fn module(x: i32, y: i32) -> i32 {
+    ((x % y) + y) % y
+}
+
+pub fn module_point(point : Point) -> Point {
+    Point::new(module(point.x, SCREEN_WIDTH), module(point.y, SCREEN_HEIGHT))
+}
+
 pub struct Map {
     pub tiles: Vec<TileType>,
     pub revealed_tiles : Vec<bool>,
@@ -28,33 +36,20 @@ impl Map {
         }
     }
 
-    pub fn in_bounds(&self, point : Point) -> bool {
-        point.x >= 0 && point.x < SCREEN_WIDTH && point.y >= 0 && point.y < SCREEN_HEIGHT
-    }
-
     pub fn try_idx(&self, point : Point) -> Option<usize> {
-        if !self.in_bounds(point) {
-            None
-        } 
-        else {
-            Some(map_idx(point.x, point.y))
-        }
+        Some(map_idx(point.x, point.y))
     }
 
     pub fn can_enter_tile(&self, point : Point) -> bool {
-        if !self.in_bounds(point) {
-            return false;
-        }
+        let point = module_point(point);
         return self.tiles[map_idx(point.x, point.y)]!=TileType::Wall;
     }
 
     fn valid_exit(&self, loc : Point, delta : Point) -> Option<usize> {
-        let destination = loc + delta;
-        if self.in_bounds(destination) {
-            if self.can_enter_tile(destination) {
-                let idx = self.point2d_to_index(destination);
-                return Some(idx);
-            }
+        let destination = module_point(loc + delta);
+        if self.can_enter_tile(destination) {
+            let idx = self.point2d_to_index(destination);
+            return Some(idx);
         }
         None
     }
@@ -66,7 +61,7 @@ impl Algorithm2D for Map{
     }
 
     fn in_bounds(&self, point : Point) -> bool {
-        self.in_bounds(point)
+        true
     }
 }
 
@@ -90,7 +85,10 @@ impl BaseMap for Map {
     }
 
     fn get_pathing_distance(&self, _idx1: usize, _idx2: usize) -> f32 {
-        DistanceAlg::Pythagoras.distance2d(self.index_to_point2d(_idx1), self.index_to_point2d(_idx2))
+        DistanceAlg::Pythagoras.distance2d(
+            module_point(self.index_to_point2d(_idx1)), 
+            module_point(self.index_to_point2d(_idx2))
+        )
     }
 
     fn is_opaque(&self, idx: usize) -> bool {

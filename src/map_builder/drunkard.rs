@@ -3,7 +3,7 @@ use super::MapArchitect;
 
 pub struct DrunkardsWalkArchitect {}
 
-const STAGGER_DISTANCE : usize = 400;
+const STAGGER_DISTANCE : usize = 300;
 const NUM_TILES : usize = (SCREEN_WIDTH * SCREEN_HEIGHT) as usize;
 const DESIRED_FLOOR : usize = NUM_TILES / 3;
 
@@ -41,7 +41,6 @@ impl MapArchitect for DrunkardsWalkArchitect {
                 .filter(|(_,dist)| *dist > &2000.0)
                 .for_each(|(idx, _)| mb.map.tiles[idx] = TileType::Wall);
         }
-        mb.buid_walls_around(); 
         
         mb.monster_spawns = mb.spawn_monsters(&center, rng);
         mb.player_start = center;
@@ -61,14 +60,10 @@ impl DrunkardsWalkArchitect{
             map.tiles[drunk_idx] = TileType::Floor;
 
             match rng.range(0, 4) {
-                0 => drunkard_pos.x -= 1,
-                1 => drunkard_pos.x += 1,
-                2 => drunkard_pos.y -= 1,
-                _ => drunkard_pos.y += 1
-            }
-
-            if !map.in_bounds(drunkard_pos) {
-                break;
+                0 => drunkard_pos.x = module(drunkard_pos.x - 1, SCREEN_WIDTH),
+                1 => drunkard_pos.x = module(drunkard_pos.x + 1, SCREEN_WIDTH),
+                2 => drunkard_pos.y = module(drunkard_pos.y - 1, SCREEN_HEIGHT),
+                _ => drunkard_pos.y = module(drunkard_pos.y + 1, SCREEN_HEIGHT),
             }
 
             distance_staggered += 1;

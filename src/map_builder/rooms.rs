@@ -18,7 +18,6 @@ impl MapArchitect for RoomsArchitect {
 
         mb.fill(TileType::Wall);
         mb.build_random_rooms(rng);
-        mb.buid_walls_around(); 
         mb.build_corridors(rng);
         mb.player_start = mb.rooms[0].center();
         mb.amulet_start = mb.find_most_distant();

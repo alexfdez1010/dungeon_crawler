@@ -19,7 +19,6 @@ impl MapArchitect for CellularAutomataArchitect {
         for _ in 0..10 {
             self.iteration(&mut mb.map);
         }
-        mb.buid_walls_around(); 
         
         let start = self.find_start(&mb.map);
         mb.monster_spawns = mb.spawn_monsters(&start, rng);
@@ -51,7 +50,9 @@ impl CellularAutomataArchitect{
         let mut neighbors = 0;
         for iy in -1..=1 {
             for ix in -1..=1 {
-                if !(ix == 0 && iy == 0) && map.tiles[map_idx(x + ix, y + iy)] == TileType::Wall {
+                let new_x = module(x + ix, SCREEN_WIDTH);
+                let new_y = module(y + iy, SCREEN_HEIGHT);
+                if !(ix == 0 && iy == 0) && map.tiles[map_idx(new_x, new_y)] == TileType::Wall {
                     neighbors += 1;
                 }
             }
@@ -61,8 +62,8 @@ impl CellularAutomataArchitect{
 
     fn iteration(&mut self, map: &mut Map){
         let mut new_tiles = map.tiles.clone();
-        for y in 1..SCREEN_HEIGHT-1 {
-            for x in 1..SCREEN_WIDTH-1 {
+        for y in 0..SCREEN_HEIGHT {
+            for x in 0..SCREEN_WIDTH {
                 let neighbors = self.count_neighbors(x, y, map);
                 let idx = map_idx(x, y);
                 if neighbors > 4 || neighbors == 0 {
