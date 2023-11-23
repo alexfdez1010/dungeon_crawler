@@ -5,6 +5,7 @@ use crate::prelude::*;
 #[read_component(Name)]
 #[read_component(FieldOfView)]
 #[read_component(Player)]
+#[read_component(Health)]
 pub fn tooltips(
     ecs: &SubWorld,
     #[resource] mouse_pos: &Point,
