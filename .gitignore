@@ -1,4 +1,5 @@
 /target
 .vscode
 .DS_Store
-/wasm_help
+dungeon_crawler_bg.wasm
+dungeon_crawler.js

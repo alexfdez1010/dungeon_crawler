@@ -3,13 +3,14 @@ name = "dungeon_crawler"
 version = "1.0.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
 bracket-lib = { git = "https://github.com/amethyst/bracket-lib.git" }
-legion = { version = "=0.3.1", default-features = false, features = ["wasm-bindgen", "codegen"] }
+legion = { version = "=0.3.1" }
 serde = { version = "1.0.115" }
 ron = "0.6.1"
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+legion = { version = "=0.3.1", default-features = false, features = ["wasm-bindgen", "codegen"] }
 
 [profile.release]
 lto = "thin"
