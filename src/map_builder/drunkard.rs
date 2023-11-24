@@ -11,8 +11,7 @@ impl MapArchitect for DrunkardsWalkArchitect {
     fn new(&mut self, rng: &mut RandomNumberGenerator) -> MapBuilder{
         let mut mb = MapBuilder{
             map : Map::new(),
-            rooms : Vec::new(),
-            monster_spawns : Vec::new(),
+            entity_spawns : Vec::new(),
             player_start : Point::zero(),
             amulet_start : Point::zero(),
             final_boss_start : Point::zero(),
@@ -42,7 +41,7 @@ impl MapArchitect for DrunkardsWalkArchitect {
                 .for_each(|(idx, _)| mb.map.tiles[idx] = TileType::Wall);
         }
         
-        mb.monster_spawns = mb.spawn_monsters(&center, rng);
+        mb.entity_spawns = mb.spawn_entities(&center, rng);
         mb.player_start = center;
         mb.amulet_start = mb.find_most_distant();
         mb.final_boss_start = mb.get_adjacent_position(&mb.amulet_start).unwrap();

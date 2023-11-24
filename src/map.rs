@@ -36,10 +36,6 @@ impl Map {
         }
     }
 
-    pub fn try_idx(&self, point : Point) -> Option<usize> {
-        Some(map_idx(point.x, point.y))
-    }
-
     pub fn can_enter_tile(&self, point : Point) -> bool {
         let point = module_point(point);
         return self.tiles[map_idx(point.x, point.y)]!=TileType::Wall;
