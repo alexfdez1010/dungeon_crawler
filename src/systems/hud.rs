@@ -12,8 +12,9 @@ pub fn hud(ecs: &SubWorld){
 
     let mut draw_batch = DrawBatch::new();
     draw_batch.target(2);
-    draw_batch.print_centered(2, "Explore the Dungeon. Cursor keys to move.");
-    draw_batch.print_centered(3, "G to pick up items. Number keys to use items.");
+    draw_batch.print_centered(3, "Find the Yala amulet. Cursor keys to move and attack.");
+    draw_batch.print_centered(4, "Click on a enemy or item to see its information.");
+    draw_batch.print_centered(5, "G to pick up items. Number keys to use items.");
     draw_batch.bar_horizontal(
         Point::zero(),
         SCREEN_WIDTH * 2,
