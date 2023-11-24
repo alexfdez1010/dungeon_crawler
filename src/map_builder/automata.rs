@@ -36,7 +36,7 @@ impl CellularAutomataArchitect{
     ){
         map.tiles.iter_mut().for_each(|t| {
             let roll = rng.range(0, 100);
-            if roll > 55 {
+            if roll > 45 {
                 *t = TileType::Floor;
             } 
             else {

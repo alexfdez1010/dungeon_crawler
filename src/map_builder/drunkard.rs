@@ -5,7 +5,7 @@ pub struct DrunkardsWalkArchitect {}
 
 const STAGGER_DISTANCE : usize = 300;
 const NUM_TILES : usize = (SCREEN_WIDTH * SCREEN_HEIGHT) as usize;
-const DESIRED_FLOOR : usize = NUM_TILES / 3;
+const DESIRED_FLOOR : usize = NUM_TILES / 2;
 
 impl MapArchitect for DrunkardsWalkArchitect {
     fn new(&mut self, rng: &mut RandomNumberGenerator) -> MapBuilder{
