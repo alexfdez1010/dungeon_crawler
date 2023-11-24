@@ -9,7 +9,7 @@ legion = { version = "=0.3.1" }
 serde = { version = "1.0.115" }
 ron = "0.8.1"
 
-[target.'cfg(target_arch = "wasm32")'.dependencies]
+[target.'cfg(target_arch = "wasm32")'.dependencies] # Conditional dependency for wasm32
 legion = { version = "=0.3.1", default-features = false, features = ["wasm-bindgen", "codegen"] }
 
 [profile.release]
