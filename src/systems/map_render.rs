@@ -6,7 +6,7 @@ use crate::prelude::*;
 pub fn map_render(
     ecs: &SubWorld,
     #[resource] map: &Map,
-    #[resource] camera:&Camera,
+    #[resource] camera: &Camera,
     #[resource] theme: &Box<dyn MapTheme>,
 ) {
     let mut fov = <&FieldOfView>::query().filter(component::<Player>());
@@ -16,17 +16,15 @@ pub fn map_render(
     let player_fov = fov.iter(ecs).nth(0).unwrap();
     let offset = Point::new(camera.left_x, camera.top_y);
 
-    for y in camera.top_y ..= camera.bottom_y {
-        for x in camera.left_x .. camera.right_x {
+    for y in camera.top_y..=camera.bottom_y {
+        for x in camera.left_x..camera.right_x {
             let pt = Point::new(module(x, SCREEN_WIDTH), module(y, SCREEN_HEIGHT));
             let idx = map_idx(pt.x, pt.y);
 
-            if player_fov.visible_tiles.contains(&pt) || map.revealed_tiles[idx]{
-
+            if player_fov.visible_tiles.contains(&pt) || map.revealed_tiles[idx] {
                 let tint = if player_fov.visible_tiles.contains(&pt) {
                     WHITE
-                } 
-                else {
+                } else {
                     DARK_GRAY
                 };
 
@@ -35,7 +33,7 @@ pub fn map_render(
                 draw_batch.set(
                     Point::new(x, y) - offset,
                     ColorPair::new(tint, BLACK),
-                    glyph
+                    glyph,
                 );
             }
         }

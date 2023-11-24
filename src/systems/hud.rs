@@ -6,7 +6,7 @@ use crate::prelude::*;
 #[read_component(Item)]
 #[read_component(Carried)]
 #[read_component(Name)]
-pub fn hud(ecs: &SubWorld){
+pub fn hud(ecs: &SubWorld) {
     let mut health_query = <&Health>::query().filter(component::<Player>());
     let player_health = health_query.iter(ecs).nth(0).unwrap();
 
@@ -20,12 +20,15 @@ pub fn hud(ecs: &SubWorld){
         SCREEN_WIDTH * 2,
         player_health.current,
         player_health.max,
-        ColorPair::new(RED, BLACK)
+        ColorPair::new(RED, BLACK),
     );
     draw_batch.print_color_centered(
         0,
-        format!(" Health: {} / {} ", player_health.current, player_health.max),
-        ColorPair::new(WHITE, RED)
+        format!(
+            " Health: {} / {} ",
+            player_health.current, player_health.max
+        ),
+        ColorPair::new(WHITE, RED),
     );
 
     let (player, map_level) = <(Entity, &Player)>::query()
@@ -36,7 +39,7 @@ pub fn hud(ecs: &SubWorld){
     draw_batch.print_color_right(
         Point::new(SCREEN_WIDTH * 2, 1),
         format!("Dungeon level: {}", map_level + 1),
-        ColorPair::new(YELLOW, BLACK)
+        ColorPair::new(YELLOW, BLACK),
     );
 
     let mut item_query = <(&Item, &Name, &Carried)>::query();
@@ -45,14 +48,17 @@ pub fn hud(ecs: &SubWorld){
         .iter(ecs)
         .filter(|(_, _, carried)| carried.0 == player)
         .for_each(|(_, name, _)| {
-            draw_batch.print(Point::new(3, y), &format!("{} : {}", (y - 2).to_string(), &name.0));
+            draw_batch.print(
+                Point::new(3, y),
+                &format!("{} : {}", (y - 2).to_string(), &name.0),
+            );
             y += 1;
         });
     if y > 3 {
         draw_batch.print_color(
             Point::new(3, 2),
             "Items carried",
-            ColorPair::new(YELLOW, BLACK)
+            ColorPair::new(YELLOW, BLACK),
         );
     }
     draw_batch.submit(10000).expect("Batch error");

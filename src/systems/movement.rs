@@ -10,15 +10,15 @@ pub fn movement(
     #[resource] camera: &mut Camera,
     ecs: &mut SubWorld,
     commands: &mut CommandBuffer,
-){
+) {
     let destination = Point::new(
         module(want_move.destination.x, SCREEN_WIDTH),
-        module(want_move.destination.y, SCREEN_HEIGHT)
+        module(want_move.destination.y, SCREEN_HEIGHT),
     );
 
     if map.can_enter_tile(destination) {
         commands.add_component(want_move.entity, destination);
-        
+
         if let Ok(entry) = ecs.entry_ref(want_move.entity) {
             if let Ok(fov) = entry.get_component::<FieldOfView>() {
                 commands.add_component(want_move.entity, fov.clone_dirty());
@@ -30,7 +30,6 @@ pub fn movement(
                     });
                 }
             }
-            
         }
     }
     commands.remove(*entity);

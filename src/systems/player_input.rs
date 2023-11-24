@@ -11,8 +11,8 @@ use crate::prelude::*;
 pub fn player_input(
     ecs: &mut SubWorld,
     commands: &mut CommandBuffer,
-    #[resource] key : &Option<VirtualKeyCode>,
-    #[resource] turn_state : &mut TurnState
+    #[resource] key: &Option<VirtualKeyCode>,
+    #[resource] turn_state: &mut TurnState,
 ) {
     let mut players = <(Entity, &Point)>::query().filter(component::<Player>());
     let mut enemies = <(Entity, &Point)>::query().filter(component::<Enemy>());
@@ -35,7 +35,7 @@ pub fn player_input(
             VirtualKeyCode::G => {
                 let (player, player_pos) = players
                     .iter(ecs)
-                    .find_map(|(entity, pos)| Some((*entity, *pos) ) )
+                    .find_map(|(entity, pos)| Some((*entity, *pos)))
                     .unwrap();
 
                 let mut items = <(Entity, &Item, &Point)>::query();
@@ -46,7 +46,7 @@ pub fn player_input(
                         commands.remove_component::<Point>(*entity);
                         commands.add_component(*entity, Carried(player));
 
-                        if let Ok(e) = ecs.entry_ref(*entity){
+                        if let Ok(e) = ecs.entry_ref(*entity) {
                             if e.get_component::<Weapon>().is_ok() {
                                 <(Entity, &Carried, &Weapon)>::query()
                                     .iter(ecs)
@@ -58,46 +58,47 @@ pub fn player_input(
                         }
                     });
                 Point::new(0, 0)
-            },
+            }
             _ => Point::new(0, 0),
         };
 
         let (player_entity, destination) = players
-                .iter(ecs)
-                .find_map(|(entity, pos)| Some((*entity, *pos + delta)) )
-                .unwrap();
+            .iter(ecs)
+            .find_map(|(entity, pos)| Some((*entity, *pos + delta)))
+            .unwrap();
 
         if delta.x != 0 || delta.y != 0 {
-
             let mut hit_something = false;
             enemies
                 .iter(ecs)
-                .filter(|(_, pos)| {
-                    **pos == destination
-                })
-                .for_each(|(entity, _) | {
+                .filter(|(_, pos)| **pos == destination)
+                .for_each(|(entity, _)| {
                     hit_something = true;
 
-                    commands
-                        .push(((), WantsToAttack{
+                    commands.push((
+                        (),
+                        WantsToAttack {
                             attacker: player_entity,
                             victim: *entity,
-                        }));
+                        },
+                    ));
                 });
 
             if !hit_something {
-                commands
-                    .push(((), WantsToMove{
+                commands.push((
+                    (),
+                    WantsToMove {
                         entity: player_entity,
-                        destination
-                    }));
+                        destination,
+                    },
+                ));
             }
         };
         *turn_state = TurnState::PlayerTurn;
     }
 }
 
-fn use_item(n: usize, ecs: &mut SubWorld, commands: &mut CommandBuffer) -> Point{
+fn use_item(n: usize, ecs: &mut SubWorld, commands: &mut CommandBuffer) -> Point {
     let player_entity = <(Entity, &Player)>::query()
         .iter(ecs)
         .find_map(|(entity, _)| Some(*entity))
@@ -111,10 +112,13 @@ fn use_item(n: usize, ecs: &mut SubWorld, commands: &mut CommandBuffer) -> Point
         .find_map(|(_, (entity, _, _))| Some(*entity));
 
     if let Some(item_entity) = item_entity {
-        commands.push(((), ActivateItem{
-            used_by: player_entity,
-            item: item_entity
-        }));
+        commands.push((
+            (),
+            ActivateItem {
+                used_by: player_entity,
+                item: item_entity,
+            },
+        ));
     }
 
     Point::zero()

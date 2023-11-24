@@ -1,4 +1,4 @@
-use crate::{prelude::*, map};
+use crate::{map, prelude::*};
 
 #[system]
 #[read_component(Health)]
@@ -16,23 +16,21 @@ pub fn end_turn(ecs: &SubWorld, #[resource] map: &Map, #[resource] turn_state: &
         TurnState::AwaitingInput => return,
         TurnState::PlayerTurn => TurnState::MonsterTurn,
         TurnState::MonsterTurn => TurnState::AwaitingInput,
-        _ => current_state
+        _ => current_state,
     };
 
-    player_hp_pos
-        .iter(ecs)
-        .for_each(|(hp, pos)| {
-            if hp.current < 1 {
-                new_state = TurnState::GameOver;
-            }
-            if pos == amulet_pos {
-                new_state = TurnState::Victory;
-            }
-            let idx = map.point2d_to_index(*pos);
-            if map.tiles[idx] == map::TileType::Exit {
-                new_state = TurnState::NextLevel;
-            }
-        });
+    player_hp_pos.iter(ecs).for_each(|(hp, pos)| {
+        if hp.current < 1 {
+            new_state = TurnState::GameOver;
+        }
+        if pos == amulet_pos {
+            new_state = TurnState::Victory;
+        }
+        let idx = map.point2d_to_index(*pos);
+        if map.tiles[idx] == map::TileType::Exit {
+            new_state = TurnState::NextLevel;
+        }
+    });
 
     *turn_state = new_state;
 }
