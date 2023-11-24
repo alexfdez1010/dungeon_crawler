@@ -4,7 +4,7 @@ This work is based in the book [Hands-on Rust: Effective Learning through 2D Gam
 
 ## Play the Game 🎮
 
-First, the most important part: you can play the game [right here](https://alexfdez1010.github.io/dungeon_crawler/)! The game operates with WebAssembly and is playable directly in your browser. No installation needed – just dive right in! 🌐
+First, the most important part: you can play the game [right here](https://alexfdez1010.github.io/dungeon_crawler/)! The game operates with WebAssembly and is playable directly in your browser. No installation needed – just dive right in! 🌐 You will need a keyboard to play, though.
 
 ### Controls 🕹️
 
