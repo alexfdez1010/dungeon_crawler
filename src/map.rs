@@ -41,7 +41,7 @@ impl Map {
 
     pub fn can_enter_tile(&self, point: Point) -> bool {
         let point = module_point(point);
-        return self.tiles[map_idx(point.x, point.y)] != TileType::Wall;
+        self.tiles[map_idx(point.x, point.y)] != TileType::Wall
     }
 
     fn valid_exit(&self, loc: Point, delta: Point) -> Option<usize> {

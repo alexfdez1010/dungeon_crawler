@@ -61,7 +61,7 @@ impl Templates {
 
     fn spawn_entity(&self, pt: &Point, template: &Template, commands: &mut CommandBuffer) {
         let entity = commands.push((
-            pt.clone(),
+            *pt,
             Render {
                 color: ColorPair::new(WHITE, BLACK),
                 glyph: to_cp437(template.glyph),

@@ -13,7 +13,7 @@ pub fn map_render(
     let mut draw_batch = DrawBatch::new();
     draw_batch.target(0);
 
-    let player_fov = fov.iter(ecs).nth(0).unwrap();
+    let player_fov = fov.iter(ecs).next().unwrap();
     let offset = Point::new(camera.left_x, camera.top_y);
 
     for y in camera.top_y..=camera.bottom_y {

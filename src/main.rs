@@ -144,7 +144,7 @@ impl State {
                 entities_to_keep.insert(e);
             });
 
-        let mut cb = CommandBuffer::new(&mut self.ecs);
+        let mut cb = CommandBuffer::new(&self.ecs);
         for e in Entity::query().iter(&self.ecs) {
             if !entities_to_keep.contains(e) {
                 cb.remove(*e);
@@ -168,7 +168,7 @@ impl State {
                 pos.y = map_builder.player_start.y;
             });
 
-        if map_level == FINAL_LEVEL as usize {
+        if map_level == FINAL_LEVEL {
             spawn_amulet_of_yala(&mut self.ecs, map_builder.amulet_start);
             spawn_final_boss(&mut self.ecs, map_builder.final_boss_start);
         } else {
@@ -201,7 +201,7 @@ impl GameState for State {
         self.resources.insert(ctx.key);
         ctx.set_active_console(0);
         self.resources.insert(Point::from_tuple(ctx.mouse_pos()));
-        let current_state = self.resources.get::<TurnState>().unwrap().clone();
+        let current_state = *self.resources.get::<TurnState>().unwrap();
         match current_state {
             TurnState::AwaitingInput => self
                 .input_systems

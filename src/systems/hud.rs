@@ -8,7 +8,7 @@ use crate::prelude::*;
 #[read_component(Name)]
 pub fn hud(ecs: &SubWorld) {
     let mut health_query = <&Health>::query().filter(component::<Player>());
-    let player_health = health_query.iter(ecs).nth(0).unwrap();
+    let player_health = health_query.iter(ecs).next().unwrap();
 
     let mut draw_batch = DrawBatch::new();
     draw_batch.target(2);
@@ -50,7 +50,7 @@ pub fn hud(ecs: &SubWorld) {
         .for_each(|(_, name, _)| {
             draw_batch.print(
                 Point::new(3, y),
-                &format!("{} : {}", (y - 2).to_string(), &name.0),
+                &format!("{} : {}", (y - 2), &name.0),
             );
             y += 1;
         });

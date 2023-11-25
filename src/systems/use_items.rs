@@ -21,7 +21,7 @@ pub fn use_items(ecs: &mut SubWorld, commands: &mut CommandBuffer, #[resource] m
                     healing_to_apply.push((activate.used_by, healing.amount));
                 } else if let Ok(affect_vision) = item.get_component::<ProvidesVision>() {
                     vision_to_apply.push((activate.used_by, affect_vision.range_difference));
-                } else if let Ok(_) = item.get_component::<ProvidesDungeonMap>() {
+                } else if item.get_component::<ProvidesDungeonMap>().is_ok() {
                     map.revealed_tiles.iter_mut().for_each(|t| *t = true);
                     map.revealed = true;
                 }
