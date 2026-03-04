@@ -1,6 +1,7 @@
 use super::MapArchitect;
 use crate::prelude::*;
 
+/// Generates maps by repeatedly carving random walks through solid walls.
 pub struct DrunkardsWalkArchitect {}
 
 const STAGGER_DISTANCE: usize = 300;
@@ -8,6 +9,13 @@ const NUM_TILES: usize = (SCREEN_WIDTH * SCREEN_HEIGHT) as usize;
 const DESIRED_FLOOR: usize = NUM_TILES / 2;
 
 impl MapArchitect for DrunkardsWalkArchitect {
+    /// Builds a complete playable map with the drunkard's walk algorithm.
+    ///
+    /// # Parameters
+    /// - `rng`: Random number generator used to drive carving and spawn selection.
+    ///
+    /// # Returns
+    /// A fully initialized `MapBuilder` with player, entities, amulet, and boss spawn points.
     fn new(&mut self, rng: &mut RandomNumberGenerator) -> MapBuilder {
         let mut mb = MapBuilder {
             map: Map::new(),
@@ -57,7 +65,45 @@ impl MapArchitect for DrunkardsWalkArchitect {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn count_floors(map: &Map) -> usize {
+        map.tiles.iter().filter(|t| **t == TileType::Floor).count()
+    }
+
+    #[test]
+    fn drunkard_carves_some_floor_tiles_from_all_walls() {
+        let mut architect = DrunkardsWalkArchitect {};
+        let mut rng = RandomNumberGenerator::new();
+        let mut map = Map::new();
+        map.tiles.iter_mut().for_each(|t| *t = TileType::Wall);
+        let start = Point::new(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
+
+        architect.drunkard(&start, &mut rng, &mut map);
+
+        assert!(count_floors(&map) > 0);
+    }
+
+    #[test]
+    fn drunkard_always_carves_the_start_tile() {
+        let mut architect = DrunkardsWalkArchitect {};
+        let mut rng = RandomNumberGenerator::new();
+        let mut map = Map::new();
+        map.tiles.iter_mut().for_each(|t| *t = TileType::Wall);
+        let start = Point::new(SCREEN_WIDTH / 3, SCREEN_HEIGHT / 3);
+
+        architect.drunkard(&start, &mut rng, &mut map);
+
+        assert!(map.tiles[map_idx(start.x, start.y)] == TileType::Floor);
+    }
+}
+
 impl DrunkardsWalkArchitect {
+    /// Performs one random walk from `start`, carving floor tiles along the path.
+    ///
+    /// The walk wraps at map edges and stops after `STAGGER_DISTANCE` steps.
     fn drunkard(&mut self, start: &Point, rng: &mut RandomNumberGenerator, map: &mut Map) {
         let mut drunkard_pos = *start;
         let mut distance_staggered = 0;

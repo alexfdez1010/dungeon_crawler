@@ -2,6 +2,7 @@ use crate::prelude::*;
 
 const NUM_TILES: usize = (SCREEN_WIDTH * SCREEN_HEIGHT) as usize;
 
+/// Logical tile categories used by map generation and rendering.
 #[derive(Copy, Clone, PartialEq)]
 pub enum TileType {
     Wall,
@@ -9,14 +10,17 @@ pub enum TileType {
     Exit,
 }
 
+/// Converts 2D map coordinates into a linear tile index.
 pub fn map_idx(x: i32, y: i32) -> usize {
     ((y * SCREEN_WIDTH) + x) as usize
 }
 
+/// Computes positive modulo, even for negative inputs.
 pub fn module(x: i32, y: i32) -> i32 {
     ((x % y) + y) % y
 }
 
+/// Wraps a point onto map bounds using modulo for each axis.
 pub fn module_point(point: Point) -> Point {
     Point::new(
         module(point.x, SCREEN_WIDTH),
@@ -31,6 +35,7 @@ pub struct Map {
 }
 
 impl Map {
+    /// Creates a new map initialized with floor tiles.
     pub fn new() -> Self {
         Self {
             tiles: vec![TileType::Floor; NUM_TILES],
@@ -39,11 +44,13 @@ impl Map {
         }
     }
 
+    /// Returns whether a point is walkable, after applying boundary wrapping.
     pub fn can_enter_tile(&self, point: Point) -> bool {
         let point = module_point(point);
         self.tiles[map_idx(point.x, point.y)] != TileType::Wall
     }
 
+    /// Returns a valid neighboring exit index if destination is walkable.
     fn valid_exit(&self, loc: Point, delta: Point) -> Option<usize> {
         let destination = module_point(loc + delta);
         if self.can_enter_tile(destination) {
@@ -51,6 +58,44 @@ impl Map {
             return Some(idx);
         }
         None
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn module_handles_negative_values() {
+        assert_eq!(module(-1, SCREEN_WIDTH), SCREEN_WIDTH - 1);
+    }
+
+    #[test]
+    fn module_point_wraps_coordinates() {
+        let wrapped = module_point(Point::new(-1, SCREEN_HEIGHT));
+
+        assert_eq!(wrapped, Point::new(SCREEN_WIDTH - 1, 0));
+    }
+
+    #[test]
+    fn can_enter_tile_returns_false_for_walls() {
+        let mut map = Map::new();
+        let point = Point::new(3, 3);
+        map.tiles[map_idx(point.x, point.y)] = TileType::Wall;
+
+        assert!(!map.can_enter_tile(point));
+    }
+
+    #[test]
+    fn valid_exit_returns_wrapped_walkable_destination() {
+        let mut map = Map::new();
+        let loc = Point::new(0, 0);
+        let destination = Point::new(SCREEN_WIDTH - 1, 0);
+        map.tiles[map_idx(destination.x, destination.y)] = TileType::Floor;
+
+        let exit = map.valid_exit(loc, Point::new(-1, 0));
+
+        assert_eq!(exit, Some(map_idx(destination.x, destination.y)));
     }
 }
 

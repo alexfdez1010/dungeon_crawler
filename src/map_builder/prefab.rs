@@ -1,5 +1,6 @@
 use crate::prelude::*;
 
+/// Fortress prefab pattern, width, and height.
 const FORTRESS: (&str, i32, i32) = (
     "
 ------------
@@ -18,6 +19,10 @@ const FORTRESS: (&str, i32, i32) = (
     11,
 );
 
+/// Attempts to place a fortress prefab into the generated map.
+///
+/// Placement is constrained to reachable tiles that are far enough from the player,
+/// and existing entity spawns inside the prefab rectangle are removed.
 pub fn apply_prefab(mb: &mut MapBuilder, rng: &mut RandomNumberGenerator) {
     let mut placement = None;
 
@@ -78,5 +83,46 @@ pub fn apply_prefab(mb: &mut MapBuilder, rng: &mut RandomNumberGenerator) {
                 i += 1;
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn make_builder() -> MapBuilder {
+        MapBuilder {
+            map: Map::new(),
+            entity_spawns: Vec::new(),
+            player_start: Point::new(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2),
+            amulet_start: Point::new(0, 0),
+            final_boss_start: Point::zero(),
+            theme: super::super::themes::DungeonTheme::new(),
+        }
+    }
+
+    #[test]
+    fn apply_prefab_keeps_entity_spawns_on_floor_tiles() {
+        let mut mb = make_builder();
+        let mut rng = RandomNumberGenerator::new();
+
+        apply_prefab(&mut mb, &mut rng);
+
+        assert!(
+            mb.entity_spawns
+                .iter()
+                .all(|pt| mb.map.tiles[map_idx(pt.x, pt.y)] == TileType::Floor)
+        );
+    }
+
+    #[test]
+    fn apply_prefab_does_not_change_map_size() {
+        let mut mb = make_builder();
+        let mut rng = RandomNumberGenerator::new();
+        let before = mb.map.tiles.len();
+
+        apply_prefab(&mut mb, &mut rng);
+
+        assert_eq!(mb.map.tiles.len(), before);
     }
 }
