@@ -21,6 +21,11 @@ colors:
   reward-fill: "#1d271c"
   reward-hover: "#2c3827"
   dialog-fill: "#181f19"
+  hud-fill: "#131b16f5"
+  hud-border: "#4d5847"
+  hud-health: "#d79577"
+  hud-action-fill: "#202b1c"
+  hud-action-text: "#f0e9d4"
 typography:
   display:
     fontFamily: 'Georgia, "Times New Roman", serif'
@@ -58,10 +63,21 @@ typography:
     fontSize: "11px"
     fontWeight: 500
     lineHeight: 1.55
+  hud-location:
+    fontFamily: 'Georgia, "Times New Roman", serif'
+    fontSize: "29px"
+    fontWeight: 400
+    lineHeight: 1.25
+  hud-action-label:
+    fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
+    fontSize: "12px"
+    fontWeight: 550
+    lineHeight: 1.2
 rounded:
   tactical: "3px"
   control: "4px"
   dialog: "5px"
+  hud: "6px"
   node: "50%"
 spacing:
   xs: "4px"
@@ -105,11 +121,16 @@ components:
     rounded: "{rounded.control}"
     padding: "8px 17px 8px 7px"
     width: "100%"
-  action-button:
-    backgroundColor: "{colors.action-fill}"
+  hud-surface:
+    backgroundColor: "{colors.hud-fill}"
     textColor: "{colors.text}"
-    rounded: "{rounded.tactical}"
-    padding: "9px 10px"
+    rounded: "{rounded.hud}"
+  hud-action:
+    backgroundColor: "{colors.hud-action-fill}"
+    textColor: "{colors.hud-action-text}"
+    typography: "{typography.hud-action-label}"
+    rounded: "{rounded.control}"
+    padding: "7px 5px 6px"
   relic-token:
     textColor: "{colors.secondary}"
     padding: "5px 0"
@@ -133,16 +154,16 @@ components:
 
 Yala is an illustrated dark fantasy expedition journal. Charcoal stone, aged ivory and restrained gold frame a small traveler beneath monumental ruins. Painterly key art establishes the world; procedural stone tiles, illustrated characters and fog of war carry that world into play.
 
-The interface feels deliberate and weathered without sacrificing tactical clarity. Heritage manuscript headings give names and discoveries weight, while compact system typography keeps resources, intentions and actions readable. Thin dividers and recessed tones organize the journal; light belongs to the lantern and the next meaningful choice.
+The interface feels deliberate and weathered without sacrificing tactical clarity. Heritage manuscript headings give names and discoveries weight, while compact system typography keeps resources, intentions and actions readable. The refuge retains its open journal composition; during expeditions, the illustrated dungeon fills the viewport and compact HUD surfaces anchor resources and decisions around it. Light belongs to the lantern and the next meaningful choice.
 
 **Key Characteristics:**
 
 - Painterly fantasy imagery with a vulnerable traveler and monumental architecture.
 - Georgia headings paired with compact system UI controls.
 - Flat charcoal surfaces, ivory text, ember gold actions and jade energy.
-- Explicit enemy intentions, adjacent resource information and deliberate turn feedback.
+- A full-viewport dungeon, persistent edge HUD, explicit enemy intentions and deliberate turn feedback.
 
-Implementation evidence: `style.css`, `web/app.js`, `web/renderer.js` and `index.html`. The YAML frontmatter is normative for shared primitives. Component-specific literals and responsive overrides below record existing implementation, rather than a new scale.
+Implementation evidence: `style.css`, `web/app.js`, `web/renderer.js`, `web/viewport.js`, `web/navigation.js` and `index.html`. The YAML frontmatter is normative for shared primitives. Component-specific literals and responsive overrides below record existing implementation, rather than a new scale.
 
 ## Colors
 
@@ -158,13 +179,14 @@ The palette resembles charcoal stone and aged paper illuminated by a warm lanter
 
 ### Tertiary
 
-- **Warning Clay** (`danger`): announced attacks, enemy health, damage feedback and failed save status. Danger also has words, hatching or marks; color alone does not carry its meaning.
+- **Warning Clay** (`danger`): announced attacks, enemy health, damage feedback and failed save status. The player's HUD health meter uses the softer `hud-health` clay. Danger also has words, hatching or marks; color alone does not carry its meaning.
 
 ### Neutral
 
 - **Charcoal Stone** (`bg`): the page and open journal canvas.
 - **Recessed Stone** (`deep`): the reserved deepest surface primitive; the dungeon itself currently uses a more specific near-black (`#080c0b`).
-- **Raised Moss Stone** (`surface`): the player resource strip.
+- **Raised Moss Stone** (`surface`): the retained shared surface primitive.
+- **HUD Stone** (`hud-fill`), with **HUD Seam** (`hud-border`): nearly opaque resource, minimap, enemy, tool and action-dock surfaces above the dungeon. HUD action tiles use `hud-action-fill` and `hud-action-text`.
 - **Stone Seam** (`line`): section dividers, map frame and quiet container borders.
 - **Aged Ivory** (`text`): primary text; **Faded Sage** (`secondary`) supports descriptions; **Weathered Sage** (`muted`) supports secondary annotations.
 - Component fill and hover primitives preserve the actual green-charcoal surfaces of secondary buttons, actions, rewards and dialogs.
@@ -182,28 +204,30 @@ The palette resembles charcoal stone and aged paper illuminated by a warm lanter
 ### Hierarchy
 
 - **Display:** the refuge wordmark uses the `display` role. It steps to (100px) at (1150px), (91px) at (900px), then (85px) and (.12em) tracking at (640px).
-- **Headline:** section headings use `headline`. The expedition title is (31px), line height (1.3), becoming (25px) on mobile; direct dialog headings are (35px), line height (1.2), becoming (29px).
+- **Headline:** section headings use `headline`. The in-play location uses `hud-location`, becoming (23px) at (640px) and (20px) in short portrait; direct dialog headings are (35px), line height (1.2), becoming (29px).
 - **Title:** class names use `class-title`; journal headings use `journal-title`. Reward titles use Georgia at (23px), weight (400), line height (1.2), then (22px) on mobile.
 - **Body:** the body role is the inherited base. Component descriptions are intentionally denser: typically (10–12px), with line height (1.8). The refuge story is (15px), line height (1.8), stepping to (14px) and then (13px). Class details stop at (56ch); modal leads at (60ch).
-- **Label:** buttons use `button`; tactical titles use `action-label`, becoming (10px) on mobile. Small keys and annotations range from (7–11px). Resource counts use tabular numerals. Uppercase is reserved for compact category labels and the wordmark, with deliberate letter spacing.
+- **Label:** buttons use `button`; HUD action titles use `hud-action-label`, becoming (10px) on mobile; the older `action-label` remains a compact annotation primitive. Small keys and annotations range from (7–11px). Resource counts use tabular numerals. Uppercase is reserved for compact category labels and the wordmark, with deliberate letter spacing.
 
 **The Two Voices Rule.** Use Georgia for the world and system UI for the player's decisions; do not introduce another font family.
 
 ## Layout
 
-The centered shell has a maximum width of (1512px) including horizontal padding. Default gutters are (48px), grow to (64px) from (1600px), shrink to (30px) at (1150px), and become (20px) at (640px). Shared spacing tokens describe recurring values; compact game components also use measured (3–13px) gaps and insets.
+The refuge's centered shell has a maximum width of (1512px) including horizontal padding. Default gutters are (48px), grow to (64px) from (1600px), shrink to (30px) at (1150px), and become (20px) at (640px). Shared spacing tokens describe recurring values; compact game components also use measured (3–13px) gaps and insets.
 
 The refuge uses a cropped illustration and a text-led split hero, followed by two columns in a (1.25:1) ratio with a (68px) gap. That gap becomes (38px) at (1150px); at (900px) the columns are equal with a (28px) gap. At (640px) they stack with a (32px) gap. The four-region depth track becomes two columns on mobile.
 
-The expedition uses a flexible map and a (246px) journal with a (28px) gap. At (1150px) the journal becomes (215px) with a (20px) gap. At (900px) it moves below the map as a two-column journal and the directional pad appears. The action bar retains three columns; mobile actions become vertical, compact tiles with a (66px) minimum height. The map expands by (9px) into its surrounding gutter on mobile.
+The expedition is a fixed, isolated (100dvh) scene with a full-size canvas and no site header, footer or document scrolling. Health and energy anchor the top-left; floor, region and turn sit top-center; minimap and journal/help/fullscreen/pause tools occupy the top-right. Bottom controls keep a directional pad beside the six-action dock and zoom controls. Default top HUD columns are (252px 1fr 180px), with (24px) gaps and safe-area-aware outer insets. At (1000px), the HUD becomes denser without changing these anchors.
 
-Canvas tiles are drawn at (32px). Desktop shows (13) rows and a computed (25–41) columns; at (640px) it uses (19 × 15). CSS scales the canvas to its container. The minimap deliberately uses pixelated rendering. Header height is (98px) in the refuge, (80px) during play and (79px) on mobile.
+At (640px), vitals and tools form the first row, location spans the next row, and the six actions become a (3 × 2) grid beside a (44px)-target directional pad. The Map control opens a larger explored-map dialog that pauses play, shows a legend and provides a return-to-play action; zoom remains available in Pause. At heights up to (540px) with widths above (640px), compact landscape surfaces and the same paused map overview preserve the central play area. At widths up to (640px) and heights up to (700px), short portrait also removes decorative enemy artwork, duplicate health bars, passive event copy and currencies; numeric enemy health and intent stay visible, while currencies, help and journal remain in Pause. Essential movement and combat actions remain accessible in every layout; optional detail uses paused overlays rather than page scroll.
+
+The camera follows the player in the unobstructed area between HUD clearances. The renderer draws stone artwork from a (32px) source grid at a default displayed tile size of (46px), or (40px) at widths up to (640px); zoom clamps to (28–72px). Canvas backing dimensions follow device pixel ratio, while layout and pointer picking share CSS-pixel geometry. Container, orientation, visual viewport, fullscreen and pixel-density changes recompute the camera and visible tile bounds. The minimap retains pixelated rendering. Expedition entry requests native fullscreen from the user's gesture where supported; the (100dvh) layout also works when fullscreen is unavailable or declined.
 
 Dialogs use the frontmatter width and a maximum height of (90dvh). At (640px), width becomes `calc(100% - 24px)`, maximum height (92dvh), padding (33px 23px 27px), help becomes one column, and relic choices become horizontal single-column rows.
 
 ## Elevation & Depth
 
-The interface has no box shadows. Tonal layers, single-pixel seams and the artwork create depth. The hero's dark gradient overlays protect text over the painting. The modal backdrop is a dark translucent veil (`#050905c9`) with (5px) blur; the dialog has a defined border (`#667052`). These are localized layers, not a glow system.
+The interface has no box shadows. Tonal layers, single-pixel seams and the artwork create depth. The hero's dark gradient overlays protect text over the painting. The modal backdrop is a dark translucent veil (`#050905c9`) with (5px) blur; the dialog has a defined border (`#667052`). HUD surfaces are nearly opaque for legibility; the location title and event copy have localized dark text shadows over the map. These are localized layers, not a glow system.
 
 The dungeon's radial lantern illumination is anchored to the player, with tiny sprite-ground ellipses inside the canvas. Those world-light effects do not become panel shadows. CSS combat damage feedback lasts (.2s), while floating canvas feedback lasts (850ms); there is no ambient animation loop.
 
@@ -211,7 +235,7 @@ The dungeon's radial lantern illumination is anchored to the player, with tiny s
 
 ## Shapes
 
-Controls and class/relic choices use subtly softened corners (`control`). Tactical actions, keycaps, tooltips and upgrade purchases use the smaller `tactical` corner; dialogs use `dialog`. Progress nodes are circular (`node`) while boss nodes use tactical corners. Sections stay open and rectangular, separated by thin rules rather than nested rounded cards.
+Controls and class/relic choices use subtly softened corners (`control`). Keycaps and upgrade purchases use the smaller `tactical` corner; HUD action tiles use `control`, HUD containers use `hud`, and dialogs use `dialog`. Progress nodes are circular (`node`) while boss nodes use tactical corners. Sections stay open and rectangular, separated by thin rules rather than nested rounded cards.
 
 Icons use inline (24 × 24) SVG viewboxes with rounded strokes, normally (1.5px) thick, scaled to the component. The large relic emblem uses a lighter (.8px) stroke. Character portraits are crops of `resources/art/yala-character-atlas.png`, laid out as a (4 × 2) atlas; preserve the supplied illustration rather than replacing it with generic iconography.
 
@@ -223,7 +247,7 @@ Primary actions are warm, solid and clear. Primary and secondary buttons use (48
 
 ### Navigation
 
-The header navigation is an understated row of system text at (13px), with a (32px) gap. Current navigation gets ivory text and a gold (1px) underline positioned (20px) from the bottom. At (640px), text becomes (11px), the gap (15px), padding (23px 0), and the underline moves to (12px) from the bottom. The resume navigation item is hidden there; the refuge's prominent expedition action remains available.
+The refuge header navigation is an understated row of system text at (13px), with a (32px) gap. Current navigation gets ivory text and a gold (1px) underline positioned (20px) from the bottom. At (640px), text becomes (11px), the gap (15px), padding (23px 0), and the underline moves to (12px) from the bottom. The resume navigation item is hidden there; the refuge's prominent expedition action remains available. In play, this page navigation gives way to labelled HUD tools and Pause; native fullscreen is also a direct tool and pause action.
 
 ### Class choices
 
@@ -231,7 +255,11 @@ Full-width portrait rows have an (88px) minimum height, the frontmatter padding,
 
 ### Tactical actions and resources
 
-Tactical actions have a (58px) minimum height, (3px) corners, a quiet outlined fill, an icon, title, explanation and keyboard hint. Hover brightens the fill and border. Disabled actions use muted text, darker fill (`#121812`) and subdued borders (`#2f392b`). The class skill gets a distinct warm fill (`#25291d`). Health is a continuous (5px) clay meter; energy uses separate (5px) jade pips. Values and instructions remain text-visible.
+The six persistent HUD actions are class skill, dodge, guard, potion, use/descend and wait. Tiles are centered icon/name/consequence stacks with a keyboard hint, (78px) minimum height, shared control corners and (7px 5px 6px) padding. Hover uses (`#3a4a2c`) and gold borders; press uses (`#52613a`). Disabled actions use (`#151e14`), subdued text and border, retaining readable consequences. The class skill uses a warm (`#353a22`) fill and (`#b6a269`) border. Mobile uses three columns with (72px) minimum-height tiles, compact labels, visible consequence text and no keycaps. Every action has an explicit accessible name; keyboard shortcuts and touch controls share the same behavior.
+
+Vitals pair numeric health with a continuous (7px) `hud-health` meter, becoming (6px) on mobile; energy pairs numbers with separate jade pips. Gold, permanent fragments, potion count and save status sit beneath them where space permits, with wallet information repeated in Pause. An enemy inspector shows a portrait, numeric health, distance and announced intent; compact layouts reduce artwork before tactical information.
+
+A gold contextual action near the bottom explains the next adjacent enemy or object interaction. Red threat tiles and a textual warning explain announced danger; in short landscape the danger warning takes priority over the duplicate contextual prompt, while the persistent action dock remains available. Click-to-walk previews and follows only known safe floor cells, excludes active traps and enemy cells, and stops when enemies or threats appear. Manual actions, overlays and pause stop travel. Journal/relic details, help and Pause are accessible overlays, preserving the expedition beneath them. The compact Map control also cancels travel and pauses gameplay in a large explored-map dialog; the desktop minimap remains persistent.
 
 ### Relics and reward choices
 
@@ -243,7 +271,7 @@ Permanent upgrades are open rows with a bottom seam, a gold icon, a compact desc
 
 ### Focus and motion
 
-Buttons, links and canvases receive a gold (2px) `:focus-visible` outline with a (5px) offset. The map canvas brings its outline inward with a (-3px) offset. Use semantic buttons, explicit labels for icon controls, and readable disabled state text. Dialog close restores the previous focus.
+Buttons, links and canvases receive a gold (2px) `:focus-visible` outline with a (5px) offset. The map canvas brings its outline inward with a (-4px) offset during play. Use semantic buttons, explicit labels for icon controls, and readable disabled state text. Dialog close restores the previous focus.
 
 Reduced motion disables CSS animations and transitions and restores automatic scroll behavior. The canvas reads the preference when its renderer is created and does not schedule feedback animation frames when reduction is requested. Its normal (850ms) floating feedback runs only while visible and active; hidden tabs cancel the frame. Meter widths update immediately. There are no width transitions or animated panel lifting.
 
@@ -251,12 +279,12 @@ Reduced motion disables CSS animations and transitions and restores automatic sc
 
 ### Do:
 
-- **Do** preserve the illustrated world and keep tactical information adjacent to the map.
+- **Do** preserve the illustrated world and keep tactical information anchored around the full-viewport map.
 - **Do** use Georgia for world names and system typography for controls and resource values.
 - **Do** reserve gold for decisions, selection, progress and lantern light.
 - **Do** pair danger color with explicit intention text, hatching or a visible mark.
 - **Do** retain keyboard focus, labelled touch controls and reduced-motion behavior.
-- **Do** adapt composition at the implemented breakpoints without hiding essential action descriptions.
+- **Do** keep movement and all six actions accessible at every viewport; move optional detail into Pause and the paused map overview.
 
 ### Don't:
 

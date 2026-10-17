@@ -1,3 +1,9 @@
 # Game surface
 
-Mode: Experience. Code-led interactive canvas expansion of the incumbent tile dungeon. The first viewport shows the illustrated refuge, an immediate expedition action and persistent progress. Play brings the map forward with enemy intentions legible before action. Desktop and mobile captures must include refuge and active dungeon. Signature: a lantern-lit fog-of-war map and announced danger tiles that change with every deliberate turn. The owner delegates creative choices in the original request.
+Primary target: web/app.js. Related targets: style.css, web/renderer.js, web/viewport.js, web/navigation.js.
+
+Mode: Experience. Refine the existing illustrated world into a full-viewport tactical dungeon. The expedition is a fixed 100dvh canvas with a persistent HUD, no site header/footer and no page scroll. Health/energy sit top-left, floor/location top-center, minimap and menu top-right, movement/actions at the bottom. The player remains centered in the unobstructed play area. Native fullscreen is requested from entry gestures where supported; all play controls also work in ordinary browser viewport mode.
+
+Signature: a lantern-lit map with large illustrated sprites, announced danger tiles and a contextual gold action for an adjacent enemy or object. Click-to-walk only uses explored safe cells and stops when enemies appear. Inventory, lore, help and pause are accessible overlays that stop travel. Portrait and short landscape retain all actions; mobile minimap is expandable. Preserve saved games and the refuge identity. Only one web edition is offered.
+
+Required verification: viewport-sized captures at 1440×900, 390×844, 844×390, 320×568 and actual user width924, plus native fullscreen; no page overflow or clipped essential controls. Confirm resize/picking, pause/resume, keyboard/touch, safe travel cancellation and save reload. Deliver to master, the requested primary branch.

@@ -24,7 +24,17 @@ import {
   syncProgress,
   validateProfile,
 } from "./storage.js";
-import { DungeonRenderer, spriteStyle, enemySprite } from "./renderer.js";
+import {
+  DungeonRenderer,
+  spriteStyle,
+  enemySprite,
+} from "./renderer.js?v=2.1.0";
+
+import {
+  findExploredPath,
+  shouldStopTravel,
+  travelAction,
+} from "./navigation.js";
 
 const $ = (selector) => document.querySelector(selector);
 const app = $("#app"),
@@ -57,6 +67,10 @@ let profile = loaded.profile,
 let lastFocus = null,
   audioContext = null,
   externalChanged = false;
+let travelTimer = null,
+  travelQueue = [],
+  toastTimer = null,
+  lastMovement = 0;
 let saveWarning =
   {
     unavailable:
@@ -76,7 +90,7 @@ function persist() {
       "No se ha podido guardar. Exporta una copia desde la crónica antes de cerrar.";
   const shardTotal = $(".shard-total");
   if (shardTotal)
-    shardTotal.innerHTML = `${icon("spark")} ${profile.meta.shards}<span class="desktop-only"> fragmentos</span>`;
+    shardTotal.innerHTML = `${icon("spark")} ${profile.meta.shards}${view === "home" ? '<span class="desktop-only"> fragmentos</span>' : ""}`;
   const status = $("#save-status");
   if (status) {
     status.textContent = ok
@@ -109,9 +123,12 @@ function header() {
   return `<header class="site-header"><a class="brand" href="./" data-action="home" aria-label="Yala, volver al refugio">${icon("lantern")}<span>YALA<span class="brand-sub">ECOS DEL ABISMO</span></span></a><nav aria-label="Principal"><button class="nav-link ${view === "home" ? "current" : ""}" data-action="home">Refugio</button>${activeRun() ? '<button class="nav-link" data-action="resume">Expedición</button>' : ""}<button class="nav-link" data-action="chronicle">Crónica</button></nav><div class="header-end"><span class="shard-total" title="Fragmentos para mejoras permanentes">${icon("spark")} ${profile.meta.shards}<span class="desktop-only"> fragmentos</span></span><button class="icon-button" data-action="sound" aria-label="${profile.settings.sound ? "Desactivar" : "Activar"} sonido" aria-pressed="${profile.settings.sound}">${icon("sound")}<span class="sound-state">${profile.settings.sound ? "ON" : "OFF"}</span></button></div></header>`;
 }
 function footer() {
-  return `<footer class="site-footer"><span id="save-status">${storage ? "Progreso guardado en este navegador" : "Guardado no disponible"}</span><div><button data-action="help">Cómo jugar</button><a href="classic.html">Edición clásica</a><span>YALA / II</span></div></footer>`;
+  return `<footer class="site-footer"><span id="save-status">${storage ? "Progreso guardado en este navegador" : "Guardado no disponible"}</span><div><button data-action="help">Cómo jugar</button><span>YALA / II</span></div></footer>`;
 }
 function renderHome() {
+  stopTravel();
+  document.body.classList.remove("is-playing");
+  if (document.fullscreenElement) document.exitFullscreen?.().catch(() => {});
   view = "home";
   renderer?.destroy();
   renderer = null;
@@ -140,44 +157,128 @@ function renderHome() {
     )}</div><p class="legacy-note">Los fragmentos se conservan aunque no regreses.</p></section></div>
     <section class="descent-section" aria-labelledby="descent-title"><div class="section-heading"><div><h2 id="descent-title">Doce plantas hacia la verdad</h2><p>Cuatro dominios. Cuatro guardianes. Un amuleto.</p></div><span class="best-depth">Mejor descenso <strong>${m.bestFloor ? String(m.bestFloor).padStart(2, "0") : "—"}</strong><span>/ 12</span></span></div><div class="biome-track">${BIOMES.map((b) => `<div class="biome-stop ${m.bestFloor >= b.floors[0] ? "reached" : ""}"><div class="floor-nodes">${b.floors.map((f) => `<span class="floor-node ${m.bestFloor >= f ? "reached" : ""} ${f % 3 === 0 ? "boss-node" : ""}" title="Planta ${f}${f % 3 === 0 ? " · Guardián" : ""}">${f % 3 === 0 ? icon("shield") : String(f).padStart(2, "0")}</span>`).join("")}</div><h3>${b.name}</h3><p>${b.subtitle}</p></div>`).join("")}</div></section></main>${footer()}</div>`;
 }
+function requestGameFullscreen() {
+  if (document.fullscreenElement || !document.documentElement.requestFullscreen)
+    return;
+  // The click handler retains user activation. Viewport coverage also works when the browser refuses native fullscreen.
+  document.documentElement
+    .requestFullscreen({ navigationUI: "hide" })
+    .catch(() => {});
+}
+function stopTravel() {
+  clearTimeout(travelTimer);
+  travelTimer = null;
+  travelQueue = [];
+  if (renderer) {
+    renderer.path = [];
+    if (profile.run && view === "game") renderer.draw(profile.run);
+  }
+}
+function walkTo(target) {
+  stopTravel();
+  const r = profile.run;
+  if (modal.open || !r || r.phase !== "playing") return;
+  const adjacent =
+    Math.abs(target.x - r.player.x) + Math.abs(target.y - r.player.y) === 1;
+  if (adjacent) {
+    perform({
+      type: "move",
+      dx: target.x - r.player.x,
+      dy: target.y - r.player.y,
+    });
+    return;
+  }
+  const enemy = r.enemies.find(
+    (e) =>
+      e.hp > 0 &&
+      e.x === target.x &&
+      e.y === target.y &&
+      visibleTiles(r).has(e.y * r.map.width + e.x),
+  );
+  if (enemy) {
+    inspectedId = enemy.id;
+    updateInspector();
+    toast("Acércate para atacar o usa tu habilidad.");
+    return;
+  }
+  if (shouldStopTravel(r)) {
+    toast("Hay enemigos cerca. Muévete de uno en uno para combatir.");
+    return;
+  }
+  travelQueue = findExploredPath(r, target);
+  if (!travelQueue.length) {
+    toast("Elige una casilla explorada y libre de trampas.");
+    return;
+  }
+  function step() {
+    if (
+      view !== "game" ||
+      modal.open ||
+      externalChanged ||
+      shouldStopTravel(profile.run)
+    ) {
+      stopTravel();
+      return;
+    }
+    const next = travelQueue.shift(),
+      action = next && travelAction(profile.run, next);
+    if (!action) {
+      stopTravel();
+      return;
+    }
+    renderer.path = [next, ...travelQueue];
+    perform(action, { travelling: true });
+    if (travelQueue.length) travelTimer = setTimeout(step, 150);
+    else stopTravel();
+  }
+  step();
+}
+function toast(message) {
+  const node = $("#hud-toast");
+  if (!node) return;
+  node.textContent = message;
+  node.hidden = false;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => {
+    if (node.isConnected) node.hidden = true;
+  }, 3000);
+  $("#announcer").textContent = message;
+}
 function showGame() {
   if (!activeRun()) {
     renderHome();
     return;
   }
+  stopTravel();
   view = "game";
   renderer?.destroy();
   inspectedId = null;
   endShown = false;
-  app.innerHTML = `<div class="shell game-shell">${header()}${saveWarning ? `<p class="notice">${esc(saveWarning)}</p>` : ""}<main class="expedition"><div class="expedition-heading"><div><span id="region-name"></span><h1 id="floor-title"></h1></div><div class="depth-badge"><span>PLANTA</span><strong id="depth-number"></strong><span>/ 12</span></div></div><div class="game-layout"><section class="dungeon-section" aria-label="Mapa de la expedición"><div class="player-resources" id="resources"></div><div class="map-frame"><canvas id="dungeon" tabindex="0" role="img" aria-label="Mazmorra por casillas. Usa las flechas o los controles de movimiento para explorar. Pulsa H para consultar la ayuda."></canvas><div class="map-caption"><span id="map-caption"></span><span id="turn-counter"></span></div><div class="map-tooltip" id="map-tooltip" hidden></div></div><div class="action-bar" id="action-bar"></div><div class="touch-navigation" aria-label="Controles de movimiento"><div class="dpad"><button data-move="0,-1" class="dpad-up" aria-label="Mover arriba">${icon("arrow")}</button><button data-move="-1,0" class="dpad-left" aria-label="Mover izquierda">${icon("arrow")}</button><button data-action="wait" class="dpad-center" aria-label="Esperar un turno">·</button><button data-move="1,0" class="dpad-right" aria-label="Mover derecha">${icon("arrow")}</button><button data-move="0,1" class="dpad-down" aria-label="Mover abajo">${icon("arrow")}</button></div><p>Toca una casilla contigua para moverte.<br>Acércate a un enemigo para atacarlo.</p></div><p class="keyboard-hint"><kbd>WASD</kbd> / <kbd>↑↓←→</kbd> mover y atacar <span>·</span> Los enemigos solo actúan cuando tú actúas.</p></section>
-    <aside class="expedition-journal"><section class="objective-block"><div class="journal-heading">${icon("lantern")}<h2>El descenso</h2></div><p id="objective"></p><p class="floor-lore" id="floor-lore"></p><canvas id="minimap" aria-label="Minimapa de las zonas exploradas"></canvas><p class="mini-legend"><span class="legend-player"></span> Tú <span class="legend-exit"></span> Descenso</p></section><section id="enemy-inspector" class="enemy-inspector"></section><section class="relic-block"><div class="journal-heading">${icon("spark")}<h2>Reliquias</h2><span id="relic-count"></span></div><div id="run-relics"></div></section><section class="log-block"><div class="journal-heading">${icon("book")}<h2>Diario</h2></div><ol id="combat-log" aria-live="polite" aria-relevant="additions text"></ol></section></aside></div></main>${footer()}</div>`;
+  document.body.classList.add("is-playing");
+  const r = profile.run,
+    info = floorInfo(r.floor);
+  app.innerHTML = `<main class="game-screen" id="playfield" aria-label="Expedición a pantalla completa">
+    <canvas id="dungeon" tabindex="0" role="img" aria-label="Mapa de la mazmorra. Usa las flechas o WASD para moverte. Toca una casilla para caminar. H abre la ayuda."></canvas>
+    <div class="hud-top"><section class="hud-vitals hud-surface" aria-label="Tu personaje" id="resources"></section>
+    <section class="hud-location" aria-label="Localización"><p><span id="region-name"></span><span class="hud-depth">PLANTA <strong id="depth-number"></strong> / 12</span></p><h1 id="floor-title"></h1><span id="turn-counter"></span></section>
+    <aside class="hud-cartography"><nav class="hud-tools hud-surface" aria-label="Menú de la partida"><button data-action="journal" aria-label="Abrir diario y reliquias" title="Diario · J">${icon("book")}</button><button data-action="help" aria-label="Cómo jugar" title="Ayuda · H">${icon("help")}</button><button data-action="fullscreen" id="fullscreen-toggle" aria-label="Activar pantalla completa" title="Pantalla completa">${icon("expand")}</button><button data-action="pause" aria-label="Pausar la expedición" title="Pausa · Esc">${icon("pause")}</button></nav><button class="minimap-toggle" data-action="map" aria-haspopup="dialog" aria-controls="modal">${icon("map")}<span>Mapa</span></button><section class="hud-minimap hud-surface" id="hud-minimap" aria-label="Mapa explorado"><canvas id="minimap" aria-label="Minimapa de las zonas exploradas"></canvas><div><span>${icon("lantern")} Tú</span><span>${icon("stairs")} Descenso</span></div></section></aside></div>
+    <section id="enemy-inspector" class="hud-enemy hud-surface" aria-label="Enemigo seleccionado" hidden></section>
+    <div class="hud-toast hud-surface" id="hud-toast" role="status" hidden></div><div class="map-tooltip hud-surface" id="map-tooltip" hidden></div>
+    <div class="hud-bottom"><div class="hud-feedback"><div id="danger-warning" class="danger-warning" role="status" hidden>${icon("shield")}<span>¡Sal de la casilla roja antes de actuar!</span></div><p id="map-caption"></p><button id="context-action" class="context-action" data-action="interact" hidden></button><p class="hud-event" id="hud-event" aria-live="polite"></p></div>
+    <div class="hud-controls"><section class="hud-movement" aria-label="Movimiento"><div class="dpad"><button data-move="0,-1" class="dpad-up" aria-label="Mover arriba">${icon("arrow")}</button><button data-move="-1,0" class="dpad-left" aria-label="Mover izquierda">${icon("arrow")}</button><span class="dpad-center" aria-hidden="true">${icon("cursor")}</span><button data-move="1,0" class="dpad-right" aria-label="Mover derecha">${icon("arrow")}</button><button data-move="0,1" class="dpad-down" aria-label="Mover abajo">${icon("arrow")}</button></div><p><kbd>WASD</kbd> / flechas</p></section><section class="hud-action-dock hud-surface" aria-label="Acciones de combate"><div id="action-bar" class="hud-actions"></div><p class="hud-control-note"><span>Los enemigos esperan tu turno.</span><span>Clic para caminar · <kbd>Esc</kbd> pausa</span></p></section><div class="hud-zoom hud-surface" aria-label="Tamaño del mapa"><button data-action="zoom-in" aria-label="Acercar el mapa" title="Acercar">${icon("plus")}</button><button data-action="zoom-out" aria-label="Alejar el mapa" title="Alejar">${icon("minus")}</button></div></div></div>
+  </main>`;
   renderer = new DungeonRenderer($("#dungeon"), $("#minimap"));
   const canvas = $("#dungeon");
   canvas.addEventListener("pointermove", inspectMap);
   canvas.addEventListener("pointerleave", () => {
+    if (!renderer) return;
     renderer.hover = null;
     $("#map-tooltip").hidden = true;
     renderer.draw(profile.run);
   });
-  canvas.addEventListener("click", (event) => {
-    const t = renderer.tileAt(event),
-      r = profile.run;
-    if (Math.abs(t.x - r.player.x) + Math.abs(t.y - r.player.y) === 1)
-      perform({ type: "move", dx: t.x - r.player.x, dy: t.y - r.player.y });
-    else {
-      const enemy = r.enemies.find(
-        (e) =>
-          e.x === t.x &&
-          e.y === t.y &&
-          visibleTiles(r).has(e.y * r.map.width + e.x),
-      );
-      if (enemy) {
-        inspectedId = enemy.id;
-        updateInspector();
-      }
-    }
-  });
+  canvas.addEventListener("click", (event) => walkTo(renderer.tileAt(event)));
   updateGame();
+  canvas.focus({ preventScroll: true });
 }
 function updateGame() {
   const r = profile.run;
@@ -185,15 +286,15 @@ function updateGame() {
   const p = r.player,
     s = getStats(r),
     info = floorInfo(r.floor),
-    c = CLASS_BY_ID[p.classId];
+    c = CLASS_BY_ID[p.classId],
+    vis = visibleTiles(r);
   $("#region-name").textContent = info.biome.name;
   $("#floor-title").textContent = info.name;
   $("#depth-number").textContent = String(r.floor).padStart(2, "0");
+  $("#turn-counter").textContent = `Turno ${r.turn}`;
   $("#resources").innerHTML =
-    `<div class="player-identity">${portrait(CLASSES.indexOf(c))}<span><strong>${c.name}</strong><small>Nivel ${p.level} · ${icon("sword")}${s.attack} ${icon("shield")}${s.armor}</small></span></div><div class="resource-meter health"><div><span>Vida</span><strong>${p.hp}<small> / ${s.maxHp}</small></strong></div><div class="meter-track" role="meter" aria-label="Vida" aria-valuemin="0" aria-valuemax="${s.maxHp}" aria-valuenow="${p.hp}"><span style="width:${(p.hp / s.maxHp) * 100}%"></span></div></div><div class="resource-meter energy"><div><span>Energía</span><strong>${p.energy}<small> / ${s.maxEnergy}</small></strong></div><div class="energy-pips" aria-label="${p.energy} de ${s.maxEnergy} de energía">${Array.from({ length: s.maxEnergy }, (_, i) => `<span class="${i < p.energy ? "filled" : ""}"></span>`).join("")}</div></div><span class="run-gold" title="Oro de esta expedición">${icon("coin")}${p.gold}</span>`;
-  $("#turn-counter").textContent = `TURNO ${String(r.turn).padStart(3, "0")}`;
+    `<div class="hud-character">${portrait(CLASSES.indexOf(c))}<div><strong>${c.name}</strong><span>Nivel ${p.level}<span class="hud-combat-stats">${icon("sword")}${s.attack} ${icon("shield")}${s.armor}</span></span></div></div><div class="hud-health"><div><span>${icon("heart")} Vida</span><strong>${p.hp}<small> / ${s.maxHp}</small></strong></div><div class="meter-track" role="meter" aria-label="Vida" aria-valuemin="0" aria-valuemax="${s.maxHp}" aria-valuenow="${p.hp}"><span style="width:${(p.hp / s.maxHp) * 100}%"></span></div></div><div class="hud-energy"><span>${icon("spark")} Energía</span><div class="energy-pips" aria-label="${p.energy} de ${s.maxEnergy} de energía">${Array.from({ length: s.maxEnergy }, (_, i) => `<span class="${i < p.energy ? "filled" : ""}"></span>`).join("")}</div><strong>${p.energy}<small>/${s.maxEnergy}</small></strong></div><div class="hud-currencies"><span title="Oro de esta expedición">${icon("coin")}${p.gold}</span><span title="Fragmentos permanentes" class="shard-total">${icon("spark")}${profile.meta.shards}</span><span title="Pociones disponibles">${icon("potion")}${p.potions}</span><span class="save-light ${saveWarning ? "failed" : ""}" title="${saveWarning ? esc(saveWarning) : "Guardado automático activo"}" aria-label="${saveWarning ? "Guardado no disponible" : "Guardado automático activo"}"></span></div>`;
   const threats = getThreats(r),
-    vis = visibleTiles(r),
     inDanger = threats.some((t) => t.x === p.x && t.y === p.y),
     nearObject = r.objects.find(
       (o) =>
@@ -201,80 +302,123 @@ function updateGame() {
         ["chest", "fountain", "shrine"].includes(o.type) &&
         Math.abs(o.x - p.x) + Math.abs(o.y - p.y) <= 1,
     ),
-    atExit = Math.abs(r.map.exit.x - p.x) + Math.abs(r.map.exit.y - p.y) <= 1;
-  $("#map-caption").innerHTML = inDanger
-    ? '<span class="danger-text">Ataque inminente: sal de la casilla marcada</span>'
-    : p.statuses.includes("guard")
-      ? "Guardia preparada · daño reducido"
-      : nearObject
-        ? `Pulsa E para ${nearObject.type === "chest" ? "abrir el cofre" : nearObject.type === "fountain" ? "beber de la fuente" : `activar el santuario (${20 + r.floor * 3} oro)`}`
-        : atExit
-          ? "Pulsa E para descender"
-          : "Explora la oscuridad. Encuentra el descenso.";
-  const playing = r.phase === "playing";
-  $("#action-bar").innerHTML = [
+    atExit = Math.abs(r.map.exit.x - p.x) + Math.abs(r.map.exit.y - p.y) <= 1,
+    nearEnemy = r.enemies.find(
+      (e) => e.hp > 0 && Math.abs(e.x - p.x) + Math.abs(e.y - p.y) === 1,
+    ),
+    boss = r.enemies.find((e) => e.boss && e.hp > 0);
+  $("#danger-warning").hidden = !inDanger;
+  const contextual = $("#context-action");
+  contextual.hidden = true;
+  contextual.disabled = false;
+  if (nearEnemy) {
+    contextual.hidden = false;
+    contextual.dataset.action = "attack";
+    contextual.innerHTML = `${icon("sword")} Atacar <span>${esc(ENEMIES[nearEnemy.type].name)}</span><kbd>Enter</kbd>`;
+  } else if (atExit && !boss) {
+    contextual.hidden = false;
+    contextual.dataset.action = "interact";
+    contextual.innerHTML = `${icon("stairs")} ${r.floor === 12 ? "Recuperar el amuleto" : "Descender"}<kbd>E</kbd>`;
+  } else if (nearObject) {
+    contextual.hidden = false;
+    contextual.dataset.action = "interact";
+    contextual.innerHTML = `${icon("lantern")} ${nearObject.type === "chest" ? "Abrir cofre" : nearObject.type === "fountain" ? "Beber de la fuente" : `Bendición · ${20 + r.floor * 3} oro`}<kbd>E</kbd>`;
+  }
+  const visibleEnemies = r.enemies.filter(
+    (e) => e.hp > 0 && vis.has(e.y * r.map.width + e.x),
+  );
+  $("#map-caption").textContent =
+    saveWarning ||
+    (r.phase === "reward"
+      ? "Elige una reliquia para continuar."
+      : inDanger
+        ? "El ataque está preparado. Muévete fuera de la señal."
+        : nearEnemy
+          ? "Ataca, usa tu habilidad o esquiva. Tú eliges."
+          : atExit && boss
+            ? "El guardián mantiene el descenso sellado."
+            : visibleEnemies.length
+              ? "Pulsa una dirección para moverte y atacar."
+              : "Toca una casilla para caminar. Explora y encuentra el descenso.");
+  $("#hud-event").textContent = r.turn > 0 ? r.log.at(-1) || "" : "";
+  $("#hud-event").classList.toggle("event-danger", inDanger);
+  const playing = r.phase === "playing",
+    range = p.classId === "warden" ? 2 : p.classId === "ranger" ? 6 : 4,
+    hasSkillTarget = visibleEnemies.some(
+      (e) => Math.abs(e.x - p.x) + Math.abs(e.y - p.y) <= range,
+    );
+  const buttons = [
     [
       "skill",
       c.skill.name,
       "Q",
       `${s.skillCost} energía`,
-      p.energy < s.skillCost,
+      p.energy < s.skillCost || !hasSkillTarget,
       "spark",
+      c.skill.description,
     ],
-    ["dash", "Esquivar", "Espacio", "2 energía", p.energy < 2, "boot"],
-    ["guard", "Guardia", "F", "Resiste un golpe", false, "shield"],
+    [
+      "dash",
+      "Esquivar",
+      "Espacio",
+      "2 energía",
+      p.energy < 2,
+      "boot",
+      "Avanza dos casillas en la dirección hacia la que miras e ignora ataques durante el turno.",
+    ],
+    [
+      "guard",
+      "Guardia",
+      "F",
+      "+4 armadura",
+      false,
+      "shield",
+      "Reduce el daño durante este turno y recupera energía.",
+    ],
     [
       "potion",
-      "Poción",
+      "Curarte",
       "R",
-      `${p.potions} disponibles`,
+      `${p.potions} pociones`,
       p.potions < 1 || p.hp >= s.maxHp,
       "potion",
+      "Bebe una poción para recuperar vida.",
     ],
     [
       "interact",
-      atExit ? "Descender" : "Interactuar",
+      atExit ? "Descender" : "Usar",
       "E",
-      nearObject ? "Objeto cercano" : "Cofres y santuarios",
+      nearObject ? "A tu alcance" : "Busca objetos",
       !nearObject && !atExit,
       "lantern",
+      "Abre cofres, bebe en fuentes, activa santuarios o desciende.",
     ],
-    ["wait", "Esperar", "X", "Recupera energía", false, "eye"],
-  ]
+    [
+      "wait",
+      "Esperar",
+      "X",
+      "+1 energía",
+      false,
+      "eye",
+      "Espera un turno para recuperar energía. Los enemigos también actúan.",
+    ],
+  ];
+  const focusedAction =
+    document.activeElement?.closest("#action-bar button")?.dataset.action;
+  $("#action-bar").innerHTML = buttons
     .map(
-      ([id, label, key, note, disabled, ico]) =>
-        `<button data-action="${id}" class="action-button ${id === "skill" ? "skill-action" : ""}" ${!playing || disabled ? "disabled" : ""} title="${esc(id === "skill" ? c.skill.description : note)}">${icon(ico)}<span><strong>${label}</strong><small>${note}</small></span><kbd>${key}</kbd></button>`,
+      ([id, label, key, note, disabled, ico, description]) =>
+        `<button data-action="${id}" class="hud-action ${id === "skill" ? "skill-action" : ""}" ${!playing || disabled ? "disabled" : ""} aria-label="${esc(label)}. ${esc(note)}" title="${esc(description)}"><kbd>${key}</kbd>${icon(ico)}<strong>${esc(label)}</strong><small>${esc(note)}</small></button>`,
     )
     .join("");
-  const boss = r.enemies.find((e) => e.boss && e.hp > 0);
-  $("#objective").textContent = info.isBoss
-    ? boss
-      ? `Derrota a ${ENEMIES[boss.type]?.name || "el guardián"} para romper el sello del descenso.`
-      : r.floor === 12
-        ? "El guardián ha caído. Recupera el amuleto en el altar del descenso."
-        : "El sello está roto. Encuentra el descenso."
-    : "Busca cofres y reliquias. Encuentra las escaleras para seguir descendiendo.";
-  $("#floor-lore").textContent = info.story;
-  $("#relic-count").textContent = r.relics.length;
-  $("#run-relics").innerHTML = r.relics.length
-    ? r.relics
-        .map((id) => {
-          const item = RELICS.find((a) => a.id === id);
-          return `<button class="relic-token" data-relic="${id}" title="${esc(item.description)}">${icon("spark")}${item.name}</button>`;
-        })
-        .join("")
-    : '<p class="empty-copy">Las reliquias se eligen al descender. Sus efectos se acumulan.</p>';
-  $("#combat-log").innerHTML = r.log
-    .slice(-5)
-    .reverse()
-    .map(
-      (line, i) => `<li class="${i === 0 ? "latest" : ""}">${esc(line)}</li>`,
-    )
-    .join("");
+  if (focusedAction)
+    $(`#action-bar [data-action="${focusedAction}"]`)?.focus({
+      preventScroll: true,
+    });
   updateInspector();
   renderer.draw(r);
-  const latest = r.log.at(-1);
-  $("#announcer").textContent = latest || "";
+  $("#announcer").textContent =
+    `Vida ${p.hp} de ${s.maxHp}. ${inDanger ? "Ataque inminente. " : ""}${r.log.at(-1) || ""}`;
   if (r.phase === "reward" && !modal.open) showRewards();
   if (["dead", "won"].includes(r.phase) && !endShown) {
     endShown = true;
@@ -282,37 +426,30 @@ function updateGame() {
   }
 }
 function updateInspector() {
-  const r = profile.run;
-  if (!r || !$("#enemy-inspector")) return;
+  const r = profile.run,
+    node = $("#enemy-inspector");
+  if (!r || !node) return;
   const vis = visibleTiles(r),
     seen = r.enemies.filter(
       (e) => e.hp > 0 && vis.has(e.y * r.map.width + e.x),
     );
   const enemy =
     seen.find((e) => e.id === inspectedId) ||
-    seen.filter((e) => e.intent).at(0) ||
-    seen
-      .sort(
-        (a, b) =>
-          Math.abs(a.x - r.player.x) +
-          Math.abs(a.y - r.player.y) -
-          (Math.abs(b.x - r.player.x) + Math.abs(b.y - r.player.y)),
-      )
-      .at(0);
-  if (!enemy) {
-    $("#enemy-inspector").innerHTML =
-      '<div class="journal-heading">' +
-      icon("eye") +
-      '<h2>A tu alrededor</h2></div><p class="empty-copy">Ningún enemigo a la vista. Aprovecha para explorar.</p>';
-    return;
-  }
+    seen.find((e) => e.intent) ||
+    seen.sort(
+      (a, b) =>
+        Math.abs(a.x - r.player.x) +
+        Math.abs(a.y - r.player.y) -
+        (Math.abs(b.x - r.player.x) + Math.abs(b.y - r.player.y)),
+    )[0];
+  node.hidden = !enemy;
+  if (!enemy) return;
   const d = ENEMIES[enemy.type],
-    intent = enemy.intent;
-  $("#enemy-inspector").innerHTML =
-    `<div class="enemy-heading">${portrait(enemySprite(enemy.type))}<div><span>${enemy.boss ? "GUARDIÁN" : "ENEMIGO A LA VISTA"}</span><h2>${d.name}</h2></div></div><div class="enemy-health"><span style="width:${(enemy.hp / enemy.maxHp) * 100}%"></span></div><div class="enemy-numbers"><span>${enemy.hp} / ${enemy.maxHp} vida</span><span>${icon("sword")}${enemy.attack}</span></div><p class="enemy-intent ${intent ? "danger-text" : ""}">${intent ? `Ataque preparado: ${intent.kind === "shot" ? "disparo" : intent.kind === "charge" ? "embestida" : intent.kind === "cross" ? "cruz de oscuridad" : "golpe de área"}. Se resuelve en tu próximo turno.` : d.intention}</p><p class="enemy-flavor">${d.description}</p>`;
+    distance = Math.abs(enemy.x - r.player.x) + Math.abs(enemy.y - r.player.y);
+  node.innerHTML = `${portrait(enemySprite(enemy.type))}<div class="hud-enemy-copy"><h2>${esc(d.name)}</h2><div class="enemy-health"><span style="width:${(enemy.hp / enemy.maxHp) * 100}%"></span></div><p><span>${enemy.hp} / ${enemy.maxHp} vida</span><span>${distance === 1 ? "A tu lado" : `${distance} pasos`}</span></p><span class="enemy-intent ${enemy.intent ? "danger-text" : ""}">${enemy.intent ? "Ataque preparado. Evita las marcas rojas." : distance === 1 ? "Camina hacia él para atacar." : "Acércate o utiliza una habilidad a distancia."}</span></div>`;
 }
 function inspectMap(event) {
-  if (!renderer || !profile.run) return;
+  if (!renderer || !profile.run || modal.open) return;
   const t = renderer.tileAt(event);
   if (renderer.hover?.x === t.x && renderer.hover?.y === t.y) return;
   renderer.hover = t;
@@ -320,16 +457,22 @@ function inspectMap(event) {
     vis = visibleTiles(r),
     tooltip = $("#map-tooltip");
   tooltip.hidden = true;
-  if (vis.has(t.y * r.map.width + t.x)) {
-    const e = r.enemies.find((e) => e.hp > 0 && e.x === t.x && e.y === t.y);
-    if (e) {
-      inspectedId = e.id;
+  if (
+    t.x >= 0 &&
+    t.y >= 0 &&
+    t.x < r.map.width &&
+    t.y < r.map.height &&
+    vis.has(t.y * r.map.width + t.x)
+  ) {
+    const enemy = r.enemies.find((e) => e.hp > 0 && e.x === t.x && e.y === t.y);
+    if (enemy) {
+      inspectedId = enemy.id;
       updateInspector();
     }
     const obj = r.objects.find((o) => !o.used && o.x === t.x && o.y === t.y);
     if (obj) {
       tooltip.textContent = {
-        chest: "Cofre · E para abrir",
+        chest: "Cofre · acércate y pulsa E",
         fountain: "Fuente · recupera vida con E",
         shrine: `Santuario · bendición por ${20 + r.floor * 3} oro`,
         trap: "Trampa · evita esta casilla",
@@ -341,7 +484,43 @@ function inspectMap(event) {
   }
   renderer.draw(r);
 }
-function perform(action) {
+function showMap() {
+  openModal(
+    `<h2 id="modal-title">Mapa de la planta ${profile.run.floor}</h2><p class="modal-lead">El tiempo se detiene mientras consultas el mapa.</p><canvas id="overview-map" class="overview-map" aria-label="Mapa de las casillas exploradas, con tu posición y el descenso descubierto"></canvas><p class="overview-legend"><span>${icon("lantern")} Tu posición</span><span>${icon("stairs")} Descenso</span></p><button class="button primary" data-action="close">Volver a jugar ${icon("arrow")}</button>`,
+  );
+  const source = $("#minimap"),
+    target = $("#overview-map");
+  target.width = source.width;
+  target.height = source.height;
+  target.getContext("2d").drawImage(source, 0, 0);
+}
+function showPause() {
+  openModal(
+    `<div class="pause-content">${icon("lantern")}<h2 id="modal-title">El abismo puede esperar.</h2><p class="modal-lead">Tu expedición está guardada. Aquí el tiempo se detiene.</p><p class="pause-wallet">${profile.run.player.gold} oro · ${profile.meta.shards} fragmentos · ${profile.run.player.potions} pociones</p><div class="pause-actions"><button class="button primary" data-action="close">Seguir jugando ${icon("arrow")}</button><button class="button secondary" data-action="fullscreen">${icon("expand")} Pantalla completa</button><div class="pause-zoom"><button class="button secondary" data-action="zoom-in">${icon("plus")} Acercar mapa</button><button class="button secondary" data-action="zoom-out">${icon("minus")} Alejar mapa</button></div><button class="button secondary" data-action="help">${icon("help")} Cómo jugar</button><button class="button secondary" data-action="journal">${icon("book")} Diario y reliquias</button><button class="text-button" data-action="home">Volver al refugio</button></div><p class="modal-note" id="save-status">${saveWarning ? esc(saveWarning) : "Guardado automático · todo tu progreso está a salvo en este navegador."}</p></div>`,
+  );
+}
+function showJournal() {
+  const r = profile.run,
+    info = floorInfo(r.floor);
+  openModal(
+    `<h2 id="modal-title">Diario del descenso</h2><p class="modal-lead">Planta ${r.floor} · ${esc(info.name)}</p><blockquote class="journal-lore">${esc(info.story)}</blockquote><h3>Tu siguiente paso</h3><p class="journal-objective">${info.isBoss && r.enemies.some((e) => e.boss && e.hp > 0) ? `Derrota a ${esc(info.boss.name)} para abrir el descenso.` : "Explora y encuentra las escaleras doradas del minimapa."}</p><h3 class="journal-section-title">Reliquias · ${r.relics.length}</h3><div class="journal-relics">${
+      r.relics.length
+        ? r.relics
+            .map((id) => {
+              const item = RELICS.find((a) => a.id === id);
+              return `<p>${icon("spark")}<span><strong>${item.name}</strong>${item.description}</span></p>`;
+            })
+            .join("")
+        : "<p>Elige tu primera reliquia al completar esta planta.</p>"
+    }</div><h3 class="journal-section-title">Últimos acontecimientos</h3><ol class="journal-history">${r.log
+      .slice(-12)
+      .reverse()
+      .map((line) => `<li>${esc(line)}</li>`)
+      .join("")}</ol>`,
+  );
+}
+function perform(action, { travelling = false } = {}) {
+  if (!travelling) stopTravel();
   if (externalChanged || view !== "game" || !profile.run || modal.open) return;
   const r = profile.run,
     p = r.player,
@@ -366,16 +545,18 @@ function perform(action) {
     tone("reward");
   } else if (consumed) tone("step");
   updateGame();
+  if (travelling && shouldStopTravel(r)) stopTravel();
   if (
     !consumed &&
     r.log.length === beforeLog &&
     p.energy === beforeEnergy &&
     r.floor === beforeFloor
   ) {
-    $("#announcer").textContent = "No puedes realizar esa acción desde aquí.";
+    toast("No puedes realizar esa acción desde aquí.");
   }
 }
 function startRun() {
+  requestGameFullscreen();
   if (externalChanged) return;
   if (!classUnlocked(selectedClass, profile.meta)) return;
   profile.run = createRun({
@@ -389,6 +570,8 @@ function startRun() {
   $("#dungeon").focus({ preventScroll: true });
 }
 function openModal(html) {
+  stopTravel();
+  if (modal.open) modal.close();
   lastFocus = document.activeElement;
   modal.innerHTML = `${view === "game" && profile.run?.phase === "reward" ? "" : `<button class="modal-close icon-button" data-action="close" aria-label="Cerrar">${icon("close")}</button>`}${html}`;
   modal.showModal();
@@ -419,7 +602,7 @@ function showEnd() {
 }
 function showHelp() {
   openModal(
-    `<h2 id="modal-title">Cada paso cuenta.</h2><p class="modal-lead">El tiempo solo avanza cuando actúas. Observa, decide y sobrevive.</p><div class="help-grid"><section><h3>Explora</h3><p><kbd>WASD</kbd> o <kbd>↑↓←→</kbd> para moverte. Camina hacia un enemigo para atacarlo. También puedes tocar una casilla contigua o usar la cruceta.</p><p><kbd>E</kbd> abre cofres, activa santuarios y desciende. Los objetos deben estar a tu lado. Las escaleras son doradas en el minimapa.</p></section><section><h3>Combate</h3><p><kbd>Q</kbd> usa tu habilidad de clase. <kbd>Espacio</kbd> esquiva hacia donde miras y cuesta 2 de energía. <kbd>F</kbd> prepara la guardia y recupera energía.</p><p>Las casillas rojas anuncian dónde golpeará el enemigo en el siguiente turno. Muévete fuera o esquiva. Un golpe normal recupera energía.</p></section><section><h3>Sobrevive</h3><p><kbd>R</kbd> bebe una poción. <kbd>X</kbd> espera y recupera energía. Las fuentes curan una vez; los santuarios venden una bendición por 20 + 3 × planta de oro.</p><p>El oro solo dura esta expedición. Los fragmentos se conservan para las mejoras del refugio.</p></section><section><h3>Deja un legado</h3><p>Elige una reliquia antes de cada nueva planta. Derrota a los guardianes de las plantas 3, 6, 9 y 12. El primero y el segundo desbloquean nuevas clases.</p><p>Guardado automático tras cada acción. <kbd>Esc</kbd> vuelve al refugio sin perder la partida. Exporta una copia desde la crónica para cambiar de navegador.</p></section></div><button class="button primary" data-action="close">Entendido ${icon("arrow")}</button>`,
+    `<h2 id="modal-title">Cada paso cuenta.</h2><p class="modal-lead">El tiempo solo avanza cuando actúas. Observa, decide y sobrevive.</p><div class="help-grid"><section><h3>Explora</h3><p><kbd>WASD</kbd> o <kbd>↑↓←→</kbd> para moverte. Camina hacia un enemigo para atacarlo. También puedes tocar una casilla explorada para caminar hasta ella; el movimiento se detiene al aparecer un enemigo. Usa la cruceta en combate.</p><p><kbd>E</kbd> abre cofres, activa santuarios y desciende. Los objetos deben estar a tu lado. Las escaleras son doradas en el minimapa.</p></section><section><h3>Combate</h3><p><kbd>Q</kbd> usa tu habilidad de clase. <kbd>Espacio</kbd> esquiva hacia donde miras y cuesta 2 de energía. <kbd>F</kbd> prepara la guardia y recupera energía.</p><p>Las casillas rojas anuncian dónde golpeará el enemigo en el siguiente turno. Muévete fuera o esquiva. Un golpe normal recupera energía.</p></section><section><h3>Sobrevive</h3><p><kbd>R</kbd> bebe una poción. <kbd>X</kbd> espera y recupera energía. Las fuentes curan una vez; los santuarios venden una bendición por 20 + 3 × planta de oro.</p><p>El oro solo dura esta expedición. Los fragmentos se conservan para las mejoras del refugio.</p></section><section><h3>Deja un legado</h3><p>Elige una reliquia antes de cada nueva planta. Derrota a los guardianes de las plantas 3, 6, 9 y 12. El primero y el segundo desbloquean nuevas clases.</p><p>Guardado automático tras cada acción. <kbd>Esc</kbd> pausa la partida. El menú permite volver al refugio. <kbd>J</kbd> abre el diario. El botón de pantalla completa oculta los controles del navegador cuando está disponible. Exporta una copia desde la crónica para cambiar de navegador.</p></section></div><button class="button primary" data-action="close">Entendido ${icon("arrow")}</button>`,
   );
 }
 function showChronicle() {
@@ -493,11 +676,29 @@ function handleClick(event) {
     renderHome();
   }
   if (action === "resume") {
+    requestGameFullscreen();
     closeModal();
     showGame();
     $("#dungeon")?.focus({ preventScroll: true });
   }
   if (action === "start") startRun();
+  if (action === "pause") showPause();
+  if (action === "journal") showJournal();
+  if (action === "fullscreen") {
+    if (document.fullscreenElement) document.exitFullscreen?.().catch(() => {});
+    else requestGameFullscreen();
+  }
+  if (action === "map") showMap();
+  if (action === "zoom-in" || action === "zoom-out") {
+    renderer?.setZoom(action === "zoom-in" ? 6 : -6);
+  }
+  if (action === "attack") {
+    const p = profile.run.player,
+      e = profile.run.enemies.find(
+        (e) => e.hp > 0 && Math.abs(e.x - p.x) + Math.abs(e.y - p.y) === 1,
+      );
+    if (e) perform({ type: "move", dx: e.x - p.x, dy: e.y - p.y });
+  }
   if (action === "new")
     openModal(
       `<h2 id="modal-title">Un nuevo descenso</h2><p class="modal-lead">Tu expedición actual termina aquí. Conservarás los fragmentos y el progreso permanente.</p><p>Desciendes con: <strong>${CLASS_BY_ID[selectedClass].name}</strong>. Puedes cerrar esta ventana y elegir otra clase en el refugio.</p><div class="modal-buttons"><button class="button primary" data-action="start">Abandonar y comenzar ${icon("arrow")}</button><button class="text-button" data-action="close">Seguir con mi expedición</button></div>`,
@@ -583,8 +784,7 @@ window.addEventListener("keydown", (event) => {
   if (event.key === "Escape") {
     if (!modal.open && view === "game") {
       event.preventDefault();
-      persist();
-      renderHome();
+      showPause();
     }
     return;
   }
@@ -595,6 +795,17 @@ window.addEventListener("keydown", (event) => {
     return;
   }
   if (view !== "game") return;
+  if (event.key.toLowerCase() === "j") {
+    event.preventDefault();
+    showJournal();
+    return;
+  }
+  if (event.key === "Enter" && !event.target.closest("button")) {
+    event.preventDefault();
+    const context = $("#context-action");
+    if (context && !context.hidden) context.click();
+    return;
+  }
   if (event.target.closest("button") && [" ", "Enter"].includes(event.key))
     return;
   const k = event.key.toLowerCase(),
@@ -619,7 +830,15 @@ window.addEventListener("keydown", (event) => {
   }[k];
   if (!moves[k] && !command) return;
   event.preventDefault();
-  if (event.repeat) return;
+  if (event.repeat) {
+    if (
+      !moves[k] ||
+      shouldStopTravel(profile.run) ||
+      performance.now() - lastMovement < 130
+    )
+      return;
+  }
+  if (moves[k]) lastMovement = performance.now();
   if (profile.run?.phase === "reward") {
     showRewards();
     return;
@@ -627,7 +846,23 @@ window.addEventListener("keydown", (event) => {
   if (moves[k]) perform({ type: "move", dx: moves[k][0], dy: moves[k][1] });
   else perform({ type: command });
 });
-window.addEventListener("pagehide", persist);
+window.addEventListener("pagehide", () => {
+  stopTravel();
+  persist();
+});
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) stopTravel();
+});
+document.addEventListener("fullscreenchange", () => {
+  const button = $("#fullscreen-toggle");
+  if (button)
+    button.setAttribute(
+      "aria-label",
+      document.fullscreenElement
+        ? "Salir de pantalla completa"
+        : "Activar pantalla completa",
+    );
+});
 window.addEventListener("storage", (event) => {
   if (event.key === "yala.save.v1") {
     externalChanged = true;

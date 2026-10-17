@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-17T18:54:30.116774+00:00",
+  "generatedAt": "2026-10-17T19:32:19.387023+00:00",
   "title": "Design System: Yala · Ecos del abismo",
   "extensions": {
     "colorMeta": {
@@ -269,6 +269,26 @@
           "oklch(84% 0.0154 149.11)",
           "oklch(95% 0.0154 149.11)"
         ]
+      },
+      "hud-fill": {
+        "role": "neutral",
+        "displayName": "HUD Stone"
+      },
+      "hud-border": {
+        "role": "neutral",
+        "displayName": "HUD Seam"
+      },
+      "hud-health": {
+        "role": "tertiary",
+        "displayName": "Player Health Clay"
+      },
+      "hud-action-fill": {
+        "role": "neutral",
+        "displayName": "HUD Action Stone"
+      },
+      "hud-action-text": {
+        "role": "neutral",
+        "displayName": "HUD Action Ivory"
       }
     },
     "typographyMeta": {
@@ -286,7 +306,7 @@
       },
       "journal-title": {
         "displayName": "Journal Heading",
-        "purpose": "Compact context beside the map."
+        "purpose": "Compact headings for journal and context overlays."
       },
       "body": {
         "displayName": "System Body",
@@ -298,7 +318,15 @@
       },
       "action-label": {
         "displayName": "Tactical Label",
-        "purpose": "Compact combat actions."
+        "purpose": "Retained compact annotation role; in-play controls use hud-action-label."
+      },
+      "hud-location": {
+        "displayName": "Dungeon Location",
+        "purpose": "Floor title centered over the world; compact sizes follow viewport constraints."
+      },
+      "hud-action-label": {
+        "displayName": "HUD Action",
+        "purpose": "Centered combat action names with adjacent consequence text and keyboard hints."
       }
     },
     "shadows": [],
@@ -331,17 +359,22 @@
     ],
     "breakpoints": [
       {
-        "name": "wide",
+        "name": "wide-refuge",
         "value": "1600px",
         "query": "(min-width:1600px)"
       },
       {
-        "name": "compact-desktop",
+        "name": "compact-refuge",
         "value": "1150px",
         "query": "(max-width:1150px)"
       },
       {
-        "name": "stacked-game",
+        "name": "compact-hud",
+        "value": "1000px",
+        "query": "(max-width:1000px)"
+      },
+      {
+        "name": "balanced-refuge",
         "value": "900px",
         "query": "(max-width:900px)"
       },
@@ -349,12 +382,22 @@
         "name": "mobile",
         "value": "640px",
         "query": "(max-width:640px)"
+      },
+      {
+        "name": "short-landscape",
+        "value": "540px",
+        "query": "(max-height:540px) and (min-width:641px)"
+      },
+      {
+        "name": "short-portrait",
+        "value": "700px",
+        "query": "(max-width:640px) and (max-height:700px)"
       }
     ],
     "focus": {
       "outline": "2px solid var(--gold)",
       "offset": "5px",
-      "canvasOffset": "-3px"
+      "canvasOffset": "-4px"
     },
     "backdrop": {
       "background": "#050905c9",
@@ -365,7 +408,26 @@
       "css": "animation:none!important; transition:none!important; scroll-behavior:auto!important",
       "canvas": "Preference sampled when the renderer is created; skips scheduling effect animation frames."
     },
-    "tonalRampNote": "Synthesized OKLCH reference ramps, dark to light; actual implementation uses only the normative DESIGN.md colors."
+    "tonalRampNote": "Synthesized OKLCH reference ramps, dark to light; actual implementation uses only the normative DESIGN.md colors.",
+    "textShadows": [
+      {
+        "name": "hud-location",
+        "value": "0 2px 5px #050805",
+        "purpose": "Floor title over the illustrated dungeon."
+      },
+      {
+        "name": "hud-event",
+        "value": "0 2px 4px #050805",
+        "purpose": "Transient event copy over the illustrated dungeon."
+      }
+    ],
+    "viewport": {
+      "scene": "fixed 100dvh",
+      "fullscreen": "Requested from entry gestures when available; ordinary viewport mode retains the same HUD.",
+      "camera": "Player centered between safe HUD clearances; recompute on resize, orientation, fullscreen, visual viewport and device-pixel-ratio changes.",
+      "zoom": "28–72 CSS px per tile; 46px default, 40px at widths up to 640px.",
+      "disclosure": "Portrait and short landscape open a paused explored-map dialog with legend and return-to-play action. Mobile zoom, and short-portrait help, journal and currencies, remain available in Pause."
+    }
   },
   "components": [
     {
@@ -388,7 +450,7 @@
       "name": "Journal Navigation",
       "kind": "nav",
       "refersTo": "navigation",
-      "description": "Quiet navigation; the current refuge has an ember underline.",
+      "description": "Quiet refuge navigation; the current refuge has an ember underline. Expedition navigation uses the HUD tools.",
       "html": "<nav class=\"ds-nav\" aria-label=\"Principal\"><button class=\"ds-nav-link ds-current\">Refugio</button><button class=\"ds-nav-link\">Crónica</button></nav>",
       "css": ".ds-nav{display:flex;gap:32px;align-items:center;height:98px;border-bottom:1px solid var(--line,#333a31)}.ds-nav-link{font-family:system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;line-height:1.55;color:var(--secondary,#abb2a3);font-size:13px;padding:34px 0;position:relative;border:0;background:none;cursor:pointer}.ds-nav-link:hover,.ds-nav-link.ds-current{color:var(--text,#ece8d8)}.ds-current:after{content:\"\";position:absolute;bottom:20px;left:0;width:100%;height:1px;background:var(--gold,#dbb66b)}.ds-nav-link:focus-visible{outline:2px solid var(--gold,#dbb66b);outline-offset:5px}@media(max-width:640px){.ds-nav{gap:15px;height:79px}.ds-nav-link{font-size:11px;padding:23px 0}.ds-current:after{bottom:12px}}"
     },
@@ -401,12 +463,12 @@
       "css": ".ds-reward{font-family:system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;line-height:1.55;color:var(--text,#ece8d8);width:220px;border:1px solid #5c654a;padding:24px 17px 15px;border-radius:4px;text-align:left;display:flex;flex-direction:column;background:#1d271c;transition:background .18s,border-color .18s;cursor:pointer}.ds-reward:hover{background:#2c3827;border-color:var(--gold,#dbb66b)}.ds-reward:focus-visible{outline:2px solid var(--gold,#dbb66b);outline-offset:5px}.ds-emblem{display:block;margin:0 auto 23px;color:var(--gold,#dbb66b)}.ds-emblem .ds-icon{width:44px;height:44px;stroke-width:.8}.ds-reward>small{font-size:8px;color:var(--jade,#82c7b0);letter-spacing:.12em}.ds-reward h3{font-family:Georgia,serif;font-size:23px;font-weight:400;line-height:1.2;margin:9px 0 0;min-height:55px}.ds-reward p{font-size:11px;line-height:1.8;color:var(--secondary,#abb2a3);margin:12px 0 26px}.ds-pick{margin-top:auto;border-top:1px solid var(--line,#333a31);padding-top:12px;font-size:10px;color:var(--gold,#dbb66b);display:flex;align-items:center;justify-content:space-between;gap:10px}.ds-pick .ds-icon{width:15px;height:20px;flex:none}@media(max-width:640px){.ds-reward{width:100%;padding:16px 18px;display:grid;grid-template-columns:36px 1fr;column-gap:15px;align-items:center}.ds-emblem{margin:0;grid-row:span 3}.ds-emblem .ds-icon{height:33px;width:33px}.ds-reward>small{font-size:7px}.ds-reward h3{font-size:22px;min-height:0;margin-top:3px}.ds-reward p{margin:6px 0 10px;grid-column:2}.ds-pick{grid-column:2;padding-top:9px}}@media(prefers-reduced-motion:reduce){.ds-reward{transition:none}}"
     },
     {
-      "name": "Tactical Action",
+      "name": "HUD Tactical Action",
       "kind": "button",
-      "refersTo": "action-button",
-      "description": "An action pairs its name, consequence and keyboard shortcut.",
-      "html": "<button class=\"ds-action\"><svg class=\"ds-icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m12 3 8 3v6c0 5-8 9-8 9s-8-4-8-9V6l8-3Z\"/></svg><span><strong>Guardia</strong><small>Resiste un golpe</small></span><kbd>F</kbd></button>",
-      "css": ".ds-action{font-family:system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;line-height:1.55;color:var(--text,#ece8d8);display:flex;align-items:center;gap:10px;min-height:58px;padding:9px 10px;border:1px solid #4a5341;border-radius:3px;text-align:left;background:#1a211a;position:relative;cursor:pointer}.ds-action>.ds-icon{color:var(--gold,#dbb66b);width:19px;height:19px;flex:none}.ds-action>span{display:flex;flex-direction:column;gap:2px}.ds-action strong{font-size:11px;font-weight:500}.ds-action small{font-size:9px;color:var(--secondary,#abb2a3)}.ds-action kbd{font-family:system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;color:#bec4b3;border:1px solid #56604a;border-bottom-width:2px;border-radius:3px;font-weight:500;margin-left:auto;font-size:9px;padding:2px 4px;align-self:flex-start;white-space:nowrap}.ds-action:hover:not(:disabled){background:#2a3426;border-color:var(--gold,#dbb66b)}.ds-action:disabled{cursor:not-allowed;background:#121812;color:#9ca393;border-color:#2f392b}.ds-action:disabled>.ds-icon{color:#7e8974}.ds-action:focus-visible{outline:2px solid var(--gold,#dbb66b);outline-offset:5px}@media(max-width:640px){.ds-action{min-height:66px;gap:6px;padding:8px 7px;flex-direction:column;align-items:flex-start}.ds-action>.ds-icon{height:16px;width:16px}.ds-action>span{gap:0}.ds-action strong{font-size:10px}.ds-action small{font-size:8px;white-space:nowrap}.ds-action kbd{position:absolute;top:7px;right:6px;font-size:7px;max-width:40px;padding:1px 3px;overflow:hidden}}"
+      "refersTo": "hud-action",
+      "description": "One of six persistent HUD actions; icon, name, consequence and keyboard shortcut stay together.",
+      "html": "<button class=\"ds-hud-action\" aria-label=\"Guardia. Más 4 de armadura\" title=\"Reduce el daño durante este turno y recupera energía.\"><kbd>F</kbd><svg class=\"ds-hud-icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m12 3 8 3v6c0 5-8 9-8 9s-8-4-8-9V6l8-3Z\"/></svg><strong>Guardia</strong><small>+4 armadura</small></button>",
+      "css": ".ds-hud-action{font-family:system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:78px;min-width:94px;padding:7px 5px 6px;border:1px solid #46553b;border-radius:4px;background:#202b1c;color:#f0e9d4;cursor:pointer;touch-action:manipulation}.ds-hud-action>.ds-hud-icon{width:21px;height:21px;color:var(--gold,#dbb66b);margin-top:7px}.ds-hud-action strong{font-size:12px;font-weight:550;line-height:1.2;text-align:center}.ds-hud-action small{font-size:10px;color:#c6d0ba;line-height:1.3}.ds-hud-action kbd{font-family:system-ui,sans-serif;position:absolute;right:4px;top:3px;font-size:8px;line-height:1.2;padding:1px 3px;color:#d6dfca;border:1px solid #61734e;border-radius:3px;background:#101710}.ds-hud-action:hover:not(:disabled){background:#3a4a2c;border-color:var(--gold,#dbb66b)}.ds-hud-action:active:not(:disabled){background:#52613a}.ds-hud-action:focus-visible{outline:2px solid var(--gold,#dbb66b);outline-offset:5px}.ds-hud-action:disabled{border-color:#303d2b;background:#151e14;color:#a7b39a;cursor:not-allowed}.ds-hud-action:disabled>.ds-hud-icon{color:#7f9270}.ds-hud-action:disabled small{color:#9da993}@media(max-width:640px){.ds-hud-action{min-height:72px;min-width:0;padding:5px 2px}.ds-hud-action>.ds-hud-icon{width:17px;height:17px;margin-top:3px}.ds-hud-action strong{font-size:10px}.ds-hud-action small{font-size:8px;line-height:1.2}.ds-hud-action kbd{display:none}}"
     },
     {
       "name": "Carried Relic",
@@ -423,16 +485,24 @@
       "description": "An open progression row with segmented progress and a fragment purchase.",
       "html": "<div class=\"ds-upgrade\"><span class=\"ds-upgrade-icon\"><svg class=\"ds-icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m12 3 8 3v6c0 5-8 9-8 9s-8-4-8-9V6l8-3Z\"/></svg></span><div class=\"ds-upgrade-copy\"><h3>Pulso persistente</h3><p>+4 de vida máxima al comenzar cada expedición.</p><div class=\"ds-level\" aria-label=\"Nivel 2 de 5\"><span class=\"ds-filled\"></span><span class=\"ds-filled\"></span><span></span><span></span><span></span></div></div><button class=\"ds-buy\" aria-label=\"Mejorar por 31 fragmentos\"><svg class=\"ds-icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m12 2 3 7 7 3-7 3-3 7-3-7-7-3 7-3 3-7Z\"/></svg>31</button></div>",
       "css": ".ds-upgrade{font-family:system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;line-height:1.55;color:var(--text,#ece8d8);display:flex;gap:15px;align-items:center;padding:13px 0;border-bottom:1px solid var(--line,#333a31);min-height:83px}.ds-upgrade-icon{color:var(--gold,#dbb66b);align-self:flex-start;padding-top:6px}.ds-upgrade-icon .ds-icon{width:20px;height:20px}.ds-upgrade-copy{flex:1}.ds-upgrade-copy h3{margin:0;font-size:13px;font-weight:500}.ds-upgrade-copy p{margin:2px 0 0;color:var(--secondary,#abb2a3);font-size:10px}.ds-level{display:flex;gap:4px;margin-top:9px}.ds-level span{width:21px;height:3px;background:#3b4337}.ds-level .ds-filled{background:var(--gold,#dbb66b)}.ds-buy{font-family:system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;line-height:1.55;display:flex;align-items:center;justify-content:center;gap:6px;border:1px solid #69654b;color:var(--gold,#dbb66b);background:none;padding:5px 11px;border-radius:3px;min-width:62px;min-height:36px;font-size:12px;font-variant-numeric:tabular-nums;cursor:pointer}.ds-buy .ds-icon{width:13px;height:13px}.ds-buy:hover:not(:disabled){background:#dbb66b15}.ds-buy:disabled{cursor:not-allowed;color:#919780;border-color:#414a39;background:#161b15}.ds-buy:focus-visible{outline:2px solid var(--gold,#dbb66b);outline-offset:5px}@media(max-width:640px){.ds-upgrade{gap:16px}.ds-buy{min-width:59px}}"
+    },
+    {
+      "name": "HUD Vital Surface",
+      "kind": "card",
+      "refersTo": "hud-surface",
+      "description": "Nearly opaque stone protects numeric player health and its clay meter over the dungeon.",
+      "html": "<section class=\"ds-hud-vital\" aria-label=\"Vida del personaje\"><div><span>Vida</span><strong>28<small> / 36</small></strong></div><div class=\"ds-hud-meter\" role=\"meter\" aria-label=\"Vida\" aria-valuemin=\"0\" aria-valuemax=\"36\" aria-valuenow=\"28\"><span></span></div></section>",
+      "css": ".ds-hud-vital{font-family:system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;width:220px;padding:12px 16px 9px;background:#131b16f5;color:var(--text,#ece8d8);border:1px solid #4d5847;border-radius:6px}.ds-hud-vital>div:first-child{display:flex;justify-content:space-between;align-items:center;font-size:12px}.ds-hud-vital>div:first-child>span{color:#e7b4a0}.ds-hud-vital strong{font-size:14px;font-variant-numeric:tabular-nums}.ds-hud-vital small{font-size:11px;font-weight:400;color:#c2c9b9}.ds-hud-meter{height:7px;margin-top:5px;border-radius:1px;overflow:hidden;background:#090e0a}.ds-hud-meter>span{display:block;height:100%;width:77.7778%;background:#d79577}"
     }
   ],
   "narrative": {
     "northStar": "The Lantern-Lit Expedition Journal",
-    "overview": "Yala is an illustrated dark fantasy expedition journal. Charcoal stone, aged ivory and restrained gold frame a small traveler beneath monumental ruins. Painterly key art establishes the world; procedural stone tiles, illustrated characters and fog of war carry that world into play.\n\nThe interface feels deliberate and weathered without sacrificing tactical clarity. Heritage manuscript headings give names and discoveries weight, while compact system typography keeps resources, intentions and actions readable. Thin dividers and recessed tones organize the journal; light belongs to the lantern and the next meaningful choice.",
+    "overview": "Yala is an illustrated dark fantasy expedition journal. Charcoal stone, aged ivory and restrained gold frame a small traveler beneath monumental ruins. Painterly key art establishes the world; procedural stone tiles, illustrated characters and fog of war carry that world into play.\n\nThe interface feels deliberate and weathered without sacrificing tactical clarity. Heritage manuscript headings give names and discoveries weight, while compact system typography keeps resources, intentions and actions readable. The refuge retains its open journal composition; during expeditions, the illustrated dungeon fills the viewport and compact HUD surfaces anchor resources and decisions around it. Light belongs to the lantern and the next meaningful choice.",
     "keyCharacteristics": [
       "Painterly fantasy imagery with a vulnerable traveler and monumental architecture.",
       "Georgia headings paired with compact system UI controls.",
       "Flat charcoal surfaces, ivory text, ember gold actions and jade energy.",
-      "Explicit enemy intentions, adjacent resource information and deliberate turn feedback."
+      "A full-viewport dungeon, persistent edge HUD, explicit enemy intentions and deliberate turn feedback."
     ],
     "rules": [
       {
@@ -452,12 +522,12 @@
       }
     ],
     "dos": [
-      "**Do** preserve the illustrated world and keep tactical information adjacent to the map.",
+      "**Do** preserve the illustrated world and keep tactical information anchored around the full-viewport map.",
       "**Do** use Georgia for world names and system typography for controls and resource values.",
       "**Do** reserve gold for decisions, selection, progress and lantern light.",
       "**Do** pair danger color with explicit intention text, hatching or a visible mark.",
       "**Do** retain keyboard focus, labelled touch controls and reduced-motion behavior.",
-      "**Do** adapt composition at the implemented breakpoints without hiding essential action descriptions."
+      "**Do** keep movement and all six actions accessible at every viewport; move optional detail into Pause and the paused map overview."
     ],
     "donts": [
       "**Don't** add broad panel shadows, floating-card elevation or interface glows.",

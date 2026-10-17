@@ -2,7 +2,7 @@
 
 Una expansión del Dungeon Crawler original: un roguelite táctico de fantasía oscura, gratuito y jugable en el navegador. Recupera el Amuleto de Yala atravesando doce plantas procedurales y cuatro dominios.
 
-[Jugar a Yala](https://alexfdez1010.github.io/dungeon_crawler/) · [Edición clásica](https://alexfdez1010.github.io/dungeon_crawler/classic.html)
+[Jugar a Yala](https://alexfdez1010.github.io/dungeon_crawler/)
 
 ## La expedición
 
@@ -27,9 +27,13 @@ Una expansión del Dungeon Crawler original: un roguelite táctico de fantasía 
 | Cofres, fuentes, santuarios y descenso | E |
 | Esperar / recuperar energía | X o punto |
 | Ayuda | H |
-| Volver al refugio y conservar expedición | Esc |
+| Pausar y abrir el menú | Esc |
+| Diario y reliquias | J |
+| Atacar al enemigo contiguo con el botón contextual | Enter |
 
-En móvil están disponibles la cruceta y todos los botones de acción. También puedes tocar una casilla contigua para moverte o atacar. Pasa el puntero sobre un enemigo para consultar sus estadísticas e intención.
+Al entrar en una expedición, el mapa ocupa toda la ventana y el juego solicita pantalla completa nativa cuando el navegador lo permite. El HUD mantiene visibles vida, energía, habilidades y controles sin desplazamiento. El minimapa se puede desplegar en móvil; el diario, la ayuda y las opciones se abren desde el HUD.
+
+En móvil están disponibles la cruceta y todos los botones de acción. Toca una casilla explorada para caminar hasta ella; la ruta evita trampas y se detiene al aparecer un enemigo. Durante el combate, toca una casilla contigua para moverte o atacar, o utiliza el botón contextual dorado. Puedes ampliar o reducir el mapa desde el menú de pausa. Pasa el puntero sobre un enemigo para consultar sus estadísticas e intención.
 
 ## Guardado
 
@@ -39,7 +43,7 @@ Desde **Crónica** puedes exportar un archivo JSON e importarlo en otro navegado
 
 ## Desarrollo de la edición ampliada
 
-La nueva edición web usa módulos JavaScript nativos, Canvas 2D, HTML y CSS sin dependencias, compilación ni servidor de aplicación. Mantiene el formato de alojamiento estático de GitHub Pages.
+La edición web usa módulos JavaScript nativos, Canvas 2D, HTML y CSS sin dependencias, compilación ni servidor de aplicación. Mantiene el formato de alojamiento estático de GitHub Pages.
 
 ```sh
 npm start
@@ -51,29 +55,23 @@ Abre `http://127.0.0.1:8765/`. También puedes servir la raíz con cualquier ser
 npm test
 ```
 
-Las pruebas verifican determinismo, conectividad en cientos de mapas, validación y recuperación de guardados, recompensas sin duplicación, reglas de combate, habilidades, economía, progresión completa de doce plantas y duelos de las tres clases contra los cuatro guardianes. GitHub Actions ejecuta estas comprobaciones en cada subida a `main`.
+Las pruebas verifican determinismo, conectividad en cientos de mapas, validación y recuperación de guardados, recompensas sin duplicación, reglas de combate, habilidades, economía, progresión completa de doce plantas y duelos de las tres clases contra los cuatro guardianes. GitHub Actions ejecuta estas comprobaciones en cada subida a `master`.
 
 - `web/engine.js`: motor determinista, generación, combate y validación.
 - `web/content.js`: clases, enemigos, regiones, reliquias, historia y mejoras.
 - `web/storage.js`: guardado, respaldo y crédito del progreso.
 - `web/renderer.js`: mapa, personajes, minimapa y efectos.
-- `web/app.js`: refugio, controles, diario, recompensas y copias de seguridad.
+- `web/app.js`: refugio, HUD a pantalla completa, controles, diario, recompensas y copias.
+- `web/viewport.js`: cámara, densidad de píxeles y conversión de coordenadas.
+- `web/navigation.js`: rutas exploradas seguras y parada ante enemigos.
 
-## Edición original de Rust
+## Origen del proyecto
 
-El juego original, basado en *Hands-on Rust: Effective Learning through 2D Game Development and Play* de Herbert Wolverson, se conserva en `classic.html`, junto con todo el código Rust, las fuentes gráficas y los archivos WebAssembly existentes. Esa edición mantiene sus tres plantas y sus controles originales (flechas, G y números 1–9).
-
-```sh
-cargo test
-cargo run --release
-./generate_wasm.sh
-```
-
-La compilación Rust sigue siendo independiente de la edición web ampliada. `generate_wasm.sh` regenera solo los archivos de la edición clásica.
+El proyecto nació a partir de *Hands-on Rust: Effective Learning through 2D Game Development and Play* de Herbert Wolverson. El código nativo de Rust permanece en `src/` como parte del historial del proyecto. La web ofrece una única versión de Yala.
 
 ## Publicación
 
-La raíz de `main` contiene la distribución completa: `index.html`, `style.css`, `web/` y `resources/`. No es necesario generar los archivos antes de publicarlos. La edición clásica necesita también `dungeon_crawler.js` y `dungeon_crawler_bg.wasm`. GitHub Pages sirve ambas desde la raíz de `main`.
+La raíz de `master` contiene la distribución completa: `index.html`, `style.css`, `web/` y `resources/`. No es necesario generar los archivos antes de publicarlos. GitHub Pages publica el juego desde la raíz de `master`.
 
 ## Licencia
 

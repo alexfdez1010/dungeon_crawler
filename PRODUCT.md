@@ -12,11 +12,11 @@ Expand the existing Dungeon Crawler into a much larger, dynamic browser game wit
 
 ## Users
 
-Players of the existing keyboard-controlled, tile-based dungeon crawler. Spanish copy follows the owner's language; the original Rust edition remains available.
+Players of the existing keyboard-controlled, tile-based dungeon crawler. Spanish copy follows the owner's language; the original Rust sources remain in the repository.
 
 ## Capabilities and Constraints
 
-The owner authorizes creative expansion, generated illustrations, parallel agent work, testing and delivery to main. Browser-local saving is explicitly requested. The repository is a static GitHub Pages site with a Rust/WebAssembly original. The expanded browser edition must work on static hosting without a backend or build step.
+The owner authorizes creative expansion, generated illustrations, parallel agent work, testing and delivery to master. Browser-local saving is explicitly requested. The repository is a static GitHub Pages site with a Rust/WebAssembly original. The expanded browser edition must work on static hosting without a backend or build step.
 
 ## Product Principles
 
@@ -25,7 +25,10 @@ The owner authorizes creative expansion, generated illustrations, parallel agent
 - Save the active expedition after every meaningful action.
 - Generated maps must always connect the entrance and exit.
 - Keep controls learnable and expose touch controls alongside the keyboard.
+- Expeditions occupy the entire viewport with a persistent HUD and no document scrolling.
+- Request native fullscreen on entry where supported; the viewport-filling layout works independently.
+- Keep saved expeditions compatible while simplifying controls and offering safe click-to-walk exploration.
 
 ## Evidence on Hand
 
-Existing Rust source in src/, original WebAssembly distribution and resources/dungeonfont.png. Existing three-floor game is preserved at classic.html.
+Rust source in src/ and its original resources remain in the repository. The owner requested a single web game; the separate classic page and its WebAssembly distribution are removed.
