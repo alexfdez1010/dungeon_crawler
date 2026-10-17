@@ -1,0 +1,22 @@
+{
+  "generator": "built-in image_gen",
+  "generatedOn": "2026-10-17",
+  "keyart": {
+    "file": "yala-keyart.png",
+    "width": 1672,
+    "height": 941,
+    "alpha": false,
+    "uiSafeArea": "left 40 percent"
+  },
+  "characters": {
+    "file": "yala-character-atlas.png",
+    "width": 1774,
+    "height": 887,
+    "alpha": true,
+    "columns": 4,
+    "rows": 2,
+    "cellWidth": 443.5,
+    "cellHeight": 443.5,
+    "order": ["knight", "ranger", "mage", "skeleton", "spider", "wraith", "guardian", "antlerKing"]
+  }
+}

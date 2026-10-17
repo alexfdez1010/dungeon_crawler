@@ -1,15 +1,98 @@
-<html>
+<!doctype html>
+<html lang="es">
   <head>
-    <meta content="text/html;charset=utf-8" http-equiv="Content-Type" />
-    <link rel="stylesheet" href="style.css">
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#101412" />
+    <meta
+      name="description"
+      content="Desciende por doce plantas, desafía a cuatro guardianes y recupera el Amuleto de Yala. Un roguelite táctico con progreso guardado en tu navegador."
+    />
+    <title>YALA · Ecos del abismo</title>
+    <link rel="icon" href="resources/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="preload" href="resources/art/yala-keyart.png" as="image" />
   </head>
   <body>
-    <canvas id="canvas" width="640" height="480"></canvas>
-    <script src="./dungeon_crawler.js"></script>
-    <script id="game">
-      window.addEventListener("load", async () => {
-        await wasm_bindgen("./dungeon_crawler_bg.wasm");
-      });
-    </script>
+    <svg
+      class="icon-definitions"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      <defs>
+        <symbol id="i-lantern" viewBox="0 0 24 24">
+          <path
+            d="M9 5V3h6v2M7 7h10l2 13H5L7 7Zm1 0 1-2h6l1 2M10 10v7m4-7v7M4 21h16"
+          />
+        </symbol>
+        <symbol id="i-sword" viewBox="0 0 24 24">
+          <path d="m5 20 4-4m-4-5 8 8m-5-5L18 3h3v3L11 17M3 19l2 2" />
+        </symbol>
+        <symbol id="i-shield" viewBox="0 0 24 24">
+          <path d="m12 3 8 3v6c0 5-8 9-8 9s-8-4-8-9V6l8-3Z" />
+        </symbol>
+        <symbol id="i-heart" viewBox="0 0 24 24">
+          <path d="M12 20 4 12C-2 5 7-1 12 6c5-7 14-1 8 6l-8 8Z" />
+        </symbol>
+        <symbol id="i-spark" viewBox="0 0 24 24">
+          <path d="m12 2 3 7 7 3-7 3-3 7-3-7-7-3 7-3 3-7Z" />
+        </symbol>
+        <symbol id="i-arrow" viewBox="0 0 24 24">
+          <path d="M4 12h15m-6-6 6 6-6 6" />
+        </symbol>
+        <symbol id="i-potion" viewBox="0 0 24 24">
+          <path
+            d="M9 3h6m-5 0v6L5 17c-1 2 0 4 2 4h10c2 0 3-2 2-4l-5-8V3M8 15h8"
+          />
+        </symbol>
+        <symbol id="i-boot" viewBox="0 0 24 24">
+          <path d="m10 3 7 2-2 9 6 4v3H7l-1-6 4-12ZM3 6h4M2 10h4M1 14h3" />
+        </symbol>
+        <symbol id="i-eye" viewBox="0 0 24 24">
+          <path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z" />
+          <circle cx="12" cy="12" r="3" />
+        </symbol>
+        <symbol id="i-chevron" viewBox="0 0 24 24">
+          <path d="m8 4 8 8-8 8" />
+        </symbol>
+        <symbol id="i-bow" viewBox="0 0 24 24">
+          <path d="M4 3c20-2 19 18 19 18L4 3v18L23 3M17 3h6v6" />
+        </symbol>
+        <symbol id="i-sound" viewBox="0 0 24 24">
+          <path
+            d="M4 9h4l5-5v16l-5-5H4V9Zm12-2c4 3 4 7 0 10m3-13c6 5 6 11 0 16"
+          />
+        </symbol>
+        <symbol id="i-book" viewBox="0 0 24 24">
+          <path
+            d="M3 4c4-1 7 0 9 2 2-2 5-3 9-2v15c-4-1-7 0-9 2-2-2-5-3-9-2V4Zm9 2v15"
+          />
+        </symbol>
+        <symbol id="i-close" viewBox="0 0 24 24">
+          <path d="m5 5 14 14M19 5 5 19" />
+        </symbol>
+        <symbol id="i-coin" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="9" />
+          <path d="m12 6 4 6-4 6-4-6 4-6Z" />
+        </symbol>
+      </defs>
+    </svg>
+    <div id="app"><p class="loading">Encendiendo el farol…</p></div>
+    <dialog id="modal" aria-labelledby="modal-title"></dialog>
+    <input
+      id="import-save"
+      type="file"
+      accept="application/json,.json"
+      hidden
+    />
+    <div id="announcer" class="sr-only" role="status" aria-live="polite"></div>
+    <noscript
+      >Activa JavaScript para jugar. Yala guarda el progreso en tu
+      navegador.</noscript
+    >
+    <script type="module" src="web/app.js"></script>
   </body>
-</html
+</html>
