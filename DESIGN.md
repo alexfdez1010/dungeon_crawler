@@ -215,7 +215,7 @@ The palette resembles charcoal stone and aged paper illuminated by a warm lanter
 
 The refuge's centered shell has a maximum width of (1328px) including horizontal padding. Default gutters are (48px), grow to (64px) from (1600px), shrink to (30px) at (1150px), and become (20px) at (640px). Shared spacing tokens describe recurring values; compact game components also use measured (3–13px) gaps and insets.
 
-The refuge uses a cropped illustration and a text-led split hero, followed by two equal columns with a (64px) gap. That gap becomes (38px) at (1150px); at (900px) the columns are equal with a (28px) gap. At (640px) they stack with a (32px) gap. The four-region depth track becomes two columns on mobile.
+The refuge uses a cropped illustration and a text-led split hero, followed by two equal columns with a (64px) gap. That gap becomes (38px) at (1150px); at (900px) the columns are equal with a (28px) gap. At (640px) they stack with a (32px) gap. The six-region depth track uses three columns on desktop and two columns on mobile.
 
 The expedition is a fixed, isolated (100dvh) scene with a full-size canvas and no site header, footer or document scrolling. Health and energy anchor the top-left; floor, region and turn sit top-center; minimap and journal/help/fullscreen/pause tools occupy the top-right. Bottom controls keep a directional pad beside the six-action dock and zoom controls. Default top HUD columns are (252px 1fr 180px), with (24px) gaps and safe-area-aware outer insets. At (1000px), the HUD becomes denser without changing these anchors.
 
@@ -297,3 +297,7 @@ Reduced motion disables CSS animations and transitions and restores automatic sc
 ## Refuge content and entry
 
 The hero keeps the key art, Yala title and subtitle, a factual two-line introduction and the primary expedition action. The secondary action is Cómo jugar for a first visit or Nueva expedición for an existing run. Only an active run adds a class/floor note. Class rows show combat stats or their unlock requirement; narrative epithets, duplicate lock labels, decorative captions and region taglines are omitted. Class and upgrade descriptions use (12px) text, including compact layouts. No gameplay features are removed. Native fullscreen is opt-in from the HUD or pause menu, never requested on start or resume.
+
+## Depths expansion · 3.0
+
+The six-domain descent track retains the existing type, spacing and progress nodes, in three desktop columns and two mobile columns. The new Portadora del alba and eight endgame enemies use `resources/art/yala-depths-atlas.png`, a transparent 3 × 3 atlas. Existing portraits retain the original 4 × 2 atlas. The canvas adds sparse amber fissures in the furnace and pale-gold constellations in the astral domain; terrain stays legible beneath threat markers. Help and HUD totals follow the eighteen-floor campaign.

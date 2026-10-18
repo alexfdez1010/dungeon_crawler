@@ -1,0 +1,4970 @@
+{
+  "schemaVersion": 1,
+  "gameVersion": "3.0.0",
+  "measuredOn": "2026-10-18",
+  "command": "node scripts/simulate.mjs --count=20 --json",
+  "parameters": {
+    "seeds": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20
+    ],
+    "classes": [
+      "warden",
+      "ranger",
+      "arcanist",
+      "luminary"
+    ],
+    "policies": [
+      "naive",
+      "tactical"
+    ],
+    "presets": {
+      "zero": {
+        "vitality": 0,
+        "might": 0,
+        "resilience": 0,
+        "focus": 0,
+        "supplies": 0
+      },
+      "mid": {
+        "vitality": 4,
+        "might": 3,
+        "resilience": 2,
+        "focus": 3,
+        "supplies": 1
+      },
+      "max": {
+        "vitality": 8,
+        "might": 6,
+        "resilience": 4,
+        "focus": 6,
+        "supplies": 3
+      }
+    },
+    "limits": {
+      "maxTurns": 20000,
+      "maxFloorTurns": 2000
+    },
+    "totalFloors": 18
+  },
+  "totals": {
+    "runs": 480,
+    "won": 121,
+    "dead": 359,
+    "stalled": 0
+  },
+  "summary": [
+    {
+      "group": "warden/zero/naive",
+      "runs": 20,
+      "won": 0,
+      "dead": 20,
+      "stalled": 0,
+      "winRate": 0,
+      "meanFloor": 2.3,
+      "maxFloor": 6,
+      "meanTurns": 366.35,
+      "floors": [
+        {
+          "floor": 1,
+          "reached": 20,
+          "cleared": 18,
+          "meanTurns": 205.9,
+          "meanEntryHp": 42
+        },
+        {
+          "floor": 2,
+          "reached": 18,
+          "cleared": 5,
+          "meanTurns": 120.22222222222223,
+          "meanEntryHp": 26.72222222222222
+        },
+        {
+          "floor": 3,
+          "reached": 5,
+          "cleared": 1,
+          "meanTurns": 100,
+          "meanEntryHp": 29.2
+        },
+        {
+          "floor": 4,
+          "reached": 1,
+          "cleared": 1,
+          "meanTurns": 253,
+          "meanEntryHp": 60
+        },
+        {
+          "floor": 5,
+          "reached": 1,
+          "cleared": 1,
+          "meanTurns": 217,
+          "meanEntryHp": 53
+        },
+        {
+          "floor": 6,
+          "reached": 1,
+          "cleared": 0,
+          "meanTurns": 75,
+          "meanEntryHp": 22
+        }
+      ]
+    },
+    {
+      "group": "warden/zero/tactical",
+      "runs": 20,
+      "won": 0,
+      "dead": 20,
+      "stalled": 0,
+      "winRate": 0,
+      "meanFloor": 4.7,
+      "maxFloor": 15,
+      "meanTurns": 899.4,
+      "floors": [
+        {
+          "floor": 1,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 216.7,
+          "meanEntryHp": 42
+        },
+        {
+          "floor": 2,
+          "reached": 20,
+          "cleared": 9,
+          "meanTurns": 134.4,
+          "meanEntryHp": 31.75
+        },
+        {
+          "floor": 3,
+          "reached": 9,
+          "cleared": 4,
+          "meanTurns": 147.33333333333334,
+          "meanEntryHp": 26.444444444444443
+        },
+        {
+          "floor": 4,
+          "reached": 4,
+          "cleared": 4,
+          "meanTurns": 211.25,
+          "meanEntryHp": 29.25
+        },
+        {
+          "floor": 5,
+          "reached": 4,
+          "cleared": 4,
+          "meanTurns": 202.5,
+          "meanEntryHp": 54
+        },
+        {
+          "floor": 6,
+          "reached": 4,
+          "cleared": 4,
+          "meanTurns": 234,
+          "meanEntryHp": 50.75
+        },
+        {
+          "floor": 7,
+          "reached": 4,
+          "cleared": 4,
+          "meanTurns": 225,
+          "meanEntryHp": 64.25
+        },
+        {
+          "floor": 8,
+          "reached": 4,
+          "cleared": 4,
+          "meanTurns": 217.5,
+          "meanEntryHp": 65.25
+        },
+        {
+          "floor": 9,
+          "reached": 4,
+          "cleared": 4,
+          "meanTurns": 234.25,
+          "meanEntryHp": 73.5
+        },
+        {
+          "floor": 10,
+          "reached": 4,
+          "cleared": 4,
+          "meanTurns": 203,
+          "meanEntryHp": 72.75
+        },
+        {
+          "floor": 11,
+          "reached": 4,
+          "cleared": 4,
+          "meanTurns": 238,
+          "meanEntryHp": 77.75
+        },
+        {
+          "floor": 12,
+          "reached": 4,
+          "cleared": 4,
+          "meanTurns": 251.75,
+          "meanEntryHp": 82.75
+        },
+        {
+          "floor": 13,
+          "reached": 4,
+          "cleared": 3,
+          "meanTurns": 200,
+          "meanEntryHp": 84.75
+        },
+        {
+          "floor": 14,
+          "reached": 3,
+          "cleared": 2,
+          "meanTurns": 199.66666666666666,
+          "meanEntryHp": 76.33333333333333
+        },
+        {
+          "floor": 15,
+          "reached": 2,
+          "cleared": 0,
+          "meanTurns": 86,
+          "meanEntryHp": 71.5
+        }
+      ]
+    },
+    {
+      "group": "warden/mid/naive",
+      "runs": 20,
+      "won": 0,
+      "dead": 20,
+      "stalled": 0,
+      "winRate": 0,
+      "meanFloor": 13.7,
+      "maxFloor": 15,
+      "meanTurns": 2823.2,
+      "floors": [
+        {
+          "floor": 1,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 202.9,
+          "meanEntryHp": 58
+        },
+        {
+          "floor": 2,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 206.65,
+          "meanEntryHp": 62.95
+        },
+        {
+          "floor": 3,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 221.95,
+          "meanEntryHp": 68.05
+        },
+        {
+          "floor": 4,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 206,
+          "meanEntryHp": 69.5
+        },
+        {
+          "floor": 5,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 207.25,
+          "meanEntryHp": 72.15
+        },
+        {
+          "floor": 6,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 207.35,
+          "meanEntryHp": 69.35
+        },
+        {
+          "floor": 7,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 211.9,
+          "meanEntryHp": 76.15
+        },
+        {
+          "floor": 8,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 211.05,
+          "meanEntryHp": 67.55
+        },
+        {
+          "floor": 9,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 221.6,
+          "meanEntryHp": 76.4
+        },
+        {
+          "floor": 10,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 217.4,
+          "meanEntryHp": 86.8
+        },
+        {
+          "floor": 11,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 219.55,
+          "meanEntryHp": 85.35
+        },
+        {
+          "floor": 12,
+          "reached": 20,
+          "cleared": 19,
+          "meanTurns": 229.1,
+          "meanEntryHp": 78.3
+        },
+        {
+          "floor": 13,
+          "reached": 19,
+          "cleared": 12,
+          "meanTurns": 179.3684210526316,
+          "meanEntryHp": 82.36842105263158
+        },
+        {
+          "floor": 14,
+          "reached": 12,
+          "cleared": 3,
+          "meanTurns": 134.75,
+          "meanEntryHp": 82
+        },
+        {
+          "floor": 15,
+          "reached": 3,
+          "cleared": 0,
+          "meanTurns": 61.666666666666664,
+          "meanEntryHp": 63.333333333333336
+        }
+      ]
+    },
+    {
+      "group": "warden/mid/tactical",
+      "runs": 20,
+      "won": 7,
+      "dead": 13,
+      "stalled": 0,
+      "winRate": 0.35,
+      "meanFloor": 17.2,
+      "maxFloor": 18,
+      "meanTurns": 3669.4,
+      "floors": [
+        {
+          "floor": 1,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 201.8,
+          "meanEntryHp": 58
+        },
+        {
+          "floor": 2,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 210.1,
+          "meanEntryHp": 62.3
+        },
+        {
+          "floor": 3,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 206.3,
+          "meanEntryHp": 67.5
+        },
+        {
+          "floor": 4,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 200.95,
+          "meanEntryHp": 69.2
+        },
+        {
+          "floor": 5,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 204.75,
+          "meanEntryHp": 73.7
+        },
+        {
+          "floor": 6,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 215.65,
+          "meanEntryHp": 77.2
+        },
+        {
+          "floor": 7,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 206.4,
+          "meanEntryHp": 84.75
+        },
+        {
+          "floor": 8,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 207.2,
+          "meanEntryHp": 85.65
+        },
+        {
+          "floor": 9,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 212.7,
+          "meanEntryHp": 93.2
+        },
+        {
+          "floor": 10,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 203.65,
+          "meanEntryHp": 96.4
+        },
+        {
+          "floor": 11,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 205.8,
+          "meanEntryHp": 99.35
+        },
+        {
+          "floor": 12,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 217.8,
+          "meanEntryHp": 105.85
+        },
+        {
+          "floor": 13,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 230.4,
+          "meanEntryHp": 107.7
+        },
+        {
+          "floor": 14,
+          "reached": 20,
+          "cleared": 19,
+          "meanTurns": 233.05,
+          "meanEntryHp": 104.35
+        },
+        {
+          "floor": 15,
+          "reached": 19,
+          "cleared": 15,
+          "meanTurns": 227.78947368421052,
+          "meanEntryHp": 112.6842105263158
+        },
+        {
+          "floor": 16,
+          "reached": 15,
+          "cleared": 15,
+          "meanTurns": 225.73333333333332,
+          "meanEntryHp": 108.33333333333333
+        },
+        {
+          "floor": 17,
+          "reached": 15,
+          "cleared": 15,
+          "meanTurns": 245,
+          "meanEntryHp": 116.73333333333333
+        },
+        {
+          "floor": 18,
+          "reached": 15,
+          "cleared": 7,
+          "meanTurns": 191.2,
+          "meanEntryHp": 116.4
+        }
+      ]
+    },
+    {
+      "group": "warden/max/naive",
+      "runs": 20,
+      "won": 0,
+      "dead": 20,
+      "stalled": 0,
+      "winRate": 0,
+      "meanFloor": 15.9,
+      "maxFloor": 18,
+      "meanTurns": 3285.75,
+      "floors": [
+        {
+          "floor": 1,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 201.4,
+          "meanEntryHp": 74
+        },
+        {
+          "floor": 2,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 200.5,
+          "meanEntryHp": 77.55
+        },
+        {
+          "floor": 3,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 202.3,
+          "meanEntryHp": 82.35
+        },
+        {
+          "floor": 4,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 203.2,
+          "meanEntryHp": 85.2
+        },
+        {
+          "floor": 5,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 208.6,
+          "meanEntryHp": 87.3
+        },
+        {
+          "floor": 6,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 213.05,
+          "meanEntryHp": 89.5
+        },
+        {
+          "floor": 7,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 205.75,
+          "meanEntryHp": 96.65
+        },
+        {
+          "floor": 8,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 212.2,
+          "meanEntryHp": 91.55
+        },
+        {
+          "floor": 9,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 222.6,
+          "meanEntryHp": 94.25
+        },
+        {
+          "floor": 10,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 200.8,
+          "meanEntryHp": 103.4
+        },
+        {
+          "floor": 11,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 220.55,
+          "meanEntryHp": 90.15
+        },
+        {
+          "floor": 12,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 230.8,
+          "meanEntryHp": 93.65
+        },
+        {
+          "floor": 13,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 233.6,
+          "meanEntryHp": 107.5
+        },
+        {
+          "floor": 14,
+          "reached": 20,
+          "cleared": 16,
+          "meanTurns": 198.6,
+          "meanEntryHp": 88.15
+        },
+        {
+          "floor": 15,
+          "reached": 16,
+          "cleared": 9,
+          "meanTurns": 170.9375,
+          "meanEntryHp": 96.875
+        },
+        {
+          "floor": 16,
+          "reached": 9,
+          "cleared": 8,
+          "meanTurns": 232.11111111111111,
+          "meanEntryHp": 108
+        },
+        {
+          "floor": 17,
+          "reached": 8,
+          "cleared": 5,
+          "meanTurns": 172.875,
+          "meanEntryHp": 103
+        },
+        {
+          "floor": 18,
+          "reached": 5,
+          "cleared": 0,
+          "meanTurns": 85.8,
+          "meanEntryHp": 104.2
+        }
+      ]
+    },
+    {
+      "group": "warden/max/tactical",
+      "runs": 20,
+      "won": 18,
+      "dead": 2,
+      "stalled": 0,
+      "winRate": 0.9,
+      "meanFloor": 18,
+      "maxFloor": 18,
+      "meanTurns": 3852.1,
+      "floors": [
+        {
+          "floor": 1,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 200.3,
+          "meanEntryHp": 74
+        },
+        {
+          "floor": 2,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 201.1,
+          "meanEntryHp": 78.8
+        },
+        {
+          "floor": 3,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 198.75,
+          "meanEntryHp": 84.05
+        },
+        {
+          "floor": 4,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 193.55,
+          "meanEntryHp": 88.2
+        },
+        {
+          "floor": 5,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 205.25,
+          "meanEntryHp": 92.75
+        },
+        {
+          "floor": 6,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 202.9,
+          "meanEntryHp": 97.75
+        },
+        {
+          "floor": 7,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 200.55,
+          "meanEntryHp": 101.75
+        },
+        {
+          "floor": 8,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 207.4,
+          "meanEntryHp": 103
+        },
+        {
+          "floor": 9,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 208.1,
+          "meanEntryHp": 111.3
+        },
+        {
+          "floor": 10,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 206.75,
+          "meanEntryHp": 112.4
+        },
+        {
+          "floor": 11,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 209.75,
+          "meanEntryHp": 116.8
+        },
+        {
+          "floor": 12,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 206.65,
+          "meanEntryHp": 123.35
+        },
+        {
+          "floor": 13,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 212.6,
+          "meanEntryHp": 127.05
+        },
+        {
+          "floor": 14,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 222.6,
+          "meanEntryHp": 122.7
+        },
+        {
+          "floor": 15,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 248.05,
+          "meanEntryHp": 126.05
+        },
+        {
+          "floor": 16,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 234,
+          "meanEntryHp": 130.65
+        },
+        {
+          "floor": 17,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 231.9,
+          "meanEntryHp": 136.2
+        },
+        {
+          "floor": 18,
+          "reached": 20,
+          "cleared": 18,
+          "meanTurns": 261.9,
+          "meanEntryHp": 147.45
+        }
+      ]
+    },
+    {
+      "group": "ranger/zero/naive",
+      "runs": 20,
+      "won": 0,
+      "dead": 20,
+      "stalled": 0,
+      "winRate": 0,
+      "meanFloor": 12.55,
+      "maxFloor": 18,
+      "meanTurns": 2594.9,
+      "floors": [
+        {
+          "floor": 1,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 206.65,
+          "meanEntryHp": 32
+        },
+        {
+          "floor": 2,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 201.35,
+          "meanEntryHp": 28.95
+        },
+        {
+          "floor": 3,
+          "reached": 20,
+          "cleared": 16,
+          "meanTurns": 198.8,
+          "meanEntryHp": 30.2
+        },
+        {
+          "floor": 4,
+          "reached": 16,
+          "cleared": 16,
+          "meanTurns": 200.125,
+          "meanEntryHp": 38.75
+        },
+        {
+          "floor": 5,
+          "reached": 16,
+          "cleared": 16,
+          "meanTurns": 209.9375,
+          "meanEntryHp": 45.5
+        },
+        {
+          "floor": 6,
+          "reached": 16,
+          "cleared": 16,
+          "meanTurns": 209.25,
+          "meanEntryHp": 41.9375
+        },
+        {
+          "floor": 7,
+          "reached": 16,
+          "cleared": 16,
+          "meanTurns": 213.0625,
+          "meanEntryHp": 54.0625
+        },
+        {
+          "floor": 8,
+          "reached": 16,
+          "cleared": 16,
+          "meanTurns": 212.5,
+          "meanEntryHp": 52
+        },
+        {
+          "floor": 9,
+          "reached": 16,
+          "cleared": 16,
+          "meanTurns": 219.4375,
+          "meanEntryHp": 57.125
+        },
+        {
+          "floor": 10,
+          "reached": 16,
+          "cleared": 16,
+          "meanTurns": 216.0625,
+          "meanEntryHp": 63.1875
+        },
+        {
+          "floor": 11,
+          "reached": 16,
+          "cleared": 15,
+          "meanTurns": 210,
+          "meanEntryHp": 64.625
+        },
+        {
+          "floor": 12,
+          "reached": 15,
+          "cleared": 15,
+          "meanTurns": 232.66666666666666,
+          "meanEntryHp": 68.46666666666667
+        },
+        {
+          "floor": 13,
+          "reached": 15,
+          "cleared": 15,
+          "meanTurns": 235,
+          "meanEntryHp": 73.46666666666667
+        },
+        {
+          "floor": 14,
+          "reached": 15,
+          "cleared": 9,
+          "meanTurns": 176.26666666666668,
+          "meanEntryHp": 59.53333333333333
+        },
+        {
+          "floor": 15,
+          "reached": 9,
+          "cleared": 6,
+          "meanTurns": 204.44444444444446,
+          "meanEntryHp": 72.55555555555556
+        },
+        {
+          "floor": 16,
+          "reached": 6,
+          "cleared": 2,
+          "meanTurns": 146.33333333333334,
+          "meanEntryHp": 77.66666666666667
+        },
+        {
+          "floor": 17,
+          "reached": 2,
+          "cleared": 1,
+          "meanTurns": 141,
+          "meanEntryHp": 76
+        },
+        {
+          "floor": 18,
+          "reached": 1,
+          "cleared": 0,
+          "meanTurns": 57,
+          "meanEntryHp": 85
+        }
+      ]
+    },
+    {
+      "group": "ranger/zero/tactical",
+      "runs": 20,
+      "won": 2,
+      "dead": 18,
+      "stalled": 0,
+      "winRate": 0.1,
+      "meanFloor": 15.95,
+      "maxFloor": 18,
+      "meanTurns": 3329.15,
+      "floors": [
+        {
+          "floor": 1,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 209,
+          "meanEntryHp": 32
+        },
+        {
+          "floor": 2,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 205.1,
+          "meanEntryHp": 32.1
+        },
+        {
+          "floor": 3,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 201.05,
+          "meanEntryHp": 35.45
+        },
+        {
+          "floor": 4,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 203.9,
+          "meanEntryHp": 39.4
+        },
+        {
+          "floor": 5,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 204.6,
+          "meanEntryHp": 44.25
+        },
+        {
+          "floor": 6,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 212.55,
+          "meanEntryHp": 48.2
+        },
+        {
+          "floor": 7,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 208.65,
+          "meanEntryHp": 57.4
+        },
+        {
+          "floor": 8,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 207.5,
+          "meanEntryHp": 54.75
+        },
+        {
+          "floor": 9,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 209.8,
+          "meanEntryHp": 64.1
+        },
+        {
+          "floor": 10,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 220.4,
+          "meanEntryHp": 69.15
+        },
+        {
+          "floor": 11,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 206.65,
+          "meanEntryHp": 71.85
+        },
+        {
+          "floor": 12,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 217.45,
+          "meanEntryHp": 78.45
+        },
+        {
+          "floor": 13,
+          "reached": 20,
+          "cleared": 19,
+          "meanTurns": 218.15,
+          "meanEntryHp": 83.15
+        },
+        {
+          "floor": 14,
+          "reached": 19,
+          "cleared": 14,
+          "meanTurns": 202.31578947368422,
+          "meanEntryHp": 83.94736842105263
+        },
+        {
+          "floor": 15,
+          "reached": 14,
+          "cleared": 10,
+          "meanTurns": 216.71428571428572,
+          "meanEntryHp": 79.92857142857143
+        },
+        {
+          "floor": 16,
+          "reached": 10,
+          "cleared": 8,
+          "meanTurns": 208.9,
+          "meanEntryHp": 82.4
+        },
+        {
+          "floor": 17,
+          "reached": 8,
+          "cleared": 8,
+          "meanTurns": 245,
+          "meanEntryHp": 85.5
+        },
+        {
+          "floor": 18,
+          "reached": 8,
+          "cleared": 2,
+          "meanTurns": 145,
+          "meanEntryHp": 77.5
+        }
+      ]
+    },
+    {
+      "group": "ranger/mid/naive",
+      "runs": 20,
+      "won": 3,
+      "dead": 17,
+      "stalled": 0,
+      "winRate": 0.15,
+      "meanFloor": 16.85,
+      "maxFloor": 18,
+      "meanTurns": 3497.6,
+      "floors": [
+        {
+          "floor": 1,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 204.4,
+          "meanEntryHp": 48
+        },
+        {
+          "floor": 2,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 205.7,
+          "meanEntryHp": 52.75
+        },
+        {
+          "floor": 3,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 205,
+          "meanEntryHp": 57.65
+        },
+        {
+          "floor": 4,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 201.1,
+          "meanEntryHp": 60
+        },
+        {
+          "floor": 5,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 201.9,
+          "meanEntryHp": 63
+        },
+        {
+          "floor": 6,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 210.6,
+          "meanEntryHp": 66.5
+        },
+        {
+          "floor": 7,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 199.9,
+          "meanEntryHp": 74.1
+        },
+        {
+          "floor": 8,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 209.8,
+          "meanEntryHp": 67.15
+        },
+        {
+          "floor": 9,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 218.4,
+          "meanEntryHp": 74.2
+        },
+        {
+          "floor": 10,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 210,
+          "meanEntryHp": 81.75
+        },
+        {
+          "floor": 11,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 208.35,
+          "meanEntryHp": 81.25
+        },
+        {
+          "floor": 12,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 223.95,
+          "meanEntryHp": 86.45
+        },
+        {
+          "floor": 13,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 218.35,
+          "meanEntryHp": 98.4
+        },
+        {
+          "floor": 14,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 225.05,
+          "meanEntryHp": 94.1
+        },
+        {
+          "floor": 15,
+          "reached": 20,
+          "cleared": 15,
+          "meanTurns": 205.9,
+          "meanEntryHp": 81.3
+        },
+        {
+          "floor": 16,
+          "reached": 15,
+          "cleared": 12,
+          "meanTurns": 212.8,
+          "meanEntryHp": 89.46666666666667
+        },
+        {
+          "floor": 17,
+          "reached": 12,
+          "cleared": 10,
+          "meanTurns": 203.25,
+          "meanEntryHp": 93.16666666666667
+        },
+        {
+          "floor": 18,
+          "reached": 10,
+          "cleared": 3,
+          "meanTurns": 135.3,
+          "meanEntryHp": 78.1
+        }
+      ]
+    },
+    {
+      "group": "ranger/mid/tactical",
+      "runs": 20,
+      "won": 7,
+      "dead": 13,
+      "stalled": 0,
+      "winRate": 0.35,
+      "meanFloor": 16.75,
+      "maxFloor": 18,
+      "meanTurns": 3486.3,
+      "floors": [
+        {
+          "floor": 1,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 204.4,
+          "meanEntryHp": 48
+        },
+        {
+          "floor": 2,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 205.75,
+          "meanEntryHp": 52.35
+        },
+        {
+          "floor": 3,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 203.05,
+          "meanEntryHp": 55.85
+        },
+        {
+          "floor": 4,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 191,
+          "meanEntryHp": 59.7
+        },
+        {
+          "floor": 5,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 209.15,
+          "meanEntryHp": 64.3
+        },
+        {
+          "floor": 6,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 199.95,
+          "meanEntryHp": 68
+        },
+        {
+          "floor": 7,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 210.4,
+          "meanEntryHp": 74.85
+        },
+        {
+          "floor": 8,
+          "reached": 20,
+          "cleared": 19,
+          "meanTurns": 201.4,
+          "meanEntryHp": 72.1
+        },
+        {
+          "floor": 9,
+          "reached": 19,
+          "cleared": 19,
+          "meanTurns": 212,
+          "meanEntryHp": 81.89473684210526
+        },
+        {
+          "floor": 10,
+          "reached": 19,
+          "cleared": 19,
+          "meanTurns": 208.57894736842104,
+          "meanEntryHp": 83.78947368421052
+        },
+        {
+          "floor": 11,
+          "reached": 19,
+          "cleared": 19,
+          "meanTurns": 215.52631578947367,
+          "meanEntryHp": 86.42105263157895
+        },
+        {
+          "floor": 12,
+          "reached": 19,
+          "cleared": 19,
+          "meanTurns": 203.89473684210526,
+          "meanEntryHp": 91.84210526315789
+        },
+        {
+          "floor": 13,
+          "reached": 19,
+          "cleared": 19,
+          "meanTurns": 219.8421052631579,
+          "meanEntryHp": 96.3157894736842
+        },
+        {
+          "floor": 14,
+          "reached": 19,
+          "cleared": 18,
+          "meanTurns": 212.31578947368422,
+          "meanEntryHp": 98.26315789473684
+        },
+        {
+          "floor": 15,
+          "reached": 18,
+          "cleared": 16,
+          "meanTurns": 217.88888888888889,
+          "meanEntryHp": 94.77777777777777
+        },
+        {
+          "floor": 16,
+          "reached": 16,
+          "cleared": 15,
+          "meanTurns": 216.75,
+          "meanEntryHp": 112.375
+        },
+        {
+          "floor": 17,
+          "reached": 15,
+          "cleared": 12,
+          "meanTurns": 200.66666666666666,
+          "meanEntryHp": 110.06666666666666
+        },
+        {
+          "floor": 18,
+          "reached": 12,
+          "cleared": 7,
+          "meanTurns": 221.08333333333334,
+          "meanEntryHp": 119.75
+        }
+      ]
+    },
+    {
+      "group": "ranger/max/naive",
+      "runs": 20,
+      "won": 7,
+      "dead": 13,
+      "stalled": 0,
+      "winRate": 0.35,
+      "meanFloor": 17.45,
+      "maxFloor": 18,
+      "meanTurns": 3667.7,
+      "floors": [
+        {
+          "floor": 1,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 204.4,
+          "meanEntryHp": 64
+        },
+        {
+          "floor": 2,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 204.95,
+          "meanEntryHp": 68.9
+        },
+        {
+          "floor": 3,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 200.6,
+          "meanEntryHp": 75.15
+        },
+        {
+          "floor": 4,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 202.65,
+          "meanEntryHp": 78.15
+        },
+        {
+          "floor": 5,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 212.9,
+          "meanEntryHp": 82.7
+        },
+        {
+          "floor": 6,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 203.35,
+          "meanEntryHp": 86.65
+        },
+        {
+          "floor": 7,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 196.8,
+          "meanEntryHp": 90.85
+        },
+        {
+          "floor": 8,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 203.75,
+          "meanEntryHp": 90.2
+        },
+        {
+          "floor": 9,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 208,
+          "meanEntryHp": 98.15
+        },
+        {
+          "floor": 10,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 200.25,
+          "meanEntryHp": 101.2
+        },
+        {
+          "floor": 11,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 209.1,
+          "meanEntryHp": 106.25
+        },
+        {
+          "floor": 12,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 225.5,
+          "meanEntryHp": 100.3
+        },
+        {
+          "floor": 13,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 219.15,
+          "meanEntryHp": 111.85
+        },
+        {
+          "floor": 14,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 232.45,
+          "meanEntryHp": 99.85
+        },
+        {
+          "floor": 15,
+          "reached": 20,
+          "cleared": 18,
+          "meanTurns": 230.1,
+          "meanEntryHp": 102.3
+        },
+        {
+          "floor": 16,
+          "reached": 18,
+          "cleared": 17,
+          "meanTurns": 223.05555555555554,
+          "meanEntryHp": 111.72222222222223
+        },
+        {
+          "floor": 17,
+          "reached": 17,
+          "cleared": 14,
+          "meanTurns": 214.47058823529412,
+          "meanEntryHp": 102.94117647058823
+        },
+        {
+          "floor": 18,
+          "reached": 14,
+          "cleared": 7,
+          "meanTurns": 186.71428571428572,
+          "meanEntryHp": 112.5
+        }
+      ]
+    },
+    {
+      "group": "ranger/max/tactical",
+      "runs": 20,
+      "won": 12,
+      "dead": 8,
+      "stalled": 0,
+      "winRate": 0.6,
+      "meanFloor": 17.65,
+      "maxFloor": 18,
+      "meanTurns": 3688.05,
+      "floors": [
+        {
+          "floor": 1,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 204.4,
+          "meanEntryHp": 64
+        },
+        {
+          "floor": 2,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 204.7,
+          "meanEntryHp": 68.5
+        },
+        {
+          "floor": 3,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 198.15,
+          "meanEntryHp": 72.9
+        },
+        {
+          "floor": 4,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 194.5,
+          "meanEntryHp": 76.85
+        },
+        {
+          "floor": 5,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 208.4,
+          "meanEntryHp": 79.95
+        },
+        {
+          "floor": 6,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 200.1,
+          "meanEntryHp": 84.95
+        },
+        {
+          "floor": 7,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 200.9,
+          "meanEntryHp": 90.7
+        },
+        {
+          "floor": 8,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 206.9,
+          "meanEntryHp": 92.05
+        },
+        {
+          "floor": 9,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 206.85,
+          "meanEntryHp": 98.65
+        },
+        {
+          "floor": 10,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 195.7,
+          "meanEntryHp": 102.2
+        },
+        {
+          "floor": 11,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 213.15,
+          "meanEntryHp": 105.45
+        },
+        {
+          "floor": 12,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 223.7,
+          "meanEntryHp": 112.85
+        },
+        {
+          "floor": 13,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 217.35,
+          "meanEntryHp": 117.8
+        },
+        {
+          "floor": 14,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 214.4,
+          "meanEntryHp": 115.65
+        },
+        {
+          "floor": 15,
+          "reached": 20,
+          "cleared": 19,
+          "meanTurns": 219.2,
+          "meanEntryHp": 112.5
+        },
+        {
+          "floor": 16,
+          "reached": 19,
+          "cleared": 18,
+          "meanTurns": 210.8421052631579,
+          "meanEntryHp": 121.42105263157895
+        },
+        {
+          "floor": 17,
+          "reached": 18,
+          "cleared": 16,
+          "meanTurns": 227.33333333333334,
+          "meanEntryHp": 126
+        },
+        {
+          "floor": 18,
+          "reached": 16,
+          "cleared": 12,
+          "meanTurns": 218.4375,
+          "meanEntryHp": 126.875
+        }
+      ]
+    },
+    {
+      "group": "arcanist/zero/naive",
+      "runs": 20,
+      "won": 0,
+      "dead": 20,
+      "stalled": 0,
+      "winRate": 0,
+      "meanFloor": 2.45,
+      "maxFloor": 8,
+      "meanTurns": 368.65,
+      "floors": [
+        {
+          "floor": 1,
+          "reached": 20,
+          "cleared": 14,
+          "meanTurns": 169,
+          "meanEntryHp": 28
+        },
+        {
+          "floor": 2,
+          "reached": 14,
+          "cleared": 7,
+          "meanTurns": 135.21428571428572,
+          "meanEntryHp": 15.928571428571429
+        },
+        {
+          "floor": 3,
+          "reached": 7,
+          "cleared": 2,
+          "meanTurns": 111.85714285714286,
+          "meanEntryHp": 22.714285714285715
+        },
+        {
+          "floor": 4,
+          "reached": 2,
+          "cleared": 2,
+          "meanTurns": 201,
+          "meanEntryHp": 42.5
+        },
+        {
+          "floor": 5,
+          "reached": 2,
+          "cleared": 2,
+          "meanTurns": 210,
+          "meanEntryHp": 31
+        },
+        {
+          "floor": 6,
+          "reached": 2,
+          "cleared": 1,
+          "meanTurns": 123.5,
+          "meanEntryHp": 28.5
+        },
+        {
+          "floor": 7,
+          "reached": 1,
+          "cleared": 1,
+          "meanTurns": 224,
+          "meanEntryHp": 46
+        },
+        {
+          "floor": 8,
+          "reached": 1,
+          "cleared": 0,
+          "meanTurns": 24,
+          "meanEntryHp": 30
+        }
+      ]
+    },
+    {
+      "group": "arcanist/zero/tactical",
+      "runs": 20,
+      "won": 0,
+      "dead": 20,
+      "stalled": 0,
+      "winRate": 0,
+      "meanFloor": 3.25,
+      "maxFloor": 14,
+      "meanTurns": 567.9,
+      "floors": [
+        {
+          "floor": 1,
+          "reached": 20,
+          "cleared": 9,
+          "meanTurns": 144.4,
+          "meanEntryHp": 28
+        },
+        {
+          "floor": 2,
+          "reached": 9,
+          "cleared": 6,
+          "meanTurns": 178.11111111111111,
+          "meanEntryHp": 21.22222222222222
+        },
+        {
+          "floor": 3,
+          "reached": 6,
+          "cleared": 3,
+          "meanTurns": 154.83333333333334,
+          "meanEntryHp": 21.666666666666668
+        },
+        {
+          "floor": 4,
+          "reached": 3,
+          "cleared": 3,
+          "meanTurns": 194.66666666666666,
+          "meanEntryHp": 19.666666666666668
+        },
+        {
+          "floor": 5,
+          "reached": 3,
+          "cleared": 3,
+          "meanTurns": 204,
+          "meanEntryHp": 35.333333333333336
+        },
+        {
+          "floor": 6,
+          "reached": 3,
+          "cleared": 3,
+          "meanTurns": 204.33333333333334,
+          "meanEntryHp": 38.666666666666664
+        },
+        {
+          "floor": 7,
+          "reached": 3,
+          "cleared": 3,
+          "meanTurns": 224,
+          "meanEntryHp": 48
+        },
+        {
+          "floor": 8,
+          "reached": 3,
+          "cleared": 3,
+          "meanTurns": 188.66666666666666,
+          "meanEntryHp": 48.333333333333336
+        },
+        {
+          "floor": 9,
+          "reached": 3,
+          "cleared": 3,
+          "meanTurns": 242.33333333333334,
+          "meanEntryHp": 60
+        },
+        {
+          "floor": 10,
+          "reached": 3,
+          "cleared": 3,
+          "meanTurns": 210.66666666666666,
+          "meanEntryHp": 63.666666666666664
+        },
+        {
+          "floor": 11,
+          "reached": 3,
+          "cleared": 2,
+          "meanTurns": 175,
+          "meanEntryHp": 70.66666666666667
+        },
+        {
+          "floor": 12,
+          "reached": 2,
+          "cleared": 2,
+          "meanTurns": 219,
+          "meanEntryHp": 68
+        },
+        {
+          "floor": 13,
+          "reached": 2,
+          "cleared": 2,
+          "meanTurns": 234.5,
+          "meanEntryHp": 73.5
+        },
+        {
+          "floor": 14,
+          "reached": 2,
+          "cleared": 0,
+          "meanTurns": 50,
+          "meanEntryHp": 74
+        }
+      ]
+    },
+    {
+      "group": "arcanist/mid/naive",
+      "runs": 20,
+      "won": 0,
+      "dead": 20,
+      "stalled": 0,
+      "winRate": 0,
+      "meanFloor": 13.25,
+      "maxFloor": 15,
+      "meanTurns": 2654.6,
+      "floors": [
+        {
+          "floor": 1,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 202.5,
+          "meanEntryHp": 44
+        },
+        {
+          "floor": 2,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 207.9,
+          "meanEntryHp": 48.3
+        },
+        {
+          "floor": 3,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 208.65,
+          "meanEntryHp": 49.85
+        },
+        {
+          "floor": 4,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 203.85,
+          "meanEntryHp": 53.6
+        },
+        {
+          "floor": 5,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 201.5,
+          "meanEntryHp": 51
+        },
+        {
+          "floor": 6,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 213.15,
+          "meanEntryHp": 52.35
+        },
+        {
+          "floor": 7,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 211.1,
+          "meanEntryHp": 64.1
+        },
+        {
+          "floor": 8,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 212.8,
+          "meanEntryHp": 52.85
+        },
+        {
+          "floor": 9,
+          "reached": 20,
+          "cleared": 19,
+          "meanTurns": 204.25,
+          "meanEntryHp": 56.45
+        },
+        {
+          "floor": 10,
+          "reached": 19,
+          "cleared": 19,
+          "meanTurns": 217.6315789473684,
+          "meanEntryHp": 68.47368421052632
+        },
+        {
+          "floor": 11,
+          "reached": 19,
+          "cleared": 18,
+          "meanTurns": 197.31578947368422,
+          "meanEntryHp": 64.84210526315789
+        },
+        {
+          "floor": 12,
+          "reached": 18,
+          "cleared": 16,
+          "meanTurns": 209.44444444444446,
+          "meanEntryHp": 70.72222222222223
+        },
+        {
+          "floor": 13,
+          "reached": 16,
+          "cleared": 10,
+          "meanTurns": 184.875,
+          "meanEntryHp": 78
+        },
+        {
+          "floor": 14,
+          "reached": 10,
+          "cleared": 3,
+          "meanTurns": 105.7,
+          "meanEntryHp": 67.3
+        },
+        {
+          "floor": 15,
+          "reached": 3,
+          "cleared": 0,
+          "meanTurns": 36.333333333333336,
+          "meanEntryHp": 34.333333333333336
+        }
+      ]
+    },
+    {
+      "group": "arcanist/mid/tactical",
+      "runs": 20,
+      "won": 1,
+      "dead": 19,
+      "stalled": 0,
+      "winRate": 0.05,
+      "meanFloor": 15.7,
+      "maxFloor": 18,
+      "meanTurns": 3232.7,
+      "floors": [
+        {
+          "floor": 1,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 202,
+          "meanEntryHp": 44
+        },
+        {
+          "floor": 2,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 204.75,
+          "meanEntryHp": 48.25
+        },
+        {
+          "floor": 3,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 206.7,
+          "meanEntryHp": 51.25
+        },
+        {
+          "floor": 4,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 199.15,
+          "meanEntryHp": 55
+        },
+        {
+          "floor": 5,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 205.35,
+          "meanEntryHp": 60.85
+        },
+        {
+          "floor": 6,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 210.65,
+          "meanEntryHp": 64.55
+        },
+        {
+          "floor": 7,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 204.15,
+          "meanEntryHp": 69.8
+        },
+        {
+          "floor": 8,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 204.05,
+          "meanEntryHp": 66.2
+        },
+        {
+          "floor": 9,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 208.35,
+          "meanEntryHp": 73.8
+        },
+        {
+          "floor": 10,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 207.55,
+          "meanEntryHp": 78.5
+        },
+        {
+          "floor": 11,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 209.45,
+          "meanEntryHp": 85.75
+        },
+        {
+          "floor": 12,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 229,
+          "meanEntryHp": 90.4
+        },
+        {
+          "floor": 13,
+          "reached": 20,
+          "cleared": 19,
+          "meanTurns": 223.05,
+          "meanEntryHp": 88.35
+        },
+        {
+          "floor": 14,
+          "reached": 19,
+          "cleared": 15,
+          "meanTurns": 196.05263157894737,
+          "meanEntryHp": 94.15789473684211
+        },
+        {
+          "floor": 15,
+          "reached": 15,
+          "cleared": 10,
+          "meanTurns": 214,
+          "meanEntryHp": 87.8
+        },
+        {
+          "floor": 16,
+          "reached": 10,
+          "cleared": 8,
+          "meanTurns": 220.6,
+          "meanEntryHp": 90.4
+        },
+        {
+          "floor": 17,
+          "reached": 8,
+          "cleared": 2,
+          "meanTurns": 109.75,
+          "meanEntryHp": 98.125
+        },
+        {
+          "floor": 18,
+          "reached": 2,
+          "cleared": 1,
+          "meanTurns": 175.5,
+          "meanEntryHp": 113.5
+        }
+      ]
+    },
+    {
+      "group": "arcanist/max/naive",
+      "runs": 20,
+      "won": 0,
+      "dead": 20,
+      "stalled": 0,
+      "winRate": 0,
+      "meanFloor": 15.5,
+      "maxFloor": 18,
+      "meanTurns": 3143.3,
+      "floors": [
+        {
+          "floor": 1,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 202.5,
+          "meanEntryHp": 60
+        },
+        {
+          "floor": 2,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 207.9,
+          "meanEntryHp": 64.6
+        },
+        {
+          "floor": 3,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 199.9,
+          "meanEntryHp": 68.5
+        },
+        {
+          "floor": 4,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 194.75,
+          "meanEntryHp": 71.15
+        },
+        {
+          "floor": 5,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 192.6,
+          "meanEntryHp": 74.15
+        },
+        {
+          "floor": 6,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 215.6,
+          "meanEntryHp": 75.45
+        },
+        {
+          "floor": 7,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 204.85,
+          "meanEntryHp": 80.45
+        },
+        {
+          "floor": 8,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 211.15,
+          "meanEntryHp": 73.35
+        },
+        {
+          "floor": 9,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 220,
+          "meanEntryHp": 77.15
+        },
+        {
+          "floor": 10,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 205.1,
+          "meanEntryHp": 88.15
+        },
+        {
+          "floor": 11,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 204.05,
+          "meanEntryHp": 82.45
+        },
+        {
+          "floor": 12,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 209.75,
+          "meanEntryHp": 79.55
+        },
+        {
+          "floor": 13,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 225.5,
+          "meanEntryHp": 95.2
+        },
+        {
+          "floor": 14,
+          "reached": 20,
+          "cleared": 16,
+          "meanTurns": 209.45,
+          "meanEntryHp": 83.2
+        },
+        {
+          "floor": 15,
+          "reached": 16,
+          "cleared": 7,
+          "meanTurns": 158.375,
+          "meanEntryHp": 79.625
+        },
+        {
+          "floor": 16,
+          "reached": 7,
+          "cleared": 5,
+          "meanTurns": 190.14285714285714,
+          "meanEntryHp": 66
+        },
+        {
+          "floor": 17,
+          "reached": 5,
+          "cleared": 2,
+          "meanTurns": 173.4,
+          "meanEntryHp": 62.6
+        },
+        {
+          "floor": 18,
+          "reached": 2,
+          "cleared": 0,
+          "meanTurns": 36,
+          "meanEntryHp": 61
+        }
+      ]
+    },
+    {
+      "group": "arcanist/max/tactical",
+      "runs": 20,
+      "won": 3,
+      "dead": 17,
+      "stalled": 0,
+      "winRate": 0.15,
+      "meanFloor": 16.7,
+      "maxFloor": 18,
+      "meanTurns": 3487.2,
+      "floors": [
+        {
+          "floor": 1,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 202,
+          "meanEntryHp": 60
+        },
+        {
+          "floor": 2,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 204.75,
+          "meanEntryHp": 64.5
+        },
+        {
+          "floor": 3,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 204.5,
+          "meanEntryHp": 68.95
+        },
+        {
+          "floor": 4,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 191.15,
+          "meanEntryHp": 73.45
+        },
+        {
+          "floor": 5,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 207.55,
+          "meanEntryHp": 77.7
+        },
+        {
+          "floor": 6,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 210.05,
+          "meanEntryHp": 81.9
+        },
+        {
+          "floor": 7,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 197.6,
+          "meanEntryHp": 87.5
+        },
+        {
+          "floor": 8,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 207.2,
+          "meanEntryHp": 87.4
+        },
+        {
+          "floor": 9,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 206.05,
+          "meanEntryHp": 96.3
+        },
+        {
+          "floor": 10,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 210,
+          "meanEntryHp": 97.25
+        },
+        {
+          "floor": 11,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 218.25,
+          "meanEntryHp": 101.85
+        },
+        {
+          "floor": 12,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 228.05,
+          "meanEntryHp": 104.55
+        },
+        {
+          "floor": 13,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 223.85,
+          "meanEntryHp": 111.8
+        },
+        {
+          "floor": 14,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 238.65,
+          "meanEntryHp": 107.9
+        },
+        {
+          "floor": 15,
+          "reached": 20,
+          "cleared": 14,
+          "meanTurns": 197.6,
+          "meanEntryHp": 105.65
+        },
+        {
+          "floor": 16,
+          "reached": 14,
+          "cleared": 12,
+          "meanTurns": 223.64285714285714,
+          "meanEntryHp": 109.35714285714286
+        },
+        {
+          "floor": 17,
+          "reached": 12,
+          "cleared": 8,
+          "meanTurns": 202,
+          "meanEntryHp": 107.91666666666667
+        },
+        {
+          "floor": 18,
+          "reached": 8,
+          "cleared": 3,
+          "meanTurns": 155.5,
+          "meanEntryHp": 122.125
+        }
+      ]
+    },
+    {
+      "group": "luminary/zero/naive",
+      "runs": 20,
+      "won": 2,
+      "dead": 18,
+      "stalled": 0,
+      "winRate": 0.1,
+      "meanFloor": 17.4,
+      "maxFloor": 18,
+      "meanTurns": 3622,
+      "floors": [
+        {
+          "floor": 1,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 202.3,
+          "meanEntryHp": 50
+        },
+        {
+          "floor": 2,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 204.5,
+          "meanEntryHp": 55.15
+        },
+        {
+          "floor": 3,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 216.9,
+          "meanEntryHp": 59.15
+        },
+        {
+          "floor": 4,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 196.45,
+          "meanEntryHp": 64.85
+        },
+        {
+          "floor": 5,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 205.15,
+          "meanEntryHp": 69.85
+        },
+        {
+          "floor": 6,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 199.25,
+          "meanEntryHp": 72.25
+        },
+        {
+          "floor": 7,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 203.35,
+          "meanEntryHp": 78.95
+        },
+        {
+          "floor": 8,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 209.5,
+          "meanEntryHp": 76.9
+        },
+        {
+          "floor": 9,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 214.1,
+          "meanEntryHp": 80
+        },
+        {
+          "floor": 10,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 214.4,
+          "meanEntryHp": 86.8
+        },
+        {
+          "floor": 11,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 221.2,
+          "meanEntryHp": 87.85
+        },
+        {
+          "floor": 12,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 214.4,
+          "meanEntryHp": 82.15
+        },
+        {
+          "floor": 13,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 224.65,
+          "meanEntryHp": 103.7
+        },
+        {
+          "floor": 14,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 220.7,
+          "meanEntryHp": 87.8
+        },
+        {
+          "floor": 15,
+          "reached": 20,
+          "cleared": 16,
+          "meanTurns": 211.45,
+          "meanEntryHp": 87.95
+        },
+        {
+          "floor": 16,
+          "reached": 16,
+          "cleared": 16,
+          "meanTurns": 222.9375,
+          "meanEntryHp": 94.8125
+        },
+        {
+          "floor": 17,
+          "reached": 16,
+          "cleared": 16,
+          "meanTurns": 233.75,
+          "meanEntryHp": 103
+        },
+        {
+          "floor": 18,
+          "reached": 16,
+          "cleared": 2,
+          "meanTurns": 122.9375,
+          "meanEntryHp": 91.4375
+        }
+      ]
+    },
+    {
+      "group": "luminary/zero/tactical",
+      "runs": 20,
+      "won": 1,
+      "dead": 19,
+      "stalled": 0,
+      "winRate": 0.05,
+      "meanFloor": 15.7,
+      "maxFloor": 18,
+      "meanTurns": 3262.35,
+      "floors": [
+        {
+          "floor": 1,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 202.3,
+          "meanEntryHp": 50
+        },
+        {
+          "floor": 2,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 204.6,
+          "meanEntryHp": 54.35
+        },
+        {
+          "floor": 3,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 212.45,
+          "meanEntryHp": 56.65
+        },
+        {
+          "floor": 4,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 192.6,
+          "meanEntryHp": 59.3
+        },
+        {
+          "floor": 5,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 204.4,
+          "meanEntryHp": 65.4
+        },
+        {
+          "floor": 6,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 205.7,
+          "meanEntryHp": 69.95
+        },
+        {
+          "floor": 7,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 203.85,
+          "meanEntryHp": 75.45
+        },
+        {
+          "floor": 8,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 211.15,
+          "meanEntryHp": 75.25
+        },
+        {
+          "floor": 9,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 208.6,
+          "meanEntryHp": 84.85
+        },
+        {
+          "floor": 10,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 210.15,
+          "meanEntryHp": 88.75
+        },
+        {
+          "floor": 11,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 212.4,
+          "meanEntryHp": 89.5
+        },
+        {
+          "floor": 12,
+          "reached": 20,
+          "cleared": 19,
+          "meanTurns": 205.5,
+          "meanEntryHp": 91.5
+        },
+        {
+          "floor": 13,
+          "reached": 19,
+          "cleared": 19,
+          "meanTurns": 233.94736842105263,
+          "meanEntryHp": 99.47368421052632
+        },
+        {
+          "floor": 14,
+          "reached": 19,
+          "cleared": 14,
+          "meanTurns": 199.31578947368422,
+          "meanEntryHp": 92.63157894736842
+        },
+        {
+          "floor": 15,
+          "reached": 14,
+          "cleared": 8,
+          "meanTurns": 190.07142857142858,
+          "meanEntryHp": 96.92857142857143
+        },
+        {
+          "floor": 16,
+          "reached": 8,
+          "cleared": 7,
+          "meanTurns": 260.75,
+          "meanEntryHp": 106.625
+        },
+        {
+          "floor": 17,
+          "reached": 7,
+          "cleared": 7,
+          "meanTurns": 231.57142857142858,
+          "meanEntryHp": 94.57142857142857
+        },
+        {
+          "floor": 18,
+          "reached": 7,
+          "cleared": 1,
+          "meanTurns": 167.57142857142858,
+          "meanEntryHp": 113.71428571428571
+        }
+      ]
+    },
+    {
+      "group": "luminary/mid/naive",
+      "runs": 20,
+      "won": 14,
+      "dead": 6,
+      "stalled": 0,
+      "winRate": 0.7,
+      "meanFloor": 18,
+      "maxFloor": 18,
+      "meanTurns": 3793.4,
+      "floors": [
+        {
+          "floor": 1,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 202.3,
+          "meanEntryHp": 66
+        },
+        {
+          "floor": 2,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 203.5,
+          "meanEntryHp": 71.3
+        },
+        {
+          "floor": 3,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 205.75,
+          "meanEntryHp": 77.8
+        },
+        {
+          "floor": 4,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 194.7,
+          "meanEntryHp": 82.5
+        },
+        {
+          "floor": 5,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 205.5,
+          "meanEntryHp": 86.55
+        },
+        {
+          "floor": 6,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 197.95,
+          "meanEntryHp": 91.15
+        },
+        {
+          "floor": 7,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 202,
+          "meanEntryHp": 95.7
+        },
+        {
+          "floor": 8,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 204.8,
+          "meanEntryHp": 97.45
+        },
+        {
+          "floor": 9,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 206.8,
+          "meanEntryHp": 104.7
+        },
+        {
+          "floor": 10,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 210.7,
+          "meanEntryHp": 105.25
+        },
+        {
+          "floor": 11,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 205.2,
+          "meanEntryHp": 107.4
+        },
+        {
+          "floor": 12,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 218.7,
+          "meanEntryHp": 110.2
+        },
+        {
+          "floor": 13,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 218.25,
+          "meanEntryHp": 118.4
+        },
+        {
+          "floor": 14,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 220.3,
+          "meanEntryHp": 111.85
+        },
+        {
+          "floor": 15,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 237.05,
+          "meanEntryHp": 108.25
+        },
+        {
+          "floor": 16,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 229.85,
+          "meanEntryHp": 120.3
+        },
+        {
+          "floor": 17,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 217.1,
+          "meanEntryHp": 115
+        },
+        {
+          "floor": 18,
+          "reached": 20,
+          "cleared": 14,
+          "meanTurns": 212.95,
+          "meanEntryHp": 127.65
+        }
+      ]
+    },
+    {
+      "group": "luminary/mid/tactical",
+      "runs": 20,
+      "won": 8,
+      "dead": 12,
+      "stalled": 0,
+      "winRate": 0.4,
+      "meanFloor": 17.2,
+      "maxFloor": 18,
+      "meanTurns": 3593.55,
+      "floors": [
+        {
+          "floor": 1,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 202.3,
+          "meanEntryHp": 66
+        },
+        {
+          "floor": 2,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 202.7,
+          "meanEntryHp": 70.5
+        },
+        {
+          "floor": 3,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 200.6,
+          "meanEntryHp": 75.1
+        },
+        {
+          "floor": 4,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 203.9,
+          "meanEntryHp": 78.5
+        },
+        {
+          "floor": 5,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 204.55,
+          "meanEntryHp": 81.9
+        },
+        {
+          "floor": 6,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 202.6,
+          "meanEntryHp": 87.15
+        },
+        {
+          "floor": 7,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 205.65,
+          "meanEntryHp": 92
+        },
+        {
+          "floor": 8,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 205.7,
+          "meanEntryHp": 92.85
+        },
+        {
+          "floor": 9,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 202.65,
+          "meanEntryHp": 101.35
+        },
+        {
+          "floor": 10,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 203.25,
+          "meanEntryHp": 104.95
+        },
+        {
+          "floor": 11,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 207.45,
+          "meanEntryHp": 108.5
+        },
+        {
+          "floor": 12,
+          "reached": 20,
+          "cleared": 19,
+          "meanTurns": 234.8,
+          "meanEntryHp": 111.6
+        },
+        {
+          "floor": 13,
+          "reached": 19,
+          "cleared": 19,
+          "meanTurns": 224,
+          "meanEntryHp": 116.6842105263158
+        },
+        {
+          "floor": 14,
+          "reached": 19,
+          "cleared": 19,
+          "meanTurns": 207.31578947368422,
+          "meanEntryHp": 116.42105263157895
+        },
+        {
+          "floor": 15,
+          "reached": 19,
+          "cleared": 18,
+          "meanTurns": 225.26315789473685,
+          "meanEntryHp": 114.78947368421052
+        },
+        {
+          "floor": 16,
+          "reached": 18,
+          "cleared": 17,
+          "meanTurns": 212.55555555555554,
+          "meanEntryHp": 120.77777777777777
+        },
+        {
+          "floor": 17,
+          "reached": 17,
+          "cleared": 12,
+          "meanTurns": 208.23529411764707,
+          "meanEntryHp": 124.6470588235294
+        },
+        {
+          "floor": 18,
+          "reached": 12,
+          "cleared": 8,
+          "meanTurns": 208.91666666666666,
+          "meanEntryHp": 120.33333333333333
+        }
+      ]
+    },
+    {
+      "group": "luminary/max/naive",
+      "runs": 20,
+      "won": 18,
+      "dead": 2,
+      "stalled": 0,
+      "winRate": 0.9,
+      "meanFloor": 18,
+      "maxFloor": 18,
+      "meanTurns": 3760.35,
+      "floors": [
+        {
+          "floor": 1,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 199.75,
+          "meanEntryHp": 82
+        },
+        {
+          "floor": 2,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 190.9,
+          "meanEntryHp": 87.05
+        },
+        {
+          "floor": 3,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 199,
+          "meanEntryHp": 92.95
+        },
+        {
+          "floor": 4,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 202.95,
+          "meanEntryHp": 96.9
+        },
+        {
+          "floor": 5,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 196.45,
+          "meanEntryHp": 100.45
+        },
+        {
+          "floor": 6,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 195.15,
+          "meanEntryHp": 105.75
+        },
+        {
+          "floor": 7,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 196.95,
+          "meanEntryHp": 110.35
+        },
+        {
+          "floor": 8,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 204.65,
+          "meanEntryHp": 112.85
+        },
+        {
+          "floor": 9,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 207.85,
+          "meanEntryHp": 120
+        },
+        {
+          "floor": 10,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 217.7,
+          "meanEntryHp": 120.8
+        },
+        {
+          "floor": 11,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 207.15,
+          "meanEntryHp": 127.2
+        },
+        {
+          "floor": 12,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 205.95,
+          "meanEntryHp": 128.35
+        },
+        {
+          "floor": 13,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 209.8,
+          "meanEntryHp": 135.35
+        },
+        {
+          "floor": 14,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 216.95,
+          "meanEntryHp": 124.3
+        },
+        {
+          "floor": 15,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 243.4,
+          "meanEntryHp": 124.3
+        },
+        {
+          "floor": 16,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 215.25,
+          "meanEntryHp": 134.35
+        },
+        {
+          "floor": 17,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 225.85,
+          "meanEntryHp": 130
+        },
+        {
+          "floor": 18,
+          "reached": 20,
+          "cleared": 18,
+          "meanTurns": 224.65,
+          "meanEntryHp": 135.15
+        }
+      ]
+    },
+    {
+      "group": "luminary/max/tactical",
+      "runs": 20,
+      "won": 18,
+      "dead": 2,
+      "stalled": 0,
+      "winRate": 0.9,
+      "meanFloor": 18,
+      "maxFloor": 18,
+      "meanTurns": 3780.15,
+      "floors": [
+        {
+          "floor": 1,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 199.75,
+          "meanEntryHp": 82
+        },
+        {
+          "floor": 2,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 190.9,
+          "meanEntryHp": 87.1
+        },
+        {
+          "floor": 3,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 197.1,
+          "meanEntryHp": 92.75
+        },
+        {
+          "floor": 4,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 197.6,
+          "meanEntryHp": 97.5
+        },
+        {
+          "floor": 5,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 199.2,
+          "meanEntryHp": 102
+        },
+        {
+          "floor": 6,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 195.6,
+          "meanEntryHp": 107.1
+        },
+        {
+          "floor": 7,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 199.4,
+          "meanEntryHp": 111.35
+        },
+        {
+          "floor": 8,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 201.3,
+          "meanEntryHp": 112.05
+        },
+        {
+          "floor": 9,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 198.35,
+          "meanEntryHp": 121.25
+        },
+        {
+          "floor": 10,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 194.65,
+          "meanEntryHp": 122.8
+        },
+        {
+          "floor": 11,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 215.15,
+          "meanEntryHp": 127.15
+        },
+        {
+          "floor": 12,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 214.05,
+          "meanEntryHp": 131.95
+        },
+        {
+          "floor": 13,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 205.15,
+          "meanEntryHp": 136.8
+        },
+        {
+          "floor": 14,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 217.05,
+          "meanEntryHp": 137.15
+        },
+        {
+          "floor": 15,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 233.35,
+          "meanEntryHp": 142.65
+        },
+        {
+          "floor": 16,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 213.8,
+          "meanEntryHp": 141.4
+        },
+        {
+          "floor": 17,
+          "reached": 20,
+          "cleared": 20,
+          "meanTurns": 237.4,
+          "meanEntryHp": 145.7
+        },
+        {
+          "floor": 18,
+          "reached": 20,
+          "cleared": 18,
+          "meanTurns": 270.35,
+          "meanEntryHp": 148.05
+        }
+      ]
+    }
+  ],
+  "pairedProgression": [
+    {
+      "seed": 1,
+      "classId": "luminary",
+      "preset": "zero",
+      "policy": "tactical",
+      "outcome": "dead",
+      "floor": 18,
+      "turns": 3766,
+      "hp": 0,
+      "potions": 0,
+      "bosses": [
+        "cinder_warden",
+        "briar_queen",
+        "drowned_oracle",
+        "ettin",
+        "forge_matriarch"
+      ]
+    },
+    {
+      "seed": 1,
+      "classId": "luminary",
+      "preset": "max",
+      "policy": "tactical",
+      "outcome": "won",
+      "floor": 18,
+      "turns": 3873,
+      "hp": 152,
+      "potions": 5,
+      "bosses": [
+        "cinder_warden",
+        "briar_queen",
+        "drowned_oracle",
+        "ettin",
+        "forge_matriarch",
+        "yala_prime"
+      ]
+    }
+  ],
+  "baseline": {
+    "revision": "1de9b590c7d4c570541f9b8592eed8e83b023c7e",
+    "seeds": [
+      1,
+      2,
+      3
+    ],
+    "totalFloors": 12,
+    "command": "node scripts/simulate.mjs --ref=1de9b590c7d4 --count=3 --json",
+    "totals": {
+      "runs": 54,
+      "won": 54,
+      "dead": 0,
+      "stalled": 0
+    },
+    "summary": [
+      {
+        "group": "warden/zero/naive",
+        "runs": 3,
+        "won": 3,
+        "dead": 0,
+        "stalled": 0,
+        "winRate": 1,
+        "meanFloor": 12,
+        "maxFloor": 12,
+        "meanTurns": 2647.6666666666665,
+        "floors": [
+          {
+            "floor": 1,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 214,
+            "meanEntryHp": 42
+          },
+          {
+            "floor": 2,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 207.66666666666666,
+            "meanEntryHp": 48
+          },
+          {
+            "floor": 3,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 196,
+            "meanEntryHp": 56
+          },
+          {
+            "floor": 4,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 216.33333333333334,
+            "meanEntryHp": 64
+          },
+          {
+            "floor": 5,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 236,
+            "meanEntryHp": 72.66666666666667
+          },
+          {
+            "floor": 6,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 215,
+            "meanEntryHp": 76.33333333333333
+          },
+          {
+            "floor": 7,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 204,
+            "meanEntryHp": 78.66666666666667
+          },
+          {
+            "floor": 8,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 232.33333333333334,
+            "meanEntryHp": 86.33333333333333
+          },
+          {
+            "floor": 9,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 253.66666666666666,
+            "meanEntryHp": 89.66666666666667
+          },
+          {
+            "floor": 10,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 232.66666666666666,
+            "meanEntryHp": 100.66666666666667
+          },
+          {
+            "floor": 11,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 201,
+            "meanEntryHp": 106.66666666666667
+          },
+          {
+            "floor": 12,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 239,
+            "meanEntryHp": 107
+          }
+        ]
+      },
+      {
+        "group": "warden/zero/tactical",
+        "runs": 3,
+        "won": 3,
+        "dead": 0,
+        "stalled": 0,
+        "winRate": 1,
+        "meanFloor": 12,
+        "maxFloor": 12,
+        "meanTurns": 2480,
+        "floors": [
+          {
+            "floor": 1,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 211.66666666666666,
+            "meanEntryHp": 42
+          },
+          {
+            "floor": 2,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 201.33333333333334,
+            "meanEntryHp": 48
+          },
+          {
+            "floor": 3,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 197,
+            "meanEntryHp": 58
+          },
+          {
+            "floor": 4,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 210.66666666666666,
+            "meanEntryHp": 64
+          },
+          {
+            "floor": 5,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 202.33333333333334,
+            "meanEntryHp": 70
+          },
+          {
+            "floor": 6,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 215,
+            "meanEntryHp": 73
+          },
+          {
+            "floor": 7,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 185.33333333333334,
+            "meanEntryHp": 76.66666666666667
+          },
+          {
+            "floor": 8,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 194.66666666666666,
+            "meanEntryHp": 87
+          },
+          {
+            "floor": 9,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 214,
+            "meanEntryHp": 90
+          },
+          {
+            "floor": 10,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 216.33333333333334,
+            "meanEntryHp": 96
+          },
+          {
+            "floor": 11,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 205,
+            "meanEntryHp": 102
+          },
+          {
+            "floor": 12,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 226.66666666666666,
+            "meanEntryHp": 101.66666666666667
+          }
+        ]
+      },
+      {
+        "group": "warden/mid/naive",
+        "runs": 3,
+        "won": 3,
+        "dead": 0,
+        "stalled": 0,
+        "winRate": 1,
+        "meanFloor": 12,
+        "maxFloor": 12,
+        "meanTurns": 2546.6666666666665,
+        "floors": [
+          {
+            "floor": 1,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 214,
+            "meanEntryHp": 50
+          },
+          {
+            "floor": 2,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 207,
+            "meanEntryHp": 56
+          },
+          {
+            "floor": 3,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 210,
+            "meanEntryHp": 67.33333333333333
+          },
+          {
+            "floor": 4,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 239,
+            "meanEntryHp": 71
+          },
+          {
+            "floor": 5,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 211,
+            "meanEntryHp": 81.33333333333333
+          },
+          {
+            "floor": 6,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 205.66666666666666,
+            "meanEntryHp": 81
+          },
+          {
+            "floor": 7,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 196.66666666666666,
+            "meanEntryHp": 90.33333333333333
+          },
+          {
+            "floor": 8,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 202.66666666666666,
+            "meanEntryHp": 96.33333333333333
+          },
+          {
+            "floor": 9,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 221,
+            "meanEntryHp": 101.33333333333333
+          },
+          {
+            "floor": 10,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 225.33333333333334,
+            "meanEntryHp": 100
+          },
+          {
+            "floor": 11,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 195.33333333333334,
+            "meanEntryHp": 113.33333333333333
+          },
+          {
+            "floor": 12,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 219,
+            "meanEntryHp": 116.33333333333333
+          }
+        ]
+      },
+      {
+        "group": "warden/mid/tactical",
+        "runs": 3,
+        "won": 3,
+        "dead": 0,
+        "stalled": 0,
+        "winRate": 1,
+        "meanFloor": 12,
+        "maxFloor": 12,
+        "meanTurns": 2475.3333333333335,
+        "floors": [
+          {
+            "floor": 1,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 211.66666666666666,
+            "meanEntryHp": 50
+          },
+          {
+            "floor": 2,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 199.66666666666666,
+            "meanEntryHp": 56
+          },
+          {
+            "floor": 3,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 209,
+            "meanEntryHp": 62
+          },
+          {
+            "floor": 4,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 200.33333333333334,
+            "meanEntryHp": 68
+          },
+          {
+            "floor": 5,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 217,
+            "meanEntryHp": 74
+          },
+          {
+            "floor": 6,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 216,
+            "meanEntryHp": 78.66666666666667
+          },
+          {
+            "floor": 7,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 222.33333333333334,
+            "meanEntryHp": 87
+          },
+          {
+            "floor": 8,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 189,
+            "meanEntryHp": 93
+          },
+          {
+            "floor": 9,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 213.66666666666666,
+            "meanEntryHp": 96.33333333333333
+          },
+          {
+            "floor": 10,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 195,
+            "meanEntryHp": 104
+          },
+          {
+            "floor": 11,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 191.33333333333334,
+            "meanEntryHp": 113.33333333333333
+          },
+          {
+            "floor": 12,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 210.33333333333334,
+            "meanEntryHp": 119.66666666666667
+          }
+        ]
+      },
+      {
+        "group": "warden/max/naive",
+        "runs": 3,
+        "won": 3,
+        "dead": 0,
+        "stalled": 0,
+        "winRate": 1,
+        "meanFloor": 12,
+        "maxFloor": 12,
+        "meanTurns": 2478.6666666666665,
+        "floors": [
+          {
+            "floor": 1,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 213.33333333333334,
+            "meanEntryHp": 62
+          },
+          {
+            "floor": 2,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 218,
+            "meanEntryHp": 68
+          },
+          {
+            "floor": 3,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 207,
+            "meanEntryHp": 74
+          },
+          {
+            "floor": 4,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 198,
+            "meanEntryHp": 82
+          },
+          {
+            "floor": 5,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 201.66666666666666,
+            "meanEntryHp": 91.33333333333333
+          },
+          {
+            "floor": 6,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 198.33333333333334,
+            "meanEntryHp": 97.66666666666667
+          },
+          {
+            "floor": 7,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 195,
+            "meanEntryHp": 105.66666666666667
+          },
+          {
+            "floor": 8,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 197.66666666666666,
+            "meanEntryHp": 111.66666666666667
+          },
+          {
+            "floor": 9,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 201,
+            "meanEntryHp": 114.66666666666667
+          },
+          {
+            "floor": 10,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 212.33333333333334,
+            "meanEntryHp": 120.66666666666667
+          },
+          {
+            "floor": 11,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 209,
+            "meanEntryHp": 126.66666666666667
+          },
+          {
+            "floor": 12,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 227.33333333333334,
+            "meanEntryHp": 129.66666666666666
+          }
+        ]
+      },
+      {
+        "group": "warden/max/tactical",
+        "runs": 3,
+        "won": 3,
+        "dead": 0,
+        "stalled": 0,
+        "winRate": 1,
+        "meanFloor": 12,
+        "maxFloor": 12,
+        "meanTurns": 2476,
+        "floors": [
+          {
+            "floor": 1,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 211,
+            "meanEntryHp": 62
+          },
+          {
+            "floor": 2,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 189.33333333333334,
+            "meanEntryHp": 70
+          },
+          {
+            "floor": 3,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 201.33333333333334,
+            "meanEntryHp": 76
+          },
+          {
+            "floor": 4,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 195.33333333333334,
+            "meanEntryHp": 82
+          },
+          {
+            "floor": 5,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 208.33333333333334,
+            "meanEntryHp": 88
+          },
+          {
+            "floor": 6,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 213.33333333333334,
+            "meanEntryHp": 93
+          },
+          {
+            "floor": 7,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 235,
+            "meanEntryHp": 99
+          },
+          {
+            "floor": 8,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 200.66666666666666,
+            "meanEntryHp": 107
+          },
+          {
+            "floor": 9,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 206.33333333333334,
+            "meanEntryHp": 110
+          },
+          {
+            "floor": 10,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 206,
+            "meanEntryHp": 116
+          },
+          {
+            "floor": 11,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 206,
+            "meanEntryHp": 122
+          },
+          {
+            "floor": 12,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 203.33333333333334,
+            "meanEntryHp": 131.66666666666666
+          }
+        ]
+      },
+      {
+        "group": "ranger/zero/naive",
+        "runs": 3,
+        "won": 3,
+        "dead": 0,
+        "stalled": 0,
+        "winRate": 1,
+        "meanFloor": 12,
+        "maxFloor": 12,
+        "meanTurns": 2461.3333333333335,
+        "floors": [
+          {
+            "floor": 1,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 207.33333333333334,
+            "meanEntryHp": 32
+          },
+          {
+            "floor": 2,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 192,
+            "meanEntryHp": 38
+          },
+          {
+            "floor": 3,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 210.33333333333334,
+            "meanEntryHp": 47.333333333333336
+          },
+          {
+            "floor": 4,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 210.33333333333334,
+            "meanEntryHp": 53
+          },
+          {
+            "floor": 5,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 185.33333333333334,
+            "meanEntryHp": 59.333333333333336
+          },
+          {
+            "floor": 6,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 222.33333333333334,
+            "meanEntryHp": 57.666666666666664
+          },
+          {
+            "floor": 7,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 204.66666666666666,
+            "meanEntryHp": 68.33333333333333
+          },
+          {
+            "floor": 8,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 178.66666666666666,
+            "meanEntryHp": 76.33333333333333
+          },
+          {
+            "floor": 9,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 220,
+            "meanEntryHp": 79
+          },
+          {
+            "floor": 10,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 222,
+            "meanEntryHp": 84.66666666666667
+          },
+          {
+            "floor": 11,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 200.33333333333334,
+            "meanEntryHp": 94.66666666666667
+          },
+          {
+            "floor": 12,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 208,
+            "meanEntryHp": 101
+          }
+        ]
+      },
+      {
+        "group": "ranger/zero/tactical",
+        "runs": 3,
+        "won": 3,
+        "dead": 0,
+        "stalled": 0,
+        "winRate": 1,
+        "meanFloor": 12,
+        "maxFloor": 12,
+        "meanTurns": 2459.3333333333335,
+        "floors": [
+          {
+            "floor": 1,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 207.33333333333334,
+            "meanEntryHp": 32
+          },
+          {
+            "floor": 2,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 192,
+            "meanEntryHp": 38
+          },
+          {
+            "floor": 3,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 209,
+            "meanEntryHp": 44
+          },
+          {
+            "floor": 4,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 203,
+            "meanEntryHp": 52
+          },
+          {
+            "floor": 5,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 204.66666666666666,
+            "meanEntryHp": 58
+          },
+          {
+            "floor": 6,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 198.66666666666666,
+            "meanEntryHp": 60.666666666666664
+          },
+          {
+            "floor": 7,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 216.66666666666666,
+            "meanEntryHp": 66
+          },
+          {
+            "floor": 8,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 188.33333333333334,
+            "meanEntryHp": 75
+          },
+          {
+            "floor": 9,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 204,
+            "meanEntryHp": 83.33333333333333
+          },
+          {
+            "floor": 10,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 222,
+            "meanEntryHp": 89.33333333333333
+          },
+          {
+            "floor": 11,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 186.33333333333334,
+            "meanEntryHp": 98.66666666666667
+          },
+          {
+            "floor": 12,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 227.33333333333334,
+            "meanEntryHp": 101.66666666666667
+          }
+        ]
+      },
+      {
+        "group": "ranger/mid/naive",
+        "runs": 3,
+        "won": 3,
+        "dead": 0,
+        "stalled": 0,
+        "winRate": 1,
+        "meanFloor": 12,
+        "maxFloor": 12,
+        "meanTurns": 2473.3333333333335,
+        "floors": [
+          {
+            "floor": 1,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 206.66666666666666,
+            "meanEntryHp": 40
+          },
+          {
+            "floor": 2,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 188.66666666666666,
+            "meanEntryHp": 49.333333333333336
+          },
+          {
+            "floor": 3,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 202,
+            "meanEntryHp": 55.333333333333336
+          },
+          {
+            "floor": 4,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 221,
+            "meanEntryHp": 61.333333333333336
+          },
+          {
+            "floor": 5,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 200,
+            "meanEntryHp": 67.33333333333333
+          },
+          {
+            "floor": 6,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 203.66666666666666,
+            "meanEntryHp": 69.66666666666667
+          },
+          {
+            "floor": 7,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 200.33333333333334,
+            "meanEntryHp": 74
+          },
+          {
+            "floor": 8,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 188.33333333333334,
+            "meanEntryHp": 82.33333333333333
+          },
+          {
+            "floor": 9,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 213.33333333333334,
+            "meanEntryHp": 85.33333333333333
+          },
+          {
+            "floor": 10,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 234.66666666666666,
+            "meanEntryHp": 91.33333333333333
+          },
+          {
+            "floor": 11,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 209.33333333333334,
+            "meanEntryHp": 100.66666666666667
+          },
+          {
+            "floor": 12,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 205.33333333333334,
+            "meanEntryHp": 107
+          }
+        ]
+      },
+      {
+        "group": "ranger/mid/tactical",
+        "runs": 3,
+        "won": 3,
+        "dead": 0,
+        "stalled": 0,
+        "winRate": 1,
+        "meanFloor": 12,
+        "maxFloor": 12,
+        "meanTurns": 2411.3333333333335,
+        "floors": [
+          {
+            "floor": 1,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 206.66666666666666,
+            "meanEntryHp": 40
+          },
+          {
+            "floor": 2,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 188.66666666666666,
+            "meanEntryHp": 48
+          },
+          {
+            "floor": 3,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 200.33333333333334,
+            "meanEntryHp": 54
+          },
+          {
+            "floor": 4,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 206,
+            "meanEntryHp": 60
+          },
+          {
+            "floor": 5,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 206.66666666666666,
+            "meanEntryHp": 66
+          },
+          {
+            "floor": 6,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 204.66666666666666,
+            "meanEntryHp": 71
+          },
+          {
+            "floor": 7,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 203.66666666666666,
+            "meanEntryHp": 79
+          },
+          {
+            "floor": 8,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 167.66666666666666,
+            "meanEntryHp": 85
+          },
+          {
+            "floor": 9,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 212.33333333333334,
+            "meanEntryHp": 88
+          },
+          {
+            "floor": 10,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 204.66666666666666,
+            "meanEntryHp": 97.33333333333333
+          },
+          {
+            "floor": 11,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 187.66666666666666,
+            "meanEntryHp": 106.66666666666667
+          },
+          {
+            "floor": 12,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 222.33333333333334,
+            "meanEntryHp": 109.66666666666667
+          }
+        ]
+      },
+      {
+        "group": "ranger/max/naive",
+        "runs": 3,
+        "won": 3,
+        "dead": 0,
+        "stalled": 0,
+        "winRate": 1,
+        "meanFloor": 12,
+        "maxFloor": 12,
+        "meanTurns": 2418,
+        "floors": [
+          {
+            "floor": 1,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 204,
+            "meanEntryHp": 52
+          },
+          {
+            "floor": 2,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 198,
+            "meanEntryHp": 60
+          },
+          {
+            "floor": 3,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 181.33333333333334,
+            "meanEntryHp": 66
+          },
+          {
+            "floor": 4,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 201.33333333333334,
+            "meanEntryHp": 72
+          },
+          {
+            "floor": 5,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 219.33333333333334,
+            "meanEntryHp": 78
+          },
+          {
+            "floor": 6,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 177,
+            "meanEntryHp": 81
+          },
+          {
+            "floor": 7,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 201.33333333333334,
+            "meanEntryHp": 87
+          },
+          {
+            "floor": 8,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 203.66666666666666,
+            "meanEntryHp": 96.33333333333333
+          },
+          {
+            "floor": 9,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 204.66666666666666,
+            "meanEntryHp": 102.66666666666667
+          },
+          {
+            "floor": 10,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 203.33333333333334,
+            "meanEntryHp": 108.66666666666667
+          },
+          {
+            "floor": 11,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 191.66666666666666,
+            "meanEntryHp": 114.66666666666667
+          },
+          {
+            "floor": 12,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 232.33333333333334,
+            "meanEntryHp": 119.66666666666667
+          }
+        ]
+      },
+      {
+        "group": "ranger/max/tactical",
+        "runs": 3,
+        "won": 3,
+        "dead": 0,
+        "stalled": 0,
+        "winRate": 1,
+        "meanFloor": 12,
+        "maxFloor": 12,
+        "meanTurns": 2454.6666666666665,
+        "floors": [
+          {
+            "floor": 1,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 204,
+            "meanEntryHp": 52
+          },
+          {
+            "floor": 2,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 198,
+            "meanEntryHp": 60
+          },
+          {
+            "floor": 3,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 180.33333333333334,
+            "meanEntryHp": 66
+          },
+          {
+            "floor": 4,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 199.66666666666666,
+            "meanEntryHp": 72
+          },
+          {
+            "floor": 5,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 197.66666666666666,
+            "meanEntryHp": 80
+          },
+          {
+            "floor": 6,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 233.33333333333334,
+            "meanEntryHp": 83
+          },
+          {
+            "floor": 7,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 196.66666666666666,
+            "meanEntryHp": 89
+          },
+          {
+            "floor": 8,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 204,
+            "meanEntryHp": 95
+          },
+          {
+            "floor": 9,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 199,
+            "meanEntryHp": 101.33333333333333
+          },
+          {
+            "floor": 10,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 205.66666666666666,
+            "meanEntryHp": 107.33333333333333
+          },
+          {
+            "floor": 11,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 209.66666666666666,
+            "meanEntryHp": 113.33333333333333
+          },
+          {
+            "floor": 12,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 226.66666666666666,
+            "meanEntryHp": 116.33333333333333
+          }
+        ]
+      },
+      {
+        "group": "arcanist/zero/naive",
+        "runs": 3,
+        "won": 3,
+        "dead": 0,
+        "stalled": 0,
+        "winRate": 1,
+        "meanFloor": 12,
+        "maxFloor": 12,
+        "meanTurns": 2477.6666666666665,
+        "floors": [
+          {
+            "floor": 1,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 211.66666666666666,
+            "meanEntryHp": 28
+          },
+          {
+            "floor": 2,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 191.66666666666666,
+            "meanEntryHp": 34
+          },
+          {
+            "floor": 3,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 204,
+            "meanEntryHp": 40
+          },
+          {
+            "floor": 4,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 215.66666666666666,
+            "meanEntryHp": 44.666666666666664
+          },
+          {
+            "floor": 5,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 202,
+            "meanEntryHp": 55.333333333333336
+          },
+          {
+            "floor": 6,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 197.66666666666666,
+            "meanEntryHp": 59.666666666666664
+          },
+          {
+            "floor": 7,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 235.33333333333334,
+            "meanEntryHp": 66
+          },
+          {
+            "floor": 8,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 195.66666666666666,
+            "meanEntryHp": 73.66666666666667
+          },
+          {
+            "floor": 9,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 189.33333333333334,
+            "meanEntryHp": 75.33333333333333
+          },
+          {
+            "floor": 10,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 193,
+            "meanEntryHp": 90
+          },
+          {
+            "floor": 11,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 202,
+            "meanEntryHp": 93.66666666666667
+          },
+          {
+            "floor": 12,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 239.66666666666666,
+            "meanEntryHp": 99
+          }
+        ]
+      },
+      {
+        "group": "arcanist/zero/tactical",
+        "runs": 3,
+        "won": 3,
+        "dead": 0,
+        "stalled": 0,
+        "winRate": 1,
+        "meanFloor": 12,
+        "maxFloor": 12,
+        "meanTurns": 2530.6666666666665,
+        "floors": [
+          {
+            "floor": 1,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 212.33333333333334,
+            "meanEntryHp": 28
+          },
+          {
+            "floor": 2,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 219,
+            "meanEntryHp": 34
+          },
+          {
+            "floor": 3,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 224.33333333333334,
+            "meanEntryHp": 42
+          },
+          {
+            "floor": 4,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 213.33333333333334,
+            "meanEntryHp": 50
+          },
+          {
+            "floor": 5,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 192,
+            "meanEntryHp": 56
+          },
+          {
+            "floor": 6,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 212.33333333333334,
+            "meanEntryHp": 62.333333333333336
+          },
+          {
+            "floor": 7,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 225.66666666666666,
+            "meanEntryHp": 70.33333333333333
+          },
+          {
+            "floor": 8,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 189.33333333333334,
+            "meanEntryHp": 76.33333333333333
+          },
+          {
+            "floor": 9,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 214,
+            "meanEntryHp": 78.66666666666667
+          },
+          {
+            "floor": 10,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 200.66666666666666,
+            "meanEntryHp": 88.66666666666667
+          },
+          {
+            "floor": 11,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 220.33333333333334,
+            "meanEntryHp": 94.66666666666667
+          },
+          {
+            "floor": 12,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 207.33333333333334,
+            "meanEntryHp": 97.66666666666667
+          }
+        ]
+      },
+      {
+        "group": "arcanist/mid/naive",
+        "runs": 3,
+        "won": 3,
+        "dead": 0,
+        "stalled": 0,
+        "winRate": 1,
+        "meanFloor": 12,
+        "maxFloor": 12,
+        "meanTurns": 2463.3333333333335,
+        "floors": [
+          {
+            "floor": 1,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 208.66666666666666,
+            "meanEntryHp": 36
+          },
+          {
+            "floor": 2,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 185.66666666666666,
+            "meanEntryHp": 42
+          },
+          {
+            "floor": 3,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 212.66666666666666,
+            "meanEntryHp": 51.333333333333336
+          },
+          {
+            "floor": 4,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 204,
+            "meanEntryHp": 57.333333333333336
+          },
+          {
+            "floor": 5,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 190.33333333333334,
+            "meanEntryHp": 63.333333333333336
+          },
+          {
+            "floor": 6,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 195.66666666666666,
+            "meanEntryHp": 65.33333333333333
+          },
+          {
+            "floor": 7,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 224.66666666666666,
+            "meanEntryHp": 72.33333333333333
+          },
+          {
+            "floor": 8,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 218.33333333333334,
+            "meanEntryHp": 78.33333333333333
+          },
+          {
+            "floor": 9,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 203.33333333333334,
+            "meanEntryHp": 84.66666666666667
+          },
+          {
+            "floor": 10,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 206.33333333333334,
+            "meanEntryHp": 89.66666666666667
+          },
+          {
+            "floor": 11,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 212.66666666666666,
+            "meanEntryHp": 98.66666666666667
+          },
+          {
+            "floor": 12,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 201,
+            "meanEntryHp": 103.66666666666667
+          }
+        ]
+      },
+      {
+        "group": "arcanist/mid/tactical",
+        "runs": 3,
+        "won": 3,
+        "dead": 0,
+        "stalled": 0,
+        "winRate": 1,
+        "meanFloor": 12,
+        "maxFloor": 12,
+        "meanTurns": 2482.3333333333335,
+        "floors": [
+          {
+            "floor": 1,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 209,
+            "meanEntryHp": 36
+          },
+          {
+            "floor": 2,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 191.33333333333334,
+            "meanEntryHp": 42
+          },
+          {
+            "floor": 3,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 210.33333333333334,
+            "meanEntryHp": 48
+          },
+          {
+            "floor": 4,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 206.33333333333334,
+            "meanEntryHp": 56
+          },
+          {
+            "floor": 5,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 204.33333333333334,
+            "meanEntryHp": 62
+          },
+          {
+            "floor": 6,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 218.66666666666666,
+            "meanEntryHp": 67
+          },
+          {
+            "floor": 7,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 220.33333333333334,
+            "meanEntryHp": 73
+          },
+          {
+            "floor": 8,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 189.33333333333334,
+            "meanEntryHp": 79
+          },
+          {
+            "floor": 9,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 205.66666666666666,
+            "meanEntryHp": 84
+          },
+          {
+            "floor": 10,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 213.66666666666666,
+            "meanEntryHp": 93.33333333333333
+          },
+          {
+            "floor": 11,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 199.33333333333334,
+            "meanEntryHp": 99.33333333333333
+          },
+          {
+            "floor": 12,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 214,
+            "meanEntryHp": 102.33333333333333
+          }
+        ]
+      },
+      {
+        "group": "arcanist/max/naive",
+        "runs": 3,
+        "won": 3,
+        "dead": 0,
+        "stalled": 0,
+        "winRate": 1,
+        "meanFloor": 12,
+        "maxFloor": 12,
+        "meanTurns": 2465.6666666666665,
+        "floors": [
+          {
+            "floor": 1,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 208,
+            "meanEntryHp": 48
+          },
+          {
+            "floor": 2,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 184.33333333333334,
+            "meanEntryHp": 57.333333333333336
+          },
+          {
+            "floor": 3,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 203.33333333333334,
+            "meanEntryHp": 63.333333333333336
+          },
+          {
+            "floor": 4,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 207.66666666666666,
+            "meanEntryHp": 69.33333333333333
+          },
+          {
+            "floor": 5,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 212.33333333333334,
+            "meanEntryHp": 75.33333333333333
+          },
+          {
+            "floor": 6,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 205.33333333333334,
+            "meanEntryHp": 78
+          },
+          {
+            "floor": 7,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 205.66666666666666,
+            "meanEntryHp": 84.33333333333333
+          },
+          {
+            "floor": 8,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 216,
+            "meanEntryHp": 90.33333333333333
+          },
+          {
+            "floor": 9,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 210.33333333333334,
+            "meanEntryHp": 95.33333333333333
+          },
+          {
+            "floor": 10,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 210,
+            "meanEntryHp": 104
+          },
+          {
+            "floor": 11,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 209.33333333333334,
+            "meanEntryHp": 110
+          },
+          {
+            "floor": 12,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 193.33333333333334,
+            "meanEntryHp": 113.66666666666667
+          }
+        ]
+      },
+      {
+        "group": "arcanist/max/tactical",
+        "runs": 3,
+        "won": 3,
+        "dead": 0,
+        "stalled": 0,
+        "winRate": 1,
+        "meanFloor": 12,
+        "maxFloor": 12,
+        "meanTurns": 2490.3333333333335,
+        "floors": [
+          {
+            "floor": 1,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 208.33333333333334,
+            "meanEntryHp": 48
+          },
+          {
+            "floor": 2,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 190,
+            "meanEntryHp": 56
+          },
+          {
+            "floor": 3,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 195.33333333333334,
+            "meanEntryHp": 62
+          },
+          {
+            "floor": 4,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 209.33333333333334,
+            "meanEntryHp": 68
+          },
+          {
+            "floor": 5,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 216,
+            "meanEntryHp": 74
+          },
+          {
+            "floor": 6,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 225,
+            "meanEntryHp": 81
+          },
+          {
+            "floor": 7,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 221.66666666666666,
+            "meanEntryHp": 87
+          },
+          {
+            "floor": 8,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 196,
+            "meanEntryHp": 93
+          },
+          {
+            "floor": 9,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 198.33333333333334,
+            "meanEntryHp": 96
+          },
+          {
+            "floor": 10,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 221,
+            "meanEntryHp": 105.33333333333333
+          },
+          {
+            "floor": 11,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 195.33333333333334,
+            "meanEntryHp": 109.66666666666667
+          },
+          {
+            "floor": 12,
+            "reached": 3,
+            "cleared": 3,
+            "meanTurns": 214,
+            "meanEntryHp": 114.33333333333333
+          }
+        ]
+      }
+    ]
+  }
+}

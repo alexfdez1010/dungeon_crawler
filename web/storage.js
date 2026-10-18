@@ -1,5 +1,5 @@
-import { UPGRADES } from "./content.js";
-import { validateRun as validateSavedRun } from "./engine.js";
+import { UPGRADES, TOTAL_FLOORS, REGIONS } from "./content.js?v=3.0.0";
+import { validateRun as validateSavedRun } from "./engine.js?v=3.0.0";
 
 export const SAVE_KEY = "yala.save.v1";
 export const BACKUP_KEY = "yala.backup.v1";
@@ -28,16 +28,16 @@ export function validateProfile(value, validateRun = validateSavedRun) {
   const m = value.meta;
   if (
     !["shards", "lifetimeShards", "runs", "wins", "bestFloor", "kills"].every(
-      (k) => integer(m[k], k === "bestFloor" ? 12 : 10000000),
+      (k) => integer(m[k], k === "bestFloor" ? TOTAL_FLOORS : 10000000),
     )
   )
     return false;
   if (
     !Array.isArray(m.bosses) ||
-    m.bosses.length > 4 ||
+    m.bosses.length > REGIONS.length ||
     new Set(m.bosses).size !== m.bosses.length ||
     !m.bosses.every((id) =>
-      ["cinder_warden", "briar_queen", "drowned_oracle", "ettin"].includes(id),
+      REGIONS.some((region) => region.bossId === id),
     )
   )
     return false;

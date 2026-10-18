@@ -17,6 +17,37 @@
     "rows": 2,
     "cellWidth": 443.5,
     "cellHeight": 443.5,
-    "order": ["knight", "ranger", "mage", "skeleton", "spider", "wraith", "guardian", "antlerKing"]
+    "order": [
+      "knight",
+      "ranger",
+      "mage",
+      "skeleton",
+      "spider",
+      "wraith",
+      "guardian",
+      "antlerKing"
+    ]
+  },
+  "depths": {
+    "file": "yala-depths-atlas.png",
+    "generatedOn": "2026-10-18",
+    "width": 1254,
+    "height": 1254,
+    "alpha": true,
+    "columns": 3,
+    "rows": 3,
+    "order": [
+      "luminary",
+      "furnace_thrall",
+      "brass_marksman",
+      "crucible_knight",
+      "forge_matriarch",
+      "astral_husk",
+      "star_scribe",
+      "comet_guard",
+      "yala_prime"
+    ],
+    "cellWidth": 418,
+    "cellHeight": 418
   }
 }

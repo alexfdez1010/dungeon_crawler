@@ -384,8 +384,8 @@ small {
   flex: none;
   width: 66px;
   height: 69px;
-  background: url("resources/art/yala-character-atlas.png");
-  background-size: 400% 200%;
+  background-image: var(--sprite-atlas, url("resources/art/yala-character-atlas.png"));
+  background-size: var(--sprite-size, 400% 200%);
   background-position: var(--sprite-x) var(--sprite-y);
   background-repeat: no-repeat;
 }
@@ -524,7 +524,7 @@ small {
 }
 .biome-track {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 28px;
 }
 .floor-nodes {

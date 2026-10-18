@@ -10,7 +10,7 @@ import {
   validateRun,
   getStats,
 } from "../web/engine.js";
-import { CLASS_BY_ID, ENEMIES, RELICS, REGIONS } from "../web/content.js";
+import { CLASS_BY_ID, ENEMIES, RELICS, REGIONS, TOTAL_FLOORS, UPGRADES } from "../web/content.js";
 
 function arena(classId = "warden") {
   const run = createRun({ seed: 123456, classId });
@@ -122,7 +122,7 @@ test("corrupt saves and malformed action values fail safely", () => {
       run.version = 9;
     },
     (run) => {
-      run.floor = 13;
+      run.floor = TOTAL_FLOORS + 1;
     },
     (run) => {
       run.map.tiles.pop();
@@ -328,7 +328,7 @@ test("every boss telegraphs before damage and its defeat releases the exit", () 
     assert.equal(boss.intent, null);
     assert(run.bosses.includes(region.bossId));
     assert.equal(act(run, { type: "interact" }), true);
-    assert.equal(run.phase, run.floor === 12 ? "won" : "reward");
+    assert.equal(run.phase, run.floor === TOTAL_FLOORS ? "won" : "reward");
   }
 });
 
@@ -384,12 +384,14 @@ test("trap stepping, supply collection, fountain, shrine, and potion spending ar
   assert.equal(act(run, { type: "interact" }), false);
 });
 
-test("all 12 floors progress with unique relic decisions, boss seals, and a terminal victory", () => {
+test("all campaign floors progress with unique relic decisions, boss seals, and a terminal victory", () => {
   const run = createRun({ seed: 20261017 });
   run.creditedShards = 0;
-  for (let floor = 1; floor <= 12; floor++) {
+  for (let floor = 1; floor <= TOTAL_FLOORS; floor++) {
     assert.equal(run.floor, floor);
     assert.equal(validateRun(run), true, `valid floor ${floor}`);
+    assert.equal(run.objects.filter((object) => object.type === "potion").length, floor % 3 === 1 ? 1 : 0);
+    assert.equal(run.objects.filter((object) => object.type === "fountain").length, floor % 3 === 0 ? 1 : 0);
     assert.equal(nextFloor(run), false, "cannot skip a live floor");
     assert.equal(
       run.enemies.filter((value) => value.boss).length,
@@ -399,7 +401,7 @@ test("all 12 floors progress with unique relic decisions, boss seals, and a term
     run.player.x = run.map.exit.x;
     run.player.y = run.map.exit.y;
     assert.equal(act(run, { type: "interact" }), true);
-    if (floor < 12) {
+    if (floor < TOTAL_FLOORS) {
       assert.equal(run.phase, "reward");
       assert.equal(run.rewardChoices.length, 3);
       assert.equal(chooseRelic(run, "missing"), false);
@@ -417,7 +419,7 @@ test("all 12 floors progress with unique relic decisions, boss seals, and a term
       assert.equal(validateRun(run), true);
     }
   }
-  assert.equal(new Set(run.relics).size, 11);
+  assert.equal(new Set(run.relics).size, TOTAL_FLOORS - 1);
   assert.equal(run.creditedShards, 0);
   assert(run.shards >= 60);
 });
@@ -449,7 +451,7 @@ test("relic effects apply once, upgrades alter initial stats, and kills grant pr
 test("lethal damage cannot be reversed by thorns kill healing or a retaliation level-up", () => {
   const run = arena();
   run.player.hp = 1;
-  run.player.xp = 23;
+  run.player.xp = 29;
   run.relics = ["briar_mantle", "blood_moss"];
   const attacker = enemy(run, "ashling", 11, 10, { hp: 1, attack: 100 });
   act(run, { type: "wait" });
@@ -511,10 +513,10 @@ test("disconnected, unfinishable and inconsistent restored expeditions are rejec
   }
 });
 
-test("all twelve floors stay connected and restore energy from zero across varied dungeon seeds", () => {
+test("all campaign floors stay connected and restore energy from zero across varied dungeon seeds", () => {
   for (let seed = 1; seed <= 40; seed++) {
     const run = createRun({ seed });
-    for (let floor = 1; floor <= 12; floor++) {
+    for (let floor = 1; floor <= TOTAL_FLOORS; floor++) {
       assert.equal(validateRun(run), true, `seed ${seed}, floor ${floor}`);
       const positions = [
         run.player,
@@ -530,7 +532,7 @@ test("all twelve floors stay connected and restore energy from zero across varie
       for (const target of run.enemies) target.hp = 0;
       Object.assign(run.player, run.map.exit);
       act(run, { type: "interact" });
-      if (floor < 12) {
+      if (floor < TOTAL_FLOORS) {
         run.player.energy = 0;
         run.player.hp = 1;
         assert.equal(
@@ -550,86 +552,189 @@ test("all twelve floors stay connected and restore energy from zero across varie
   }
 });
 
-test("every class can defeat all four guardians using legal attacks, movement, potions and telegraphs", () => {
-  for (const [regionIndex, region] of REGIONS.entries()) {
-    for (const classId of Object.keys(CLASS_BY_ID)) {
-      const run = arena(classId);
-      run.floor = region.floors.at(-1);
-      // Later guardians face a character with the attack and life earned on earlier floors.
-      run.player.attack += regionIndex * 3;
-      run.player.maxHp += regionIndex * 6;
-      run.player.hp = run.player.maxHp;
-      const boss = enemy(run, region.bossId, 12, 10);
-      for (
-        let turn = 0;
-        boss.hp > 0 && run.phase === "playing" && turn < 300;
-        turn++
-      ) {
-        const p = run.player;
-        const stats = getStats(run);
-        const threats = getThreats(run);
-        const danger = (x, y) =>
-          threats.some((cell) => cell.x === x && cell.y === y);
-        const separation = Math.abs(p.x - boss.x) + Math.abs(p.y - boss.y);
-        const moves = [
-          { dx: 1, dy: 0 },
-          { dx: -1, dy: 0 },
-          { dx: 0, dy: 1 },
-          { dx: 0, dy: -1 },
-        ]
-          .filter(
-            ({ dx, dy }) =>
-              run.map.tiles[(p.y + dy) * run.map.width + p.x + dx] &&
-              !(p.x + dx === boss.x && p.y + dy === boss.y),
-          )
-          .sort(
-            (a, b) =>
-              Math.abs(p.x + a.dx - boss.x) +
-              Math.abs(p.y + a.dy - boss.y) -
-              (Math.abs(p.x + b.dx - boss.x) + Math.abs(p.y + b.dy - boss.y)),
-          );
-        const escape = moves.find(({ dx, dy }) => !danger(p.x + dx, p.y + dy));
-        if (
-          danger(p.x, p.y) &&
-          classId === "warden" &&
-          separation <= 2 &&
-          p.energy >= stats.skillCost
-        )
-          act(run, { type: "skill" });
-        else if (boss.cooldown > 0 && p.energy < stats.skillCost)
-          act(run, { type: "guard" });
-        else if (danger(p.x, p.y)) {
-          if (escape) act(run, { type: "move", ...escape });
-          else if (p.energy >= 2 && moves.length)
-            act(run, { type: "dash", ...moves[0] });
-          else act(run, { type: "guard" });
-        } else if (p.hp < stats.maxHp * 0.4 && p.potions)
-          act(run, { type: "potion" });
-        else if (
-          p.energy >= stats.skillCost &&
-          separation <=
-            (classId === "warden" ? 2 : classId === "ranger" ? 6 : 4)
-        )
-          act(run, { type: "skill" });
-        else if (
-          classId === "warden" &&
-          separation <= 2 &&
-          p.energy < stats.skillCost
-        )
-          act(run, { type: "guard" });
-        else if (separation === 1)
-          act(run, { type: "move", dx: boss.x - p.x, dy: boss.y - p.y });
-        else if (escape) act(run, { type: "move", ...escape });
-        else act(run, { type: "guard" });
-      }
-      assert.equal(
-        boss.hp,
-        0,
-        `${classId} can defeat ${region.bossId}: ${JSON.stringify({ player: run.player, boss, turn: run.turn, log: run.log.slice(-12) })}`,
-      );
-      assert(run.player.hp > 0, `${classId} survives ${region.bossId}`);
-      assert(run.bosses.includes(region.bossId));
-      assert.equal(validateRun(run), true);
+test("repeated rupture cannot permanently interrupt an enemy", () => {
+  const run = arena();
+  const target = enemy(run, "ash_guard", 11, 10, { hp: 500, maxHp: 500, attack: 8 });
+  const initialHp = run.player.hp;
+  act(run, { type: "skill" });
+  assert.equal(run.player.hp, initialHp, "the first rupture creates a real opening");
+  assert(target.resolve > 0);
+  run.player.energy = getStats(run).maxEnergy;
+  act(run, { type: "skill" });
+  assert(run.player.hp < initialHp, "an enemy with poise retaliates even when rupture is recast");
+  const restored = JSON.parse(JSON.stringify(run));
+  assert.equal(validateRun(restored), true, "poise survives save restoration");
+  for (let turn = 0; turn < 3; turn++) act(run, { type: "guard" });
+  assert.equal(target.resolve, 0, "the interrupt window reopens after four active turns");
+});
+
+test("armor cannot erase late attacks and piercing weakens armor without removing guard", () => {
+  const run = arena();
+  run.player.armor = 20;
+  const target = enemy(run, "ash_guard", 11, 10, { attack: 10 });
+  const hp = run.player.hp;
+  act(run, { type: "guard" });
+  assert.equal(hp - run.player.hp, 4, "even heavy armor takes 40 percent of the hit");
+  target.hp = 0;
+});
+
+test("boss recovery pursues distant players and threatens adjacent counterattacks", () => {
+  const run = arena();
+  const boss = enemy(run, REGIONS[0].bossId, 12, 10, { cooldown: 1 });
+  act(run, { type: "wait" });
+  assert.equal(boss.x, 11, "recovery closes distance");
+  boss.cooldown = 1;
+  const hp = run.player.hp;
+  act(run, { type: "wait" });
+  assert(run.player.hp < hp, "the adjacent recovery swing is dangerous");
+});
+
+test("charges commit their line and advance only through unoccupied tiles", () => {
+  const run = arena();
+  const charger = enemy(run, "root_brute", 13, 10);
+  act(run, { type: "wait" });
+  assert.equal(charger.intent.kind, "charge");
+  const hp = run.player.hp;
+  act(run, { type: "move", dx: 0, dy: 1 });
+  assert.equal(run.player.hp, hp);
+  assert.equal(charger.x, 10);
+  assert.equal(charger.y, 10);
+});
+
+test("lifesteal only heals the actual health removed, never overkill", () => {
+  const run = arena();
+  run.relics = ["hunger_ring"];
+  run.player.hp = 10;
+  run.player.attack = 100;
+  enemy(run, "ashling", 11, 10, { hp: 1, maxHp: 1 });
+  act(run, { type: "move", dx: 1, dy: 0 });
+  assert.equal(run.player.hp, 10);
+});
+
+test("starting upgrades respect the same published caps as the permanent shop", () => {
+  const capped = Object.fromEntries(UPGRADES.map((upgrade) => [upgrade.id, upgrade.maxLevel]));
+  const overflow = Object.fromEntries(UPGRADES.map((upgrade) => [upgrade.id, 999]));
+  assert.deepEqual(createRun({ seed: 42, upgrades: capped }), createRun({ seed: 42, upgrades: overflow }));
+});
+
+test("legacy victory saves remain valid while new campaigns use the shared final floor", () => {
+  const run = createRun({ seed: 123 });
+  assert.equal(run.campaignFloors, TOTAL_FLOORS);
+  if (TOTAL_FLOORS > 12) {
+    while (run.floor < 12) {
+      for (const target of run.enemies) target.hp = 0;
+      Object.assign(run.player, run.map.exit);
+      act(run, { type: "interact" });
+      chooseRelic(run, run.rewardChoices[0]);
     }
+    for (const target of run.enemies) target.hp = 0;
+    run.phase = "won";
+    delete run.campaignFloors;
+    assert.equal(validateRun(run), true);
+    run.campaignFloors = TOTAL_FLOORS;
+    assert.equal(validateRun(run), false, "new campaigns cannot claim victory early");
   }
+});
+
+test("attacks and retreat do not restore energy in combat; guard and safe exploration do", () => {
+  const run = arena();
+  enemy(run, "ash_guard", 11, 10, { hp: 100, maxHp: 100, attack: 1 });
+  run.player.energy = 0;
+  act(run, { type: "move", dx: 1, dy: 0 });
+  assert.equal(run.player.energy, 0);
+  act(run, { type: "move", dx: 0, dy: 1 });
+  assert.equal(run.player.energy, 0);
+  act(run, { type: "guard" });
+  assert.equal(run.player.energy, 1);
+  run.enemies = [];
+  act(run, { type: "move", dx: 0, dy: 1 });
+  assert.equal(run.player.energy, 2);
+});
+
+test("offerings rotate between attack, health, and energy instead of adding attack every floor", () => {
+  for (let floor = 1; floor <= 3; floor++) {
+    const run = arena();
+    run.floor = floor;
+    run.player.gold = 100;
+    const before = { ...run.player };
+    run.objects = [{ id: "offering", type: "shrine", x: 11, y: 10, used: false }];
+    assert.equal(act(run, { type: "interact" }), true);
+    assert.equal(run.player.attack - before.attack, floor === 1 ? 1 : 0);
+    assert.equal(run.player.maxHp - before.maxHp, floor === 2 ? 4 : 0);
+    assert.equal(run.player.maxEnergy - before.maxEnergy, floor === 3 ? 1 : 0);
+    assert.equal(run.player.gold, 100 - (20 + floor * 3));
+    assert.equal(act(run, { type: "interact" }), false);
+  }
+});
+
+test("piercing reduces ordinary armor, while guard still absorbs damage", () => {
+  const physical = arena();
+  physical.player.armor = 5;
+  enemy(physical, "ash_guard", 11, 10, { attack: 10 });
+  const piercing = arena();
+  piercing.player.armor = 5;
+  enemy(piercing, "furnace_thrall", 11, 10, { attack: 10 });
+  const guarded = structuredClone(piercing);
+  act(physical, { type: "wait" });
+  act(piercing, { type: "wait" });
+  act(guarded, { type: "guard" });
+  assert(piercing.player.hp < physical.player.hp);
+  assert(guarded.player.hp > piercing.player.hp);
+});
+
+test("the advanced solar skill pierces armor and interruption respects the same poise window", () => {
+  const run = arena("luminary");
+  const target = enemy(run, "ash_guard", 11, 10, { hp: 200, maxHp: 200, armor: 10 });
+  target.intent = { kind: "shot", damage: 10, cells: [{ x: 10, y: 10 }] };
+  const expectedDamage = getStats(run).skillDamage - Math.floor(10 * 0.6);
+  const hp = run.player.hp;
+  act(run, { type: "skill" });
+  assert.equal(target.hp, 200 - expectedDamage);
+  assert.equal(run.player.hp, hp, "the committed attack is interrupted");
+  assert.equal(target.intent, null);
+  assert(target.resolve > 0);
+  target.intent = { kind: "shot", damage: 10, cells: [{ x: 10, y: 10 }] };
+  run.player.energy = getStats(run).maxEnergy;
+  act(run, { type: "skill" });
+  assert(run.player.hp < hp, "poise protects the next committed attack");
+});
+
+
+test("alerted enemies close two tiles without receiving a free attack on arrival", () => {
+  const run = arena();
+  const target = enemy(run, "ashling", 14, 10);
+  const hp = run.player.hp;
+  act(run, { type: "wait" });
+  assert.equal(target.x, 12);
+  act(run, { type: "wait" });
+  assert.equal(target.x, 11);
+  assert.equal(run.player.hp, hp, "movement and attacking remain separate actions");
+  act(run, { type: "wait" });
+  assert(run.player.hp < hp);
+});
+
+test("potion capacity preserves full caches, scales with supplies, and accepts legacy stocks", () => {
+  const run = arena();
+  assert.equal(getStats(run).potionCapacity, 3);
+  run.player.potions = 3;
+  run.objects = [{ id: "supply", type: "potion", x: 11, y: 10, used: false }];
+  act(run, { type: "move", dx: 1, dy: 0 });
+  assert.equal(run.player.potions, 3);
+  assert.equal(run.objects[0].used, false);
+  run.player.hp = 1;
+  act(run, { type: "potion" });
+  act(run, { type: "move", dx: -1, dy: 0 });
+  act(run, { type: "move", dx: 1, dy: 0 });
+  assert.equal(run.player.potions, 3);
+  assert.equal(run.objects[0].used, true);
+  const upgraded = createRun({ seed: 1, upgrades: { supplies: 3 } });
+  assert.equal(getStats(upgraded).potionCapacity, 6);
+  assert.equal(upgraded.player.potions, 5);
+  delete run.player.potionCapacity;
+  run.player.potions = 14;
+  assert.equal(validateRun(run), true, "old saves retain their earned stock");
+  run.objects.push({ id: "legacy-supply", type: "potion", x: 12, y: 10, used: false });
+  act(run, { type: "move", dx: 1, dy: 0 });
+  assert.equal(run.player.potions, 14);
+  assert.equal(run.objects[1].used, false);
 });

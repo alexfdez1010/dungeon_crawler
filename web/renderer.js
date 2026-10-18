@@ -1,15 +1,26 @@
-import { floorInfo, ENEMIES } from "./content.js";
-import { visibleTiles, getThreats } from "./engine.js";
-import { layoutViewport, pointerToTile } from "./viewport.js";
+import { floorInfo, ENEMIES } from "./content.js?v=3.0.0";
+import { visibleTiles, getThreats } from "./engine.js?v=3.0.0";
+import { layoutViewport, pointerToTile } from "./viewport.js?v=3.0.0";
 
 const ATLAS = new Image();
 ATLAS.src = new URL(
   "../resources/art/yala-character-atlas.png",
   import.meta.url,
 ).href;
-export const spriteStyle = (index) =>
-  `--sprite-x:${((index % 4) * 100) / 3}%;--sprite-y:${Math.floor(index / 4) * 100}%`;
+const EXPANSION_ATLAS = new Image();
+EXPANSION_ATLAS.src = new URL("../resources/art/yala-depths-atlas.png", import.meta.url).href;
+const EXPANSION_SPRITES = ["luminary", "furnace_thrall", "brass_marksman", "crucible_knight", "forge_matriarch", "astral_husk", "star_scribe", "comet_guard", "yala_prime"];
+export const classSprite = (id) => id === "luminary" ? 8 : Math.max(0, ["warden", "ranger", "arcanist"].indexOf(id));
+export const spriteStyle = (index) => {
+  if (index >= 8) {
+    const cell = index - 8;
+    return `--sprite-atlas:url('resources/art/yala-depths-atlas.png');--sprite-size:300% 300%;--sprite-x:${(cell % 3) * 50}%;--sprite-y:${Math.floor(cell / 3) * 50}%`;
+  }
+  return `--sprite-x:${((index % 4) * 100) / 3}%;--sprite-y:${Math.floor(index / 4) * 100}%`;
+};
 export function enemySprite(type) {
+  const expansion = EXPANSION_SPRITES.indexOf(type);
+  if (expansion >= 0) return 8 + expansion;
   if (type === "ettin" || type === "briar_queen") return 7;
   if (/guard|brute|sentinel|warden/.test(type)) return 6;
   if (/thorn|spore/.test(type)) return 4;
@@ -44,6 +55,7 @@ export class DungeonRenderer {
       if (this.run && this.canvas.isConnected) this.draw(this.run);
     };
     ATLAS.addEventListener("load", this.onAtlasLoad);
+    EXPANSION_ATLAS.addEventListener("load", this.onAtlasLoad);
     this.onResize = () => {
       if (this.destroyed) return;
       this.resize();
@@ -125,6 +137,7 @@ export class DungeonRenderer {
     window.removeEventListener("orientationchange", this.onResize);
     window.visualViewport?.removeEventListener("resize", this.onResize);
     ATLAS.removeEventListener("load", this.onAtlasLoad);
+    EXPANSION_ATLAS.removeEventListener("load", this.onAtlasLoad);
     this.run = null;
   }
   tileAt(event) {
@@ -202,6 +215,16 @@ export class DungeonRenderer {
             c.fillRect(sx * t + 7, sy * t + 19, 9, 1);
             c.fillRect(sx * t + 16, sy * t + 15, 1, 5);
           }
+          if (theme.biomeId === "furnace" && n % 9 === 0) {
+            c.fillStyle = "#e29a4b88";
+            c.fillRect(sx * t + 5, sy * t + 9, 12, 2);
+            c.fillRect(sx * t + 16, sy * t + 11, 2, 8);
+          }
+          if (theme.biomeId === "astral" && n % 7 === 0) {
+            c.fillStyle = "#e8d59caa";
+            c.fillRect(sx * t + 14, sy * t + 10, 2, 8);
+            c.fillRect(sx * t + 11, sy * t + 13, 8, 2);
+          }
           if (n % 19 === 0) {
             c.fillStyle = theme.color + "40";
             c.fillRect(sx * t + 3, sy * t + 3, 3, 3);
@@ -271,7 +294,7 @@ export class DungeonRenderer {
     c.ellipse(px, py + 11, 13, 5, 0, 0, Math.PI * 2);
     c.stroke();
     this.drawSprite(
-      ["warden", "ranger", "arcanist"].indexOf(p.classId),
+      classSprite(p.classId),
       (p.x - o.x) * t,
       (p.y - o.y) * t,
       1.25,
@@ -445,13 +468,17 @@ export class DungeonRenderer {
     c.beginPath();
     c.ellipse(x + t / 2, y + t - 3, t * 0.35, 4, 0, 0, Math.PI * 2);
     c.fill();
-    if (ATLAS.complete && ATLAS.naturalWidth) {
-      const sw = ATLAS.width / 4,
-        sh = ATLAS.height / 2;
+    const expanded = index >= 8;
+    const atlas = expanded ? EXPANSION_ATLAS : ATLAS;
+    const columns = expanded ? 3 : 4, rows = expanded ? 3 : 2;
+    const cell = expanded ? index - 8 : index;
+    if (atlas.complete && atlas.naturalWidth) {
+      const sw = atlas.width / columns,
+        sh = atlas.height / rows;
       c.drawImage(
-        ATLAS,
-        (index % 4) * sw,
-        Math.floor(index / 4) * sh,
+        atlas,
+        (cell % columns) * sw,
+        Math.floor(cell / columns) * sh,
         sw,
         sh,
         x + (t - size) / 2,

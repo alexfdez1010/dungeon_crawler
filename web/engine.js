@@ -1,8 +1,15 @@
-import { CLASS_BY_ID, ENEMIES, REGIONS, RELICS } from "./content.js";
+import {
+  CLASS_BY_ID,
+  ENEMIES,
+  REGIONS,
+  RELICS,
+  TOTAL_FLOORS,
+  UPGRADES,
+} from "./content.js?v=3.0.0";
 
 const WIDTH = 41;
 const HEIGHT = 29;
-const MAX_FLOOR = 12;
+const MAX_FLOOR = TOTAL_FLOORS;
 const distance = (a, b) => Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
 const same = (a, b) => a.x === b.x && a.y === b.y;
 const index = (map, x, y) => y * map.width + x;
@@ -50,17 +57,19 @@ function effectTotals(run) {
 export function getStats(run) {
   const bonus = effectTotals(run);
   const archetype = CLASS_BY_ID[run.player.classId] || CLASS_BY_ID.warden;
+  const skillMultiplier = { warden: 1.7, luminary: 2.1 }[run.player.classId] || 2;
   return {
     ...bonus,
     attack: run.player.attack + (bonus.attack || 0),
     armor: run.player.armor + (bonus.armor || 0),
     maxHp: run.player.maxHp + (bonus.maxHp || 0),
     maxEnergy: run.player.maxEnergy + (bonus.maxEnergy || 0),
+    potionCapacity: run.player.potionCapacity ?? 3,
     skillCost: archetype.skillCost ?? archetype.skill?.cost ?? 3,
     skillDamage:
       Math.round(
         (run.player.attack + (bonus.attack || 0)) *
-          (run.player.classId === "warden" ? 1.7 : 2),
+          skillMultiplier,
       ) + (bonus.skillDamage || 0),
     guard: run.player.statuses.includes("guard"),
   };
@@ -227,13 +236,13 @@ function spawnFloor(run) {
     Object.keys(ENEMIES).filter(
       (id) => !ENEMIES[id].boss && ENEMIES[id].behavior !== "boss",
     );
-  const count = 7 + run.floor;
+  const count = 7 + Math.ceil(run.floor * 0.8);
   for (let i = 0; i < count; i++) {
     const position = place(1 + (i % 11));
     if (!position) continue;
     const type = pick(run, enemyTypes);
     const definition = ENEMIES[type];
-    const scaling = 1 + ((run.floor - 1) % 3) * 0.13;
+    const scaling = 1 + ((run.floor - 1) % 3) * 0.16;
     const hp = Math.round((definition.hp || 10) * scaling);
     run.enemies.push({
       id: `f${run.floor}-e${i}`,
@@ -274,8 +283,8 @@ function spawnFloor(run) {
     "chest",
     "chest",
     "shrine",
-    "fountain",
-    "potion",
+    run.floor % 3 === 0 ? "fountain" : "chest",
+    run.floor % 3 === 1 ? "potion" : "gold",
     "gold",
     "trap",
     "trap",
@@ -293,7 +302,7 @@ function spawnFloor(run) {
       });
   }
   reveal(run);
-  log(run, `Descenso ${run.floor}/12 · ${region.name || "La cripta"}.`);
+  log(run, `Descenso ${run.floor}/${MAX_FLOOR} · ${region.name || "La cripta"}.`);
   if (run.floor % 3 === 0)
     log(run, "Una presencia sella la salida. Derrota al guardián.");
 }
@@ -306,9 +315,16 @@ export function createRun({
   if (!Object.hasOwn(CLASS_BY_ID, classId)) classId = "warden";
   const definition = CLASS_BY_ID[classId];
   const level = (key) =>
-    Math.max(0, Math.min(10, Math.floor(Number(upgrades[key]) || 0)));
+    Math.max(
+      0,
+      Math.min(
+        UPGRADES.find((item) => item.id === key)?.maxLevel || 0,
+        Math.floor(Number(upgrades[key]) || 0),
+      ),
+    );
   const run = {
     version: 1,
+    campaignFloors: MAX_FLOOR,
     seed: Number(seed) >>> 0,
     rng: Number(seed) >>> 0 || 0x9e3779b9,
     floor: 1,
@@ -325,6 +341,7 @@ export function createRun({
       armor: (definition.armor || 0) + level("resilience"),
       classId,
       potions: 2 + level("supplies"),
+      potionCapacity: 3 + level("supplies"),
       gold: 0,
       xp: 0,
       level: 1,
@@ -364,8 +381,11 @@ function hurtPlayer(run, amount, source, enemy = null) {
     log(run, `Esquivas ${source}.`);
     return;
   }
-  const armor = stats.armor + (stats.guard ? 4 : 0);
-  const damage = Math.max(1, amount - armor);
+  // Armor cannot turn endgame attacks into harmless one-point hits. Piercing is
+  // part of an enemy's published identity; guard remains useful against it.
+  const pierce = Math.min(1, Math.max(0, ENEMIES[enemy?.type]?.pierceArmor || 0));
+  const armor = Math.floor(stats.armor * (1 - pierce)) + (stats.guard ? 4 : 0);
+  const damage = Math.max(1, Math.ceil(amount * 0.4), amount - armor);
   run.player.hp = Math.max(0, run.player.hp - damage);
   log(run, `${source}: −${damage} vida${stats.guard ? " (bloqueo)" : ""}.`);
   if (run.player.hp <= 0) {
@@ -376,26 +396,28 @@ function hurtPlayer(run, amount, source, enemy = null) {
     damageEnemy(run, enemy, stats.thorns, false);
 }
 
-function damageEnemy(run, enemy, damage, playerHit = true) {
+function damageEnemy(run, enemy, damage, playerHit = true, armorPiercing = 0) {
   if (enemy.hp <= 0) return;
   const stats = getStats(run);
   const critical = playerHit && random(run) < (stats.critChance || 0);
   const dealt = Math.max(
     1,
-    Math.round(damage * (critical ? 1.75 : 1)) - (enemy.armor || 0),
+    Math.round(damage * (critical ? 1.75 : 1)) -
+      Math.floor((enemy.armor || 0) * (1 - armorPiercing)),
   );
+  const actualDamage = Math.min(enemy.hp, dealt);
   enemy.hp = Math.max(0, enemy.hp - dealt);
   enemy.alerted = true;
   const name = ENEMIES[enemy.type]?.name || enemy.type;
   log(run, `${critical ? "¡Crítico! " : ""}${name}: −${dealt} vida.`);
   if (playerHit && stats.lifesteal)
-    heal(run, Math.max(1, Math.floor(dealt * stats.lifesteal)));
+    heal(run, Math.floor(actualDamage * stats.lifesteal));
   if (enemy.hp === 0) {
     run.kills++;
     run.player.gold += enemy.boss
       ? 30 + run.floor * 3
       : 3 + Math.floor(run.floor / 2);
-    run.player.xp += enemy.boss ? 30 : 5 + Math.floor(run.floor / 3);
+    run.player.xp += enemy.boss ? 24 : 5;
     run.shards += enemy.boss ? 12 + run.floor : 1;
     enemy.intent = null;
     if (enemy.boss) {
@@ -408,15 +430,15 @@ function damageEnemy(run, enemy, damage, playerHit = true) {
         stats.maxEnergy,
         run.player.energy + stats.energyOnKill,
       );
-    while (run.player.xp >= run.player.level * 24) {
-      run.player.xp -= run.player.level * 24;
+    while (run.player.xp >= run.player.level * 30) {
+      run.player.xp -= run.player.level * 30;
       run.player.level++;
       run.player.maxHp += 3;
       run.player.attack++;
-      heal(run, 8);
+      heal(run, 5);
       log(
         run,
-        `Nivel ${run.player.level}: +1 ataque, +3 vida máxima y recuperas 8 vida.`,
+        `Nivel ${run.player.level}: +1 ataque, +3 vida máxima y recuperas 5 vida.`,
       );
     }
   }
@@ -430,10 +452,12 @@ function collect(run) {
       run.player.gold += amount;
       object.used = true;
       log(run, `Recoges ${amount} oro.`);
-    } else if (object.type === "potion") {
+    } else if (object.type === "potion" && run.player.potions < getStats(run).potionCapacity) {
       run.player.potions++;
       object.used = true;
       log(run, "Recoges una poción.");
+    } else if (object.type === "potion") {
+      log(run, "La bolsa de pociones está llena. La poción permanece aquí.");
     } else if (object.type === "trap") {
       object.used = true;
       hurtPlayer(run, 5 + run.floor, "Trampa de espinas");
@@ -464,6 +488,15 @@ function pathStep(run, enemy) {
     }
   }
   return null;
+}
+
+function advanceEnemy(run, enemy, steps = 2) {
+  for (let step = 0; step < steps; step++) {
+    const next = pathStep(run, enemy);
+    if (!next || same(next, run.player)) break;
+    enemy.x = next.x;
+    enemy.y = next.y;
+  }
 }
 
 function attackCells(run, enemy, kind) {
@@ -548,6 +581,7 @@ function enemyTurn(run) {
   for (const enemy of run.enemies) {
     if (enemy.hp <= 0 || run.phase !== "playing") continue;
     const definition = ENEMIES[enemy.type] || {};
+    if (enemy.resolve > 0) enemy.resolve--;
     if (enemy.stunned > 0) {
       enemy.stunned--;
       enemy.intent = null;
@@ -568,6 +602,16 @@ function enemyTurn(run) {
           run,
           `El ataque de ${definition.name || enemy.type} golpea el suelo.`,
         );
+      // A charge closes distance rather than behaving like another stationary bow.
+      if (intent.kind === "charge") {
+        for (const cell of intent.cells) {
+          if (same(cell, run.player) || enemyAt(run, cell.x, cell.y)) break;
+          enemy.x = cell.x;
+          enemy.y = cell.y;
+        }
+      }
+      if (!enemy.boss && definition.behavior === "ranged" && distance(enemy, run.player) > 2)
+        advanceEnemy(run, enemy);
       enemy.cooldown = enemy.boss ? 1 : 0;
       continue;
     }
@@ -580,11 +624,24 @@ function enemyTurn(run) {
     enemy.alerted = true;
     if (enemy.cooldown > 0) {
       enemy.cooldown--;
+      // The recovery window allows a counterattack, but does not freeze a boss.
+      if (enemy.boss) {
+        if (separation === 1)
+          hurtPlayer(
+            run,
+            Math.ceil(enemy.attack * 0.65),
+            `${definition.name}: represalia`,
+            enemy,
+          );
+        else {
+          advanceEnemy(run, enemy);
+        }
+      }
       continue;
     }
     if (enemy.boss && separation <= 7 && lineOfSight(run, enemy, run.player)) {
       const cycle = enemy.pattern || 0;
-      const kind =
+      const kind = definition.intentKinds?.[cycle % definition.intentKinds.length] || (
         separation <= 2 && cycle % 2 === 0
           ? "nova"
           : enemy.type === "briar_queen"
@@ -599,12 +656,14 @@ function enemyTurn(run) {
                   : cycle % 3 === 1
                     ? "cross"
                     : "blast"
-                : "blast";
+                : "blast");
       enemy.pattern = cycle + 1;
       enemy.intent = {
         kind,
         cells: attackCells(run, enemy, kind),
-        damage: enemy.attack + (enemy.hp < enemy.maxHp / 2 ? 3 : 0),
+        damage:
+          enemy.attack +
+          (enemy.hp < enemy.maxHp / 2 ? Math.ceil(enemy.attack * 0.2) : 0),
         turn: run.turn,
       };
       const warning = {
@@ -630,20 +689,21 @@ function enemyTurn(run) {
       lineOfSight(run, enemy, run.player)
     ) {
       enemy.intent = {
-        kind: charger ? "charge" : "shot",
-        cells: attackCells(run, enemy, "shot"),
+        kind: charger ? "charge" : definition.intentKind || "shot",
+        cells: attackCells(
+          run,
+          enemy,
+          charger ? "shot" : definition.intentKind || "shot",
+        ),
         damage: enemy.attack + (charger ? 2 : 0),
         turn: run.turn,
       };
+      enemy.pattern = (enemy.pattern || 0) + 1;
       log(run, `${definition.name || enemy.type} fija tu posición.`);
     } else if (separation === 1) {
       hurtPlayer(run, enemy.attack, definition.name || enemy.type, enemy);
     } else {
-      const next = pathStep(run, enemy);
-      if (next && !same(next, run.player)) {
-        enemy.x = next.x;
-        enemy.y = next.y;
-      }
+      advanceEnemy(run, enemy);
     }
   }
 }
@@ -715,15 +775,15 @@ function interact(run) {
     const gold = integer(run, 14, 24) + run.floor;
     run.player.gold += gold;
     run.shards += 3;
-    if (random(run) < 0.4) {
+    if (random(run) < 0.05 && run.player.potions < getStats(run).potionCapacity) {
       run.player.potions++;
       log(run, "El cofre contiene también una poción.");
     }
     log(run, `Cofre abierto: +${gold} oro y +3 ecos.`);
   } else if (object.type === "fountain") {
-    heal(run, Math.ceil(getStats(run).maxHp * 0.4));
+    heal(run, Math.ceil(getStats(run).maxHp * 0.3));
     run.player.energy = getStats(run).maxEnergy;
-    log(run, "La fuente restaura un 40% de vida y toda tu energía.");
+    log(run, "La fuente restaura un 30% de vida y toda tu energía.");
   } else {
     const cost = 20 + run.floor * 3;
     if (run.player.gold < cost) {
@@ -731,12 +791,14 @@ function interact(run) {
       return false;
     }
     run.player.gold -= cost;
-    run.player.attack++;
-    run.player.maxHp += 3;
-    heal(run, 8);
+    const blessing = (run.floor - 1) % 3;
+    if (blessing === 0) run.player.attack++;
+    else if (blessing === 1) run.player.maxHp += 4;
+    else run.player.maxEnergy++;
+    heal(run, 5);
     log(
       run,
-      `Ofrenda de ${cost} oro: +1 ataque, +3 vida máxima y recuperas 8 vida.`,
+      `Ofrenda de ${cost} oro: ${["+1 ataque", "+4 vida máxima", "+1 energía máxima"][blessing]} y recuperas 5 vida.`,
     );
   }
   object.used = true;
@@ -755,7 +817,9 @@ function skill(run) {
       ? 2
       : run.player.classId === "ranger"
         ? 6
-        : 4;
+        : run.player.classId === "luminary"
+          ? 5
+          : 4;
   const targets = run.enemies
     .filter(
       (enemy) =>
@@ -772,10 +836,15 @@ function skill(run) {
   if (run.player.classId === "warden") {
     for (const target of targets) {
       damageEnemy(run, target, stats.skillDamage);
-      target.stunned = 1;
-      target.intent = null;
+      // A target needs four active turns to recover its poise. Recasting still
+      // deals damage, but cannot cancel every attack in a skill/guard loop.
+      if (!(target.resolve > 0)) {
+        target.stunned = 1;
+        target.intent = null;
+        target.resolve = 4;
+      }
     }
-    log(run, "Golpe sísmico: los enemigos cercanos quedan interrumpidos.");
+    log(run, "Golpe sísmico: interrumpe a enemigos sin temple; el temple dura 4 turnos.");
   } else if (run.player.classId === "ranger") {
     const target = targets[0];
     const dx = target.x - run.player.x;
@@ -806,10 +875,27 @@ function skill(run) {
         distance(enemy, center) <= 2 &&
         lineOfSight(run, center, enemy),
     );
-    for (const victim of blast) damageEnemy(run, victim, stats.skillDamage);
+    for (const victim of blast) {
+      damageEnemy(
+        run,
+        victim,
+        stats.skillDamage,
+        true,
+        run.player.classId === "luminary" ? 0.4 : 0,
+      );
+      if (
+        run.player.classId === "luminary" &&
+        victim.intent &&
+        !(victim.resolve > 0)
+      ) {
+        victim.intent = null;
+        victim.stunned = 1;
+        victim.resolve = 4;
+      }
+    }
     log(
       run,
-      `Estallido arcano: ${blast.length} objetivo${blast.length === 1 ? "" : "s"}.`,
+      `${run.player.classId === "luminary" ? "Cisma solar" : "Estallido arcano"}: ${blast.length} objetivo${blast.length === 1 ? "" : "s"}.`,
     );
   }
   return true;
@@ -850,7 +936,7 @@ export function act(run, action) {
               run.player.gold += 10 + run.floor * 2;
               object.used = true;
             }
-            if (!object.used && object.type === "potion") {
+            if (!object.used && object.type === "potion" && run.player.potions < getStats(run).potionCapacity) {
               run.player.potions++;
               object.used = true;
             }
@@ -871,11 +957,19 @@ export function act(run, action) {
       const y = run.player.y + dy;
       if (!walkable(run, x, y)) return false;
       const target = enemyAt(run, x, y);
-      if (target) damageEnemy(run, target, getStats(run).attack);
+      if (target) {
+        damageEnemy(run, target, getStats(run).attack);
+        regenerate = false;
+      }
       else {
         run.player.x = x;
         run.player.y = y;
         collect(run);
+        // Retreating creates space, but cannot also refuel an infinite ranged loop.
+        // Safe exploration still refills energy; in combat, guard or wait to focus.
+        regenerate = !run.enemies.some(
+          (enemy) => enemy.hp > 0 && enemy.alerted && distance(enemy, run.player) <= 8 && lineOfSight(run, enemy, run.player),
+        );
       }
       consumed = true;
     }
@@ -892,7 +986,7 @@ export function act(run, action) {
     const stats = getStats(run);
     if (run.player.potions <= 0 || run.player.hp >= stats.maxHp) return false;
     run.player.potions--;
-    heal(run, Math.ceil(stats.maxHp * 0.45) + (stats.potionPower || 0));
+    heal(run, Math.ceil(stats.maxHp * 0.3) + (stats.potionPower || 0));
     log(run, "Bebes una poción de vida.");
     consumed = true;
   } else if (action.type === "interact") consumed = interact(run);
@@ -925,7 +1019,7 @@ export function nextFloor(run) {
     return false;
   run.floor++;
   run.phase = "playing";
-  heal(run, Math.ceil(getStats(run).maxHp * 0.15));
+  heal(run, Math.ceil(getStats(run).maxHp * 0.08));
   spawnFloor(run);
   return true;
 }
@@ -950,6 +1044,8 @@ export function validateRun(value) {
       !Number.isSafeInteger(value.turn) ||
       value.turn < 0
     )
+      return false;
+    if (value.campaignFloors !== undefined && value.campaignFloors !== MAX_FLOOR)
       return false;
     if (!["playing", "reward", "dead", "won"].includes(value.phase))
       return false;
@@ -984,6 +1080,14 @@ export function validateRun(value) {
       player.maxEnergy < 1 ||
       player.maxEnergy > 100 ||
       player.level < 1
+    )
+      return false;
+    if (
+      player.potionCapacity !== undefined &&
+      (!Number.isInteger(player.potionCapacity) ||
+        player.potionCapacity < 3 ||
+        player.potions > player.potionCapacity ||
+        player.potionCapacity > 3 + (UPGRADES.find((upgrade) => upgrade.id === "supplies")?.maxLevel || 0))
     )
       return false;
     const map = value.map;
@@ -1108,7 +1212,7 @@ export function validateRun(value) {
           enemy[key] > 1000000
         )
           return false;
-      for (const key of ["armor", "cooldown", "stunned", "pattern"])
+      for (const key of ["armor", "cooldown", "stunned", "pattern", "resolve"])
         if (
           enemy[key] !== undefined &&
           (!Number.isInteger(enemy[key]) ||
@@ -1162,7 +1266,9 @@ export function validateRun(value) {
     if (value.phase !== "reward" && value.rewardChoices.length) return false;
     if (
       value.phase === "won" &&
-      (value.floor !== MAX_FLOOR || floorBosses.some((enemy) => enemy.hp > 0))
+      ((value.floor !== MAX_FLOOR &&
+        !(value.campaignFloors === undefined && value.floor === 12)) ||
+        floorBosses.some((enemy) => enemy.hp > 0))
     )
       return false;
     if (

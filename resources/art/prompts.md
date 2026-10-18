@@ -1,5 +1,30 @@
 # YALA · Ecos del abismo — generated art
 
+## Depths expansion · 2026-10-18
+
+Final file: `yala-depths-atlas.png`. Built-in `image_gen`, transparent 3×3 atlas. First generation followed by one padding correction, preserving the original sprites. Used by the canvas renderer and class/enemy portraits.
+
+Initial prompt:
+
+```text
+Use case: stylized-concept
+Asset type: transparent dark fantasy tactical roguelite sprite atlas, EXACTLY 3 columns and 3 rows, nine equal square cells, square canvas.
+Primary request: Nine separate original game character sprites, one centered in each cell, consistent orthographic slightly top-down frontal view, crisp richly hand-pixeled RPG art, readable at small size. Match a charcoal, bone, muted jade and amber fantasy game.
+Row 1 left to right: 1 heroic female dawn paladin in ivory hood and gold armor holding a small sunlit blade and lantern; 2 hostile furnace thrall, coal-black humanoid with ember cracks; 3 hostile brass skeletal marksman with crossbow and copper helmet.
+Row 2 left to right: 4 towering crucible knight in weathered copper plate with forge hammer; 5 boss forge matriarch, massive crowned armored smith with molten amber heart and two hammers; 6 astral husk, floating dark-blue ragged humanoid with a tiny star inside its chest.
+Row 3 left to right: 7 star scribe, bone-robed celestial sorcerer with a ring of tiny gold stars and dark staff; 8 comet guard, angular midnight blue heavy armor with pale comet blade; 9 final boss Yala Prime, tall ancient ivory and black celestial sovereign with fractured gold halo and eclipsed sun held between hands.
+Composition/framing: EXACT uniform 3 by 3 grid. Each character centered within its own equal square cell, fully visible head to feet, at least 15 percent transparent padding along every cell edge. Separate isolated disjoint silhouettes, no overlaps, no ground or scenery.
+Style/medium: premium pixel-art game sprites with crisp pixel clusters and fine painterly details, no photorealism, no glossy 3D. Copper and ember for furnace enemies, midnight blue and pale gold for celestial enemies, ivory gold heroine.
+Text: none.
+Constraints: Actual alpha transparency. No checkerboard, text, labels, letters, grid lines, separators, borders, UI or watermark. Nine characters only.
+```
+
+Final edit prompt (references the first generated atlas):
+
+```text
+Edit this exact 3x3 transparent game sprite atlas. Keep all nine characters in exactly the same cell order, same identity, style, colors, and equipment. Critical correction: shrink EACH of the nine complete characters to fit inside the central 65 percent of its equal square cell. Every cell must have a generous completely transparent margin on all four sides. No character, weapon, flame, halo or cape may touch or cross its own cell boundary. Three columns and three rows of equal square cells, square overall canvas. All nine full body sprites must be isolated and disjoint. Real alpha transparency, no text, no lines, no background. Leave at least 17 percent transparent padding around EACH sprite in EACH cell.
+```
+
 Generated with the built-in `image_gen` tool on 2026-10-17. Original generated files remain in the Codex image library; project copies are committed here.
 
 ## Key art

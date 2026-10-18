@@ -16,7 +16,7 @@ Players of the existing keyboard-controlled, tile-based dungeon crawler. Spanish
 
 ## Capabilities and Constraints
 
-The owner authorizes creative expansion, generated illustrations, parallel agent work, testing and delivery to master. Browser-local saving is explicitly requested. The repository is a static GitHub Pages site with a Rust/WebAssembly original. The expanded browser edition must work on static hosting without a backend or build step.
+The owner authorizes creative expansion, generated illustrations, parallel agent work, testing and delivery to main. Browser-local saving is explicitly requested. The repository is a static GitHub Pages site with a Rust/WebAssembly original. The expanded 18-floor browser edition must work on static hosting without a backend or build step.
 
 ## Product Principles
 
@@ -32,3 +32,7 @@ The owner authorizes creative expansion, generated illustrations, parallel agent
 ## Evidence on Hand
 
 Rust source in src/ and its original resources remain in the repository. The owner requested a single web game; the separate classic page and its WebAssembly distribution are removed.
+
+## Campaign expansion · 3.0
+
+The campaign spans six regions and eighteen floors, with the strongest class earned after Ettin. Permanent upgrades and tactical play should materially improve survival; an initial Custodio should not clear the campaign in simulation. A deterministic headless player must use the production engine and report deaths, victories and stalls separately. Preserve legacy saves and earned unlocks. Delivery is to `main`; Pages should publish that branch.
