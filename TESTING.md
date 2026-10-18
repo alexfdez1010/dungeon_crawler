@@ -27,10 +27,18 @@ These checks prove the listed mechanics and representative browser flows, rather
 
 ## Fullscreen HUD verification
 
-The expedition now uses a fixed `100dvh` canvas and HUD. Read-only browser measurements confirm canvas, viewport and document dimensions match at 1440×900, 390×844, 844×390, 320×568 and the user window 924×1313, without page scroll. A separate actual 3440×1440 capture verifies ultrawide layout. Native fullscreen is requested from an entry/button gesture; persistence of the browser fullscreen flag is limited by the in-app automation host, so viewport coverage is the stable guarantee.
+The expedition now uses a fixed `100dvh` canvas and HUD. Read-only browser measurements confirm canvas, viewport and document dimensions match at 1440×900, 390×844, 844×390, 320×568 and the user window 924×1313, without page scroll. A separate actual 3440×1440 capture verifies ultrawide layout. Native fullscreen was originally requested from entry gestures. The 2.1.1 refinement below makes it an explicit choice; viewport coverage remains independent of native fullscreen.
 
 Verified touch movement, a two-cell click-to-walk route, travel refusal during visible combat, pause/zoom without consuming a turn, reload at the same turn and HP, and a 22-action combat replay ending in an announced archer attack. Guard reduced the subsequent hit to one damage. The compact Map button opens a paused overview: at 320×568, pressing a movement key while it is open leaves the turn unchanged, and Volver a jugar returns to the HUD.
 
 Six navigation tests cover hidden cells, hazards, enemies, stale routes and interruption. Seven viewport tests cover resize, fractional camera origins, zoom limits, DPR, safe insets and pointer roundtrips. The independent visual review scored its compact-map correction resolved (ship). The mechanical detector ran once: no non-advisory findings; palette and type advisories are recorded in the refreshed design documentation. Browser console errors are checked before publication.
 
 GitHub Actions and Pages publish from `master`, the owner's requested primary branch. Entry CSS/JS and the changed renderer import use release query strings so existing browser caches receive the HUD update immediately.
+
+## Landing refinement · 2.1.1
+
+Removed repeated atmospheric copy, class epithets, duplicate lock labels, hero captions and decorative rules from the refuge. Kept class stats, unlock conditions, upgrade effects/costs, depth progress, save status and help. Class and upgrade details remain 12px across breakpoints.
+
+Validated the landing at 1440×900, 390×844 and 320×568, including a saved expedition, with no horizontal overflow or clipped choices. Inspected the complete compact page. Help opens and closes; starting, returning to the refuge, resuming and reloading preserve the expedition. At desktop start and resume, `document.fullscreenElement` remains null; the explicit fullscreen control remains available. The game canvas and document match the 1440×900 browser viewport without scrolling. No browser console errors observed.
+
+All 36 automated tests pass; browser module syntax and `git diff --check` pass. Impeccable detector ran once; palette/type advisories reflect the existing broad game stylesheet. CSS and entry-module cache versions advance to 2.1.1.

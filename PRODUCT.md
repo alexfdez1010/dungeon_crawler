@@ -26,7 +26,7 @@ The owner authorizes creative expansion, generated illustrations, parallel agent
 - Generated maps must always connect the entrance and exit.
 - Keep controls learnable and expose touch controls alongside the keyboard.
 - Expeditions occupy the entire viewport with a persistent HUD and no document scrolling.
-- Request native fullscreen on entry where supported; the viewport-filling layout works independently.
+- Start and resume in the normal browser window. Native fullscreen is an explicit choice in the HUD or pause menu; the viewport-filling layout works independently.
 - Keep saved expeditions compatible while simplifying controls and offering safe click-to-walk exploration.
 
 ## Evidence on Hand

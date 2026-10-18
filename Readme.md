@@ -31,7 +31,7 @@ Una expansión del Dungeon Crawler original: un roguelite táctico de fantasía 
 | Diario y reliquias | J |
 | Atacar al enemigo contiguo con el botón contextual | Enter |
 
-Al entrar en una expedición, el mapa ocupa toda la ventana y el juego solicita pantalla completa nativa cuando el navegador lo permite. El HUD mantiene visibles vida, energía, habilidades y controles sin desplazamiento. El minimapa se puede desplegar en móvil; el diario, la ayuda y las opciones se abren desde el HUD.
+Al entrar o reanudar una expedición, el mapa ocupa la ventana del navegador sin activar la pantalla completa. Puedes activarla desde su botón en el HUD o en el menú de pausa. El HUD mantiene visibles vida, energía, habilidades y controles sin desplazamiento. El minimapa se puede desplegar en móvil; el diario, la ayuda y las opciones se abren desde el HUD.
 
 En móvil están disponibles la cruceta y todos los botones de acción. Toca una casilla explorada para caminar hasta ella; la ruta evita trampas y se detiene al aparecer un enemigo. Durante el combate, toca una casilla contigua para moverte o atacar, o utiliza el botón contextual dorado. Puedes ampliar o reducir el mapa desde el menú de pausa. Pasa el puntero sobre un enemigo para consultar sus estadísticas e intención.
 

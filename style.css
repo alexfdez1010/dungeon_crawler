@@ -125,7 +125,7 @@ small {
   display: none !important;
 }
 .shell {
-  max-width: 1512px;
+  max-width: 1328px;
   margin: 0 auto;
   padding: 0 48px;
 }
@@ -134,7 +134,6 @@ small {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid var(--line);
   gap: 24px;
 }
 .brand {
@@ -152,14 +151,6 @@ small {
   font-size: 26px;
   letter-spacing: 0.16em;
   line-height: 1.1;
-}
-.brand-sub {
-  display: block;
-  font-family: var(--font);
-  font-size: 8px;
-  letter-spacing: 0.19em;
-  color: var(--secondary);
-  margin-top: 6px;
 }
 .site-header nav {
   display: flex;
@@ -236,8 +227,7 @@ small {
 .refuge-hero {
   position: relative;
   isolation: isolate;
-  min-height: 450px;
-  border-bottom: 1px solid var(--line);
+  min-height: 420px;
   overflow: hidden;
   margin: 0 -1px;
 }
@@ -256,19 +246,13 @@ small {
     linear-gradient(0deg, #101412 0%, #10141200 26%);
 }
 .hero-copy {
-  padding: 54px 0 48px;
+  padding: 64px 0;
   width: 48%;
   position: relative;
 }
-.hero-rule {
-  width: 47px;
-  height: 1px;
-  background: var(--gold);
-  margin-bottom: 19px;
-}
 .hero-copy h1 {
-  font-size: 112px;
-  letter-spacing: 0.15em;
+  font-size: 96px;
+  letter-spacing: 0.12em;
   line-height: 1;
   margin-left: -3px;
   color: #e9e2c9;
@@ -285,6 +269,7 @@ small {
   color: #bec2b1;
   line-height: 1.8;
   margin-top: 24px;
+  max-width: 32ch;
 }
 .hero-actions {
   display: flex;
@@ -343,19 +328,11 @@ small {
   color: var(--secondary);
   margin-top: 14px;
 }
-.hero-caption {
-  position: absolute;
-  right: 4px;
-  bottom: 28px;
-  font-size: 8px;
-  letter-spacing: 0.16em;
-  color: #b3b8a8;
-}
 .refuge-columns {
   display: grid;
-  grid-template-columns: 1.25fr 1fr;
-  gap: 68px;
-  padding: 40px 0 35px;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  padding: 48px 0;
 }
 .section-heading {
   display: flex;
@@ -374,16 +351,10 @@ small {
   width: 23px;
   height: 23px;
 }
-.fraction {
-  font-size: 12px;
-  color: var(--muted);
-  white-space: nowrap;
-  letter-spacing: 0.1em;
-}
 .class-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 .class-choice {
   text-align: left;
@@ -393,7 +364,7 @@ small {
   width: 100%;
   padding: 8px 17px 8px 7px;
   min-height: 88px;
-  border: 1px solid var(--line);
+  border: 1px solid transparent;
   border-radius: 4px;
   position: relative;
   transition:
@@ -401,7 +372,7 @@ small {
     border-color 0.2s;
 }
 .class-choice.selected {
-  background: #dbb66b09;
+  background: #dbb66b0d;
   border-color: #9c8755;
 }
 .class-choice:not(:disabled):hover {
@@ -429,11 +400,11 @@ small {
   font-weight: 400;
 }
 .class-copy > span {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--secondary);
 }
 .class-copy small {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--muted);
   margin-top: 3px;
 }
@@ -445,8 +416,7 @@ small {
   width: 16px;
 }
 .class-choice.locked {
-  background: #0e120f;
-  color: #92988b;
+  color: var(--muted);
 }
 .class-choice.locked .portrait {
   filter: grayscale(1);
@@ -468,7 +438,6 @@ small {
   gap: 15px;
   align-items: center;
   padding: 13px 0;
-  border-bottom: 1px solid var(--line);
   min-height: 83px;
 }
 .upgrade-row:first-child {
@@ -488,7 +457,7 @@ small {
 }
 .upgrade-copy p {
   color: var(--secondary);
-  font-size: 10px;
+  font-size: 12px;
   margin-top: 2px;
 }
 .upgrade-level {
@@ -530,14 +499,8 @@ small {
   border-color: #414a39;
   background: #161b15;
 }
-.legacy-note {
-  color: var(--muted);
-  font-size: 11px;
-  margin-top: 14px;
-}
 .descent-section {
-  padding: 29px 0 32px;
-  border-top: 1px solid var(--line);
+  padding: 16px 0 48px;
 }
 .descent-section .section-heading {
   margin-bottom: 28px;
@@ -570,15 +533,6 @@ small {
   gap: 0;
   position: relative;
   padding-right: 18px;
-}
-.floor-nodes:before {
-  position: absolute;
-  content: "";
-  left: 16px;
-  right: 0;
-  top: 50%;
-  height: 1px;
-  background: var(--line);
 }
 .floor-node {
   position: relative;
@@ -614,16 +568,10 @@ small {
   margin-top: 13px;
   color: var(--secondary);
 }
-.biome-stop p {
-  font-size: 10px;
-  color: var(--muted);
-  margin-top: 3px;
-}
 .biome-stop.reached h3 {
   color: var(--text);
 }
 .site-footer {
-  border-top: 1px solid var(--line);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -631,24 +579,6 @@ small {
   min-height: 70px;
   font-size: 10px;
   color: var(--muted);
-}
-.site-footer > div {
-  display: flex;
-  gap: 25px;
-  align-items: center;
-}
-.site-footer button {
-  font-size: 10px;
-  padding: 5px 0;
-}
-.site-footer a:hover,
-.site-footer button:hover {
-  color: var(--gold);
-}
-.site-footer > div > span {
-  font-family: Georgia, serif;
-  letter-spacing: 0.18em;
-  color: #a69f83;
 }
 .site-footer > span:before {
   content: "";
@@ -1447,16 +1377,13 @@ dialog > p:not([class]) {
     background-position: 60% center;
   }
   .hero-copy h1 {
-    font-size: 100px;
+    font-size: 96px;
   }
   .hero-actions {
     gap: 17px;
   }
   .hero-story {
     font-size: 14px;
-  }
-  .hero-caption {
-    font-size: 7px;
   }
   .game-layout {
     gap: 20px;
@@ -1581,15 +1508,12 @@ dialog > p:not([class]) {
     color: var(--secondary);
     line-height: 1.9;
   }
-  .hero-caption {
-    display: none;
-  }
   .hero-actions {
     max-width: 275px;
     gap: 4px;
   }
   .refuge-hero {
-    min-height: 470px;
+    min-height: 420px;
   }
   .hero-copy {
     width: 65%;
@@ -1629,10 +1553,10 @@ dialog > p:not([class]) {
     font-size: 18px;
   }
   .class-copy > span {
-    font-size: 10px;
+    font-size: 12px;
   }
   .class-copy small {
-    font-size: 9px;
+    font-size: 12px;
   }
   .class-select-mark .icon {
     width: 13px;
@@ -1648,7 +1572,7 @@ dialog > p:not([class]) {
     font-size: 12px;
   }
   .upgrade-copy p {
-    font-size: 9px;
+    font-size: 12px;
   }
   .upgrade-buy {
     min-width: 49px;
@@ -1656,9 +1580,6 @@ dialog > p:not([class]) {
   }
   .biome-stop h3 {
     font-size: 15px;
-  }
-  .biome-stop p {
-    font-size: 9px;
   }
   .biome-track {
     gap: 12px;
@@ -1698,11 +1619,6 @@ dialog > p:not([class]) {
   }
   .brand > span {
     font-size: 23px;
-  }
-  .brand-sub {
-    font-size: 6px;
-    letter-spacing: 0.12em;
-    margin-top: 5px;
   }
   .site-header nav {
     gap: 15px;
@@ -1748,15 +1664,11 @@ dialog > p:not([class]) {
       linear-gradient(0deg, var(--bg), #10141200 40%);
   }
   .refuge-hero {
-    min-height: 470px;
+    min-height: 420px;
   }
   .hero-copy {
-    padding: 43px 0 32px;
+    padding: 48px 0 40px;
     width: 100%;
-  }
-  .hero-rule {
-    margin-bottom: 21px;
-    width: 35px;
   }
   .hero-copy h1 {
     font-size: 85px;
@@ -1782,10 +1694,10 @@ dialog > p:not([class]) {
     gap: 18px;
   }
   .hero-actions .text-button {
-    font-size: 11px;
+    font-size: 12px;
   }
   .hero-note {
-    font-size: 10px;
+    font-size: 12px;
     max-width: 30ch;
   }
   .refuge-columns {
@@ -1817,22 +1729,21 @@ dialog > p:not([class]) {
     font-size: 20px;
   }
   .class-copy > span {
-    font-size: 11px;
+    font-size: 12px;
   }
   .class-copy small {
-    font-size: 10px;
+    font-size: 12px;
   }
   .class-select-mark .icon {
     width: 17px;
   }
   .class-detail {
-    font-size: 11px;
+    font-size: 12px;
     min-height: 0;
     margin-top: 13px;
   }
   .legacy-section {
-    border-top: 1px solid var(--line);
-    padding-top: 26px;
+    padding-top: 8px;
   }
   .upgrade-row {
     min-height: 83px;
@@ -1842,12 +1753,13 @@ dialog > p:not([class]) {
     font-size: 13px;
   }
   .upgrade-copy p {
-    font-size: 10px;
+    font-size: 12px;
   }
   .upgrade-icon > .icon {
     width: 20px;
   }
   .upgrade-buy {
+    min-height: 44px;
     min-width: 59px;
     padding: 5px 11px;
   }
@@ -1886,9 +1798,6 @@ dialog > p:not([class]) {
   .biome-stop h3 {
     font-size: 17px;
   }
-  .biome-stop p {
-    font-size: 10px;
-  }
   .site-footer {
     flex-direction: column;
     align-items: flex-start;
@@ -1896,18 +1805,6 @@ dialog > p:not([class]) {
     gap: 8px;
     padding: 20px 0;
     font-size: 9px;
-  }
-  .site-footer > div {
-    width: 100%;
-    gap: 22px;
-  }
-  .site-footer > div > span {
-    margin-left: auto;
-    font-size: 9px;
-  }
-  .site-footer button,
-  .site-footer a {
-    font-size: 10px;
   }
   .expedition {
     padding-top: 20px;

@@ -120,10 +120,10 @@ function tone(kind = "step") {
   }
 }
 function header() {
-  return `<header class="site-header"><a class="brand" href="./" data-action="home" aria-label="Yala, volver al refugio">${icon("lantern")}<span>YALA<span class="brand-sub">ECOS DEL ABISMO</span></span></a><nav aria-label="Principal"><button class="nav-link ${view === "home" ? "current" : ""}" data-action="home">Refugio</button>${activeRun() ? '<button class="nav-link" data-action="resume">Expedición</button>' : ""}<button class="nav-link" data-action="chronicle">Crónica</button></nav><div class="header-end"><span class="shard-total" title="Fragmentos para mejoras permanentes">${icon("spark")} ${profile.meta.shards}<span class="desktop-only"> fragmentos</span></span><button class="icon-button" data-action="sound" aria-label="${profile.settings.sound ? "Desactivar" : "Activar"} sonido" aria-pressed="${profile.settings.sound}">${icon("sound")}<span class="sound-state">${profile.settings.sound ? "ON" : "OFF"}</span></button></div></header>`;
+  return `<header class="site-header"><a class="brand" href="./" data-action="home" aria-label="Yala, volver al refugio">${icon("lantern")}<span>YALA</span></a><nav aria-label="Principal"><button class="nav-link ${view === "home" ? "current" : ""}" data-action="home">Refugio</button>${activeRun() ? '<button class="nav-link" data-action="resume">Expedición</button>' : ""}<button class="nav-link" data-action="chronicle">Crónica</button></nav><div class="header-end"><span class="shard-total" title="Fragmentos para mejoras permanentes">${icon("spark")} ${profile.meta.shards}<span class="desktop-only"> fragmentos</span></span><button class="icon-button" data-action="sound" aria-label="${profile.settings.sound ? "Desactivar" : "Activar"} sonido" aria-pressed="${profile.settings.sound}">${icon("sound")}<span class="sound-state">${profile.settings.sound ? "ON" : "OFF"}</span></button></div></header>`;
 }
 function footer() {
-  return `<footer class="site-footer"><span id="save-status">${storage ? "Progreso guardado en este navegador" : "Guardado no disponible"}</span><div><button data-action="help">Cómo jugar</button><span>YALA / II</span></div></footer>`;
+  return `<footer class="site-footer"><span id="save-status">${storage ? "Progreso guardado en este navegador" : "Guardado no disponible"}</span></footer>`;
 }
 function renderHome() {
   stopTravel();
@@ -136,16 +136,16 @@ function renderHome() {
   const m = profile.meta,
     hasRun = activeRun();
   app.innerHTML = `<div class="shell">${header()}${saveWarning ? `<p class="notice" role="status">${esc(saveWarning)}</p>` : ""}
-    <main id="main-content"><section class="refuge-hero" aria-labelledby="home-title"><div class="hero-art" role="img" aria-label="Un custodio con un farol ante la monumental puerta del abismo"></div><div class="hero-copy"><div class="hero-rule"></div><h1 id="home-title">YALA</h1><p class="hero-subtitle">Ecos del abismo</p><p class="hero-story">El mundo olvidó la luz.<br>El abismo recuerda tu nombre.</p><div class="hero-actions"><button class="button primary" data-action="${hasRun ? "resume" : "start"}">${hasRun ? "Continuar expedición" : "Entrar al abismo"}${icon("arrow")}</button><button class="text-button" data-action="${hasRun ? "new" : "help"}">${hasRun ? "Nueva expedición" : "Aprende a sobrevivir"}${icon(hasRun ? "sword" : "book")}</button></div><p class="hero-note">${hasRun ? `Tu ${esc(CLASS_BY_ID[profile.run.player.classId].name.toLowerCase())} te espera en la planta ${profile.run.floor}.` : "Por turnos. Sin prisa. Cada decisión deja huella."}</p></div><span class="hero-caption">LA PUERTA OLVIDADA · ATRIO DE CENIZA</span></section>
-    <div class="refuge-columns"><section class="class-section" aria-labelledby="class-title"><div class="section-heading"><div><h2 id="class-title">Elige quién desciende</h2><p>Un juramento distinto. Otra forma de sobrevivir.</p></div><span class="fraction">${CLASSES.filter((c) => classUnlocked(c.id, m)).length} / 3</span></div><div class="class-list">${CLASSES.map(
+    <main id="main-content"><section class="refuge-hero" aria-labelledby="home-title"><div class="hero-art" role="img" aria-label="Un custodio con un farol ante la monumental puerta del abismo"></div><div class="hero-copy"><h1 id="home-title">YALA</h1><p class="hero-subtitle">Ecos del abismo</p><p class="hero-story">Combate por turnos. Doce plantas.<br>Recupera el Amuleto de Yala.</p><div class="hero-actions"><button class="button primary" data-action="${hasRun ? "resume" : "start"}">${hasRun ? "Continuar expedición" : "Entrar al abismo"}${icon("arrow")}</button><button class="text-button" data-action="${hasRun ? "new" : "help"}">${hasRun ? "Nueva expedición" : "Cómo jugar"}${icon(hasRun ? "sword" : "book")}</button></div>${hasRun ? `<p class="hero-note">${esc(CLASS_BY_ID[profile.run.player.classId].name)} · Planta ${profile.run.floor} de 12</p>` : ""}</div></section>
+    <div class="refuge-columns"><section class="class-section" aria-labelledby="class-title"><div class="section-heading"><div><h2 id="class-title">Elige tu clase</h2></div></div><div class="class-list">${CLASSES.map(
       (c, i) => {
         const unlocked = classUnlocked(c.id, m);
-        return `<button class="class-choice ${selectedClass === c.id ? "selected" : ""} ${unlocked ? "" : "locked"}" data-class="${c.id}" ${unlocked ? "" : "disabled"} aria-pressed="${selectedClass === c.id}" aria-label="${esc(c.name)}${unlocked ? "" : `, se desbloquea al vencer al jefe de la planta ${c.unlockFloor - 1}`}">${portrait(i)}<span class="class-copy"><strong>${c.name}</strong><span>${unlocked ? esc(c.title) : `Vence al guardián de la planta ${c.unlockFloor - 1}`}</span><small>${unlocked ? `${c.hp} vida · ${c.attack} ataque · ${c.skill.name}` : "CLASE BLOQUEADA"}</small></span><span class="class-select-mark">${unlocked ? icon(selectedClass === c.id ? "spark" : "chevron") : icon("shield")}</span></button>`;
+        return `<button class="class-choice ${selectedClass === c.id ? "selected" : ""} ${unlocked ? "" : "locked"}" data-class="${c.id}" ${unlocked ? "" : "disabled"} aria-pressed="${selectedClass === c.id}" aria-label="${esc(c.name)}${unlocked ? "" : `, se desbloquea al vencer al jefe de la planta ${c.unlockFloor - 1}`}">${portrait(i)}<span class="class-copy"><strong>${c.name}</strong>${unlocked ? `<small>${c.hp} vida · ${c.attack} ataque · ${esc(c.skill.name)}</small>` : `<span>Vence al guardián de la planta ${c.unlockFloor - 1}</span>`}</span><span class="class-select-mark">${unlocked ? icon(selectedClass === c.id ? "spark" : "chevron") : icon("shield")}</span></button>`;
       },
     ).join(
       "",
     )}</div><p class="class-detail">${esc(CLASS_BY_ID[selectedClass].description)}</p></section>
-    <section class="legacy-section" aria-labelledby="legacy-title"><div class="section-heading"><div><h2 id="legacy-title">Lo que permanece</h2><p>Mejoras para tus próximas expediciones.</p></div>${icon("spark")}</div><div class="upgrade-list">${UPGRADES.map(
+    <section class="legacy-section" aria-labelledby="legacy-title"><div class="section-heading"><div><h2 id="legacy-title">Mejoras permanentes</h2><p>Invierte tus fragmentos. Los conservas al morir.</p></div></div><div class="upgrade-list">${UPGRADES.map(
       (u, i) => {
         const level = m.upgrades[u.id] || 0,
           cost = upgradeCost(u.id, level),
@@ -154,13 +154,13 @@ function renderHome() {
       },
     ).join(
       "",
-    )}</div><p class="legacy-note">Los fragmentos se conservan aunque no regreses.</p></section></div>
-    <section class="descent-section" aria-labelledby="descent-title"><div class="section-heading"><div><h2 id="descent-title">Doce plantas hacia la verdad</h2><p>Cuatro dominios. Cuatro guardianes. Un amuleto.</p></div><span class="best-depth">Mejor descenso <strong>${m.bestFloor ? String(m.bestFloor).padStart(2, "0") : "—"}</strong><span>/ 12</span></span></div><div class="biome-track">${BIOMES.map((b) => `<div class="biome-stop ${m.bestFloor >= b.floors[0] ? "reached" : ""}"><div class="floor-nodes">${b.floors.map((f) => `<span class="floor-node ${m.bestFloor >= f ? "reached" : ""} ${f % 3 === 0 ? "boss-node" : ""}" title="Planta ${f}${f % 3 === 0 ? " · Guardián" : ""}">${f % 3 === 0 ? icon("shield") : String(f).padStart(2, "0")}</span>`).join("")}</div><h3>${b.name}</h3><p>${b.subtitle}</p></div>`).join("")}</div></section></main>${footer()}</div>`;
+    )}</div></section></div>
+    <section class="descent-section" aria-labelledby="descent-title"><div class="section-heading"><div><h2 id="descent-title">El descenso</h2><p>Un guardián cada tres plantas.</p></div><span class="best-depth">Mejor descenso <strong>${m.bestFloor ? String(m.bestFloor).padStart(2, "0") : "—"}</strong><span>/ 12</span></span></div><div class="biome-track">${BIOMES.map((b) => `<div class="biome-stop ${m.bestFloor >= b.floors[0] ? "reached" : ""}"><div class="floor-nodes">${b.floors.map((f) => `<span class="floor-node ${m.bestFloor >= f ? "reached" : ""} ${f % 3 === 0 ? "boss-node" : ""}" title="Planta ${f}${f % 3 === 0 ? " · Guardián" : ""}">${f % 3 === 0 ? icon("shield") : String(f).padStart(2, "0")}</span>`).join("")}</div><h3>${b.name}</h3></div>`).join("")}</div></section></main>${footer()}</div>`;
 }
 function requestGameFullscreen() {
   if (document.fullscreenElement || !document.documentElement.requestFullscreen)
     return;
-  // The click handler retains user activation. Viewport coverage also works when the browser refuses native fullscreen.
+  // Native fullscreen is opt-in from the HUD or pause menu.
   document.documentElement
     .requestFullscreen({ navigationUI: "hide" })
     .catch(() => {});
@@ -257,7 +257,7 @@ function showGame() {
   document.body.classList.add("is-playing");
   const r = profile.run,
     info = floorInfo(r.floor);
-  app.innerHTML = `<main class="game-screen" id="playfield" aria-label="Expedición a pantalla completa">
+  app.innerHTML = `<main class="game-screen" id="playfield" aria-label="Expedición">
     <canvas id="dungeon" tabindex="0" role="img" aria-label="Mapa de la mazmorra. Usa las flechas o WASD para moverte. Toca una casilla para caminar. H abre la ayuda."></canvas>
     <div class="hud-top"><section class="hud-vitals hud-surface" aria-label="Tu personaje" id="resources"></section>
     <section class="hud-location" aria-label="Localización"><p><span id="region-name"></span><span class="hud-depth">PLANTA <strong id="depth-number"></strong> / 12</span></p><h1 id="floor-title"></h1><span id="turn-counter"></span></section>
@@ -556,7 +556,6 @@ function perform(action, { travelling = false } = {}) {
   }
 }
 function startRun() {
-  requestGameFullscreen();
   if (externalChanged) return;
   if (!classUnlocked(selectedClass, profile.meta)) return;
   profile.run = createRun({
@@ -676,7 +675,6 @@ function handleClick(event) {
     renderHome();
   }
   if (action === "resume") {
-    requestGameFullscreen();
     closeModal();
     showGame();
     $("#dungeon")?.focus({ preventScroll: true });

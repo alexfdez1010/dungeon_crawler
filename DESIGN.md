@@ -29,10 +29,10 @@ colors:
 typography:
   display:
     fontFamily: 'Georgia, "Times New Roman", serif'
-    fontSize: "112px"
+    fontSize: "96px"
     fontWeight: 400
     lineHeight: 1
-    letterSpacing: ".15em"
+    letterSpacing: ".12em"
   headline:
     fontFamily: 'Georgia, "Times New Roman", serif'
     fontSize: "27px"
@@ -213,9 +213,9 @@ The palette resembles charcoal stone and aged paper illuminated by a warm lanter
 
 ## Layout
 
-The refuge's centered shell has a maximum width of (1512px) including horizontal padding. Default gutters are (48px), grow to (64px) from (1600px), shrink to (30px) at (1150px), and become (20px) at (640px). Shared spacing tokens describe recurring values; compact game components also use measured (3–13px) gaps and insets.
+The refuge's centered shell has a maximum width of (1328px) including horizontal padding. Default gutters are (48px), grow to (64px) from (1600px), shrink to (30px) at (1150px), and become (20px) at (640px). Shared spacing tokens describe recurring values; compact game components also use measured (3–13px) gaps and insets.
 
-The refuge uses a cropped illustration and a text-led split hero, followed by two columns in a (1.25:1) ratio with a (68px) gap. That gap becomes (38px) at (1150px); at (900px) the columns are equal with a (28px) gap. At (640px) they stack with a (32px) gap. The four-region depth track becomes two columns on mobile.
+The refuge uses a cropped illustration and a text-led split hero, followed by two equal columns with a (64px) gap. That gap becomes (38px) at (1150px); at (900px) the columns are equal with a (28px) gap. At (640px) they stack with a (32px) gap. The four-region depth track becomes two columns on mobile.
 
 The expedition is a fixed, isolated (100dvh) scene with a full-size canvas and no site header, footer or document scrolling. Health and energy anchor the top-left; floor, region and turn sit top-center; minimap and journal/help/fullscreen/pause tools occupy the top-right. Bottom controls keep a directional pad beside the six-action dock and zoom controls. Default top HUD columns are (252px 1fr 180px), with (24px) gaps and safe-area-aware outer insets. At (1000px), the HUD becomes denser without changing these anchors.
 
@@ -235,7 +235,7 @@ The dungeon's radial lantern illumination is anchored to the player, with tiny s
 
 ## Shapes
 
-Controls and class/relic choices use subtly softened corners (`control`). Keycaps and upgrade purchases use the smaller `tactical` corner; HUD action tiles use `control`, HUD containers use `hud`, and dialogs use `dialog`. Progress nodes are circular (`node`) while boss nodes use tactical corners. Sections stay open and rectangular, separated by thin rules rather than nested rounded cards.
+Controls and class/relic choices use subtly softened corners (`control`). Keycaps and upgrade purchases use the smaller `tactical` corner; HUD action tiles use `control`, HUD containers use `hud`, and dialogs use `dialog`. Progress nodes are circular (`node`) while boss nodes use tactical corners. Refuge sections stay open and rectangular, separated by space. Borders identify interactive choices and progress nodes; headers, upgrade rows, the descent track and footer have no decorative rules.
 
 Icons use inline (24 × 24) SVG viewboxes with rounded strokes, normally (1.5px) thick, scaled to the component. The large relic emblem uses a lighter (.8px) stroke. Character portraits are crops of `resources/art/yala-character-atlas.png`, laid out as a (4 × 2) atlas; preserve the supplied illustration rather than replacing it with generic iconography.
 
@@ -251,7 +251,7 @@ The refuge header navigation is an understated row of system text at (13px), wit
 
 ### Class choices
 
-Full-width portrait rows have an (88px) minimum height, the frontmatter padding, and a single-pixel seam border. Selection uses a transparent gold wash (`#dbb66b09`) and warm border (`#9c8755`); hover uses `#dbb66b10` and a gold border over (.2s). Locked rows are disabled, labelled, subdued and show grayscale portraits at (.43) opacity. Mobile rows use an (83px) minimum height. Preserve `aria-pressed` and explicit unlock copy.
+Full-width portrait rows have an (88px) minimum height and the frontmatter padding. Unselected rows have transparent borders. Selection uses a transparent gold wash (`#dbb66b0d`) and warm border (`#9c8755`); hover uses `#dbb66b10` and a gold border over (.2s). Locked rows are disabled, labelled, subdued and show grayscale portraits at (.43) opacity. Mobile rows use an (83px) minimum height. Preserve `aria-pressed` and explicit unlock copy.
 
 ### Tactical actions and resources
 
@@ -267,7 +267,7 @@ Carried relics are inline text buttons at (10px), with a small gold spark and go
 
 ### Upgrade rows and dialogs
 
-Permanent upgrades are open rows with a bottom seam, a gold icon, a compact description and a segmented progress track. The purchase control is (36px) minimum height with tactical corners and a labelled fragment cost; unavailable purchases are visibly disabled. Help, rewards, results and the chronicle share the same bordered dialog material. The file importer is hidden; there is no visible text-input design to invent.
+Permanent upgrades are open rows separated by spacing, a gold icon, a compact description and a segmented progress track. The purchase control is (36px) minimum height, increasing to (44px) on mobile, with tactical corners and a labelled fragment cost; unavailable purchases are visibly disabled. Help, rewards, results and the chronicle share the same bordered dialog material. The file importer is hidden; there is no visible text-input design to invent.
 
 ### Focus and motion
 
@@ -293,3 +293,7 @@ Reduced motion disables CSS animations and transitions and restores automatic sc
 - **Don't** introduce additional typefaces or treat every label as a manuscript heading.
 - **Don't** animate resource widths, add ambient animation loops or make enemy intentions depend on motion.
 - **Don't** invent visible text fields or new component variants for documentation alone.
+
+## Refuge content and entry
+
+The hero keeps the key art, Yala title and subtitle, a factual two-line introduction and the primary expedition action. The secondary action is Cómo jugar for a first visit or Nueva expedición for an existing run. Only an active run adds a class/floor note. Class rows show combat stats or their unlock requirement; narrative epithets, duplicate lock labels, decorative captions and region taglines are omitted. Class and upgrade descriptions use (12px) text, including compact layouts. No gameplay features are removed. Native fullscreen is opt-in from the HUD or pause menu, never requested on start or resume.
