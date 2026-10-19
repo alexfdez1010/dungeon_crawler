@@ -1,5 +1,26 @@
 # YALA · Ecos del abismo — generated art
 
+## Social sharing cover · 2026-10-19
+
+Final file: `yala-og.jpg`, 1200 × 630 pixels. Generated with the built-in `image_gen` tool using `yala-keyart.png` as the reference, then resized and exported as JPEG for social previews. Referenced by Open Graph, Twitter Cards and the game's structured data.
+
+Exact prompt:
+
+```text
+Use case: ads-marketing
+Asset type: final Open Graph social sharing card for the Spanish browser game YALA · Ecos del abismo, landscape 1200 by 630 pixels (1.9048:1).
+Primary request: Design a polished, highly legible dark-fantasy game sharing cover based on the supplied existing game artwork.
+Input images: Image 1 is the existing game key art, a visual and composition reference. Preserve its distinctive monumental ruined gothic doorway, black water, misty jade forest and tiny cloaked lantern-bearing knight on the right. Adapt to the wider card composition.
+Composition/framing: The right half showcases the original ruined doorway and knight. The left half is deep charcoal atmospheric negative space containing beautiful restrained ivory editorial serif title typography. Keep all text at least 75px from the image edges so it survives preview cropping.
+Text (verbatim), only these three lines:
+"YALA"
+"ECOS DEL ABISMO"
+"Roguelite táctico · Juega gratis"
+Typography: YALA extremely large, readable on small social previews, elegant classical serif. Subtitle below in smaller widely tracked ivory capitals. Third line in small but readable warm ivory type, separated by generous space. Text must have strong contrast.
+Color palette: original near-black charcoal, muted jade and verdigris, bone ivory and small warm amber lantern light.
+Constraints: Match the game's existing art direction and artwork. Keep all three lines crisp and spelled exactly, including the accent in táctico. No fake UI, no buttons, no extra text, no watermark, no borders. A finished social card, not a mockup. Opaque image.
+```
+
 ## Depths expansion · 2026-10-18
 
 Final file: `yala-depths-atlas.png`. Built-in `image_gen`, transparent 3×3 atlas. First generation followed by one padding correction, preserving the original sprites. Used by the canvas renderer and class/enemy portraits.

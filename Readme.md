@@ -81,6 +81,8 @@ El proyecto nació a partir de *Hands-on Rust: Effective Learning through 2D Gam
 
 La raíz de `main` contiene la distribución completa: `index.html`, `style.css`, `web/` y `resources/`. No es necesario generar los archivos antes de publicarlos. GitHub Pages publica el juego desde la raíz de `main`.
 
+La portada para compartir es `resources/art/yala-og.jpg` (1200 × 630). El HTML inicial incluye título, descripción, URL canónica, etiquetas de [Open Graph](https://ogp.me/) y Twitter Cards, además de datos estructurados [VideoGame](https://schema.org/VideoGame) y una presentación del juego disponible antes de cargar JavaScript. `sitemap.xml` enumera la única URL pública indexable y se puede enviar a Google Search Console. Si cambia el dominio o la ruta de publicación, actualiza las URL absolutas de `index.html` y `sitemap.xml`. GitHub Pages aloja este proyecto en una subruta: un `robots.txt` dentro del repositorio no controla el rastreo del dominio.
+
 ## Licencia
 
 MIT. Consulta [LICENSE](LICENSE).

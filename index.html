@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="es">
+<html lang="es" prefix="og: https://ogp.me/ns#">
   <head>
     <meta charset="utf-8" />
     <meta
@@ -9,9 +9,85 @@
     <meta name="theme-color" content="#101412" />
     <meta
       name="description"
-      content="Desciende por dieciocho plantas, desafía a seis guardianes y recupera el Amuleto de Yala. Un roguelite táctico con progreso guardado en tu navegador."
+      content="Juega gratis a Yala, un roguelite táctico por turnos en tu navegador. Explora 18 plantas, derrota a seis guardianes y conserva tu progreso entre expediciones."
     />
-    <title>YALA · Ecos del abismo</title>
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <title>YALA · Ecos del abismo | Roguelite táctico gratis</title>
+    <link rel="canonical" href="https://alexfdez1010.github.io/dungeon_crawler/" />
+    <link rel="sitemap" type="application/xml" href="sitemap.xml" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="es_ES" />
+    <meta property="og:site_name" content="YALA · Ecos del abismo" />
+    <meta property="og:title" content="YALA · Ecos del abismo | Roguelite táctico gratis" />
+    <meta
+      property="og:description"
+      content="Juega gratis a Yala, un roguelite táctico por turnos en tu navegador. Explora 18 plantas, derrota a seis guardianes y conserva tu progreso entre expediciones."
+    />
+    <meta property="og:url" content="https://alexfdez1010.github.io/dungeon_crawler/" />
+    <meta
+      property="og:image"
+      content="https://alexfdez1010.github.io/dungeon_crawler/resources/art/yala-og.jpg"
+    />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="YALA · Ecos del abismo: un custodio con un farol ante la puerta de unas ruinas envueltas en niebla."
+    />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="YALA · Ecos del abismo | Roguelite táctico gratis" />
+    <meta
+      name="twitter:description"
+      content="Juega gratis a Yala, un roguelite táctico por turnos en tu navegador. Explora 18 plantas, derrota a seis guardianes y conserva tu progreso entre expediciones."
+    />
+    <meta
+      name="twitter:image"
+      content="https://alexfdez1010.github.io/dungeon_crawler/resources/art/yala-og.jpg"
+    />
+    <meta
+      name="twitter:image:alt"
+      content="YALA · Ecos del abismo: un custodio con un farol ante la puerta de unas ruinas envueltas en niebla."
+    />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebSite",
+            "@id": "https://alexfdez1010.github.io/dungeon_crawler/#website",
+            "url": "https://alexfdez1010.github.io/dungeon_crawler/",
+            "name": "YALA · Ecos del abismo",
+            "inLanguage": "es",
+            "about": { "@id": "https://alexfdez1010.github.io/dungeon_crawler/#game" }
+          },
+          {
+            "@type": "VideoGame",
+            "@id": "https://alexfdez1010.github.io/dungeon_crawler/#game",
+            "name": "YALA · Ecos del abismo",
+            "url": "https://alexfdez1010.github.io/dungeon_crawler/",
+            "description": "Roguelite táctico gratuito de fantasía oscura con combate por turnos, 18 plantas procedurales, seis guardianes, cuatro clases y progreso guardado en el navegador.",
+            "image": "https://alexfdez1010.github.io/dungeon_crawler/resources/art/yala-og.jpg",
+            "inLanguage": "es",
+            "genre": ["Roguelite", "Rol táctico", "Fantasía oscura"],
+            "gamePlatform": "Web browser",
+            "applicationCategory": "GameApplication",
+            "operatingSystem": "Any",
+            "playMode": "https://schema.org/SinglePlayer",
+            "isAccessibleForFree": true,
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "EUR",
+              "url": "https://alexfdez1010.github.io/dungeon_crawler/"
+            }
+          }
+        ]
+      }
+    </script>
     <link rel="icon" href="resources/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="style.css?v=3.0.0" />
     <link rel="preload" href="resources/art/yala-keyart.png" as="image" />
@@ -103,7 +179,21 @@
         </symbol>
       </defs>
     </svg>
-    <div id="app"><p class="loading">Encendiendo el farol…</p></div>
+    <div id="app">
+      <main class="loading">
+        <h1>YALA · Ecos del abismo</h1>
+        <p>
+          Un roguelite táctico gratuito de fantasía oscura para jugar en el
+          navegador. Explora dieciocho plantas, desafía a seis guardianes y
+          recupera el Amuleto de Yala con combate por turnos.
+        </p>
+        <p>
+          Descubre cuatro clases, combina reliquias y consigue mejoras permanentes
+          entre expediciones. Tu progreso se guarda en este navegador.
+        </p>
+        <p>Encendiendo el farol…</p>
+      </main>
+    </div>
     <dialog id="modal" aria-labelledby="modal-title"></dialog>
     <input
       id="import-save"

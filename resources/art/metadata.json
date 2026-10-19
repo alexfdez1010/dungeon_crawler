@@ -1,6 +1,14 @@
 {
   "generator": "built-in image_gen",
   "generatedOn": "2026-10-17",
+  "social": {
+    "file": "yala-og.jpg",
+    "generatedOn": "2026-10-19",
+    "width": 1200,
+    "height": 630,
+    "alpha": false,
+    "reference": "yala-keyart.png"
+  },
   "keyart": {
     "file": "yala-keyart.png",
     "width": 1672,
