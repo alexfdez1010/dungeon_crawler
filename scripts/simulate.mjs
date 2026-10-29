@@ -14,7 +14,7 @@ const option = (name, fallback) => {
   return argument ? argument.slice(name.length + 3) : fallback;
 };
 if (args.includes("--help")) {
-  console.log("node scripts/simulate.mjs [--seeds=1,2,3 | --count=20 --start=1] [--classes=warden,ranger,arcanist,luminary] [--presets=zero,mid,max] [--policies=naive,tactical] [--max-turns=20000] [--floor-turns=2000] [--ref=git-commit] [--json] [--trace]");
+  console.log("node scripts/simulate.mjs [--seeds=1,2,3 | --count=20 --start=1] [--classes=warden,ranger,arcanist,luminary] [--oaths=lantern,ember,tide] [--presets=zero,mid,max] [--policies=naive,tactical] [--max-turns=20000] [--floor-turns=2000] [--ref=git-commit] [--json] [--trace]");
   process.exit(0);
 }
 let world = currentWorld;
@@ -53,15 +53,17 @@ if (!seeds.length) {
 }
 const classes = option("classes", world.CLASSES.map((c) => c.id).join(",")).split(",");
 for (const id of classes) if (!world.CLASSES.some((c) => c.id === id)) throw new Error(`Unknown class: ${id}`);
+const oaths = option("oaths", "lantern").split(",");
+for (const id of oaths) if (!(world.OATHS || [{ id: "lantern" }]).some((oath) => oath.id === id)) throw new Error(`Unknown oath: ${id}`);
 const presets = option("presets", "zero,mid,max").split(",");
 const policies = option("policies", "naive,tactical").split(",");
 const maxTurns = positive(option("max-turns", "20000"), "max-turns");
 const maxFloorTurns = positive(option("floor-turns", "2000"), "floor-turns");
 const results = [];
-for (const classId of classes) for (const preset of presets) for (const policy of policies) for (const seed of seeds) {
-  const result = simulateRun({ classId, seed, upgrades: upgradePreset(preset, world), policy, maxTurns, maxFloorTurns, trace: args.includes("--trace"), engine, world });
+for (const classId of classes) for (const oathId of oaths) for (const preset of presets) for (const policy of policies) for (const seed of seeds) {
+  const result = simulateRun({ classId, oathId, seed, upgrades: upgradePreset(preset, world), policy, maxTurns, maxFloorTurns, trace: args.includes("--trace"), engine, world });
   results.push({ ...result, preset });
-  if (!args.includes("--json")) console.error(`${classId}/${preset}/${policy} seed=${seed}: ${result.outcome} floor=${result.floor} turns=${result.turns}${result.reason ? ` (${result.reason})` : ""}`);
+  if (!args.includes("--json")) console.error(`${classId}/${oathId}/${preset}/${policy} seed=${seed}: ${result.outcome} floor=${result.floor} turns=${result.turns}${result.reason ? ` (${result.reason})` : ""}`);
 }
 const summary = summarize(results);
 if (args.includes("--json")) console.log(JSON.stringify({ schemaVersion: 1, revision, totalFloors: world.TOTAL_FLOORS, seeds,

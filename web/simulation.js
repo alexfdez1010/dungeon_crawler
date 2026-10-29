@@ -93,7 +93,7 @@ export function createPolicy({ name = "tactical", world = defaultWorld } = {}) {
     const safeMoves = moves.filter((p) => !threatened(p));
     const incomingDamage = enemies.reduce((sum, enemy) => sum +
       (enemy.intent?.cells.some((cell) => distance(cell, player) === 0) ? enemy.intent.damage : 0), 0);
-    const potionHealing = Math.ceil(view.stats.maxHp * 0.45) + (view.stats.potionPower || 0);
+    const potionHealing = Math.ceil(view.stats.maxHp * 0.3) + (view.stats.potionPower || 0);
     if (player.potions > 0 && player.hp < view.stats.maxHp * (name === "tactical" ? 0.58 : 0.4)
       && (name === "naive" || incomingDamage < potionHealing)) return { type: "potion" };
     const movementScore = (p) => adjacent.reduce((s, e) => s + (distance(e, p) === 1 ? e.attack : 0), 0)
@@ -129,7 +129,9 @@ export function createPolicy({ name = "tactical", world = defaultWorld } = {}) {
       if (player.energy >= 2 && moves.length) return { type: "dash", dx: moves[0].dx, dy: moves[0].dy };
     }
     if (canSkill && (name === "naive" || !threatened(player))) return { type: "skill" };
-    if (name === "tactical" && targets.length && !adjacent.length && !threatened(player)) return { type: "guard" };
+    // With no adjacent attacker or committed hit, the unprotected focus action
+    // is the useful recovery choice. Guard is reserved for accepting damage.
+    if (name === "tactical" && targets.length && !adjacent.length && !threatened(player)) return { type: "wait" };
     if (adjacent.length) {
       const target = adjacent.sort((a, b) => a.hp - b.hp)[0];
       return { type: "move", dx: target.x - player.x, dy: target.y - player.y };
@@ -166,8 +168,8 @@ export function createPolicy({ name = "tactical", world = defaultWorld } = {}) {
   };
 }
 
-export function simulateRun({ classId = "warden", seed = 1, upgrades = {}, policy = "tactical", maxTurns = 20000, maxFloorTurns = 2000, trace = false, engine = defaultEngine, world = defaultWorld, onStep } = {}) {
-  const run = engine.createRun({ classId, seed, upgrades });
+export function simulateRun({ classId = "warden", oathId = "lantern", seed = 1, upgrades = {}, policy = "tactical", maxTurns = 20000, maxFloorTurns = 2000, trace = false, engine = defaultEngine, world = defaultWorld, onStep } = {}) {
+  const run = engine.createRun({ classId, oathId, seed, upgrades });
   const decide = createPolicy({ name: policy, world });
   const actions = trace ? [] : undefined;
   const floors = [];
@@ -199,7 +201,7 @@ export function simulateRun({ classId = "warden", seed = 1, upgrades = {}, polic
     onStep?.({ run, before, action, step: steps });
   }
   return {
-    seed: Number(seed) >>> 0, classId, policy, upgrades: { ...upgrades },
+    seed: Number(seed) >>> 0, classId, oathId: run.oathId || "lantern", policy, upgrades: { ...upgrades },
     outcome: ["won", "dead"].includes(run.phase) ? run.phase : "stalled", reason,
     floor: run.floor, turns: run.turn, decisions: steps, kills: run.kills,
     bosses: [...run.bosses], hp: run.player.hp, potions: run.player.potions, shards: run.shards,
@@ -212,7 +214,7 @@ export function simulateRun({ classId = "warden", seed = 1, upgrades = {}, polic
 export function summarize(results) {
   const groups = new Map();
   for (const r of results) {
-    const id = `${r.classId}/${r.preset || "custom"}/${r.policy}`;
+    const id = `${r.classId}/${r.preset || "custom"}/${r.policy}${r.oathId && r.oathId !== "lantern" ? `/${r.oathId}` : ""}`;
     if (!groups.has(id)) groups.set(id, []);
     groups.get(id).push(r);
   }

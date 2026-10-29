@@ -57,5 +57,28 @@
     ],
     "cellWidth": 418,
     "cellHeight": 418
+  },
+  "domains": {
+    "file": "yala-domains.png",
+    "generatedOn": "2026-10-29",
+    "generator": "built-in image_gen",
+    "width": 1536,
+    "height": 1024,
+    "alpha": false,
+    "columns": 3,
+    "rows": 2,
+    "cellWidth": 512,
+    "cellHeight": 512,
+    "order": [
+      "ash",
+      "briar",
+      "tide",
+      "eclipse",
+      "furnace",
+      "astral"
+    ],
+    "promptFile": "domains-prompt.md",
+    "source": "original generation; no reference images",
+    "sha256": "91a89c1d570e1ff4c59988aab4e2dfeb6c83c22d54f6d0eabd58712321187930"
   }
 }

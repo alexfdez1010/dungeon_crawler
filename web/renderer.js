@@ -1,6 +1,6 @@
-import { floorInfo, ENEMIES } from "./content.js?v=3.0.0";
-import { visibleTiles, getThreats } from "./engine.js?v=3.0.0";
-import { layoutViewport, pointerToTile } from "./viewport.js?v=3.0.0";
+import { floorInfo, ENEMIES } from "./content.js?v=3.1.0";
+import { visibleTiles, getThreats } from "./engine.js?v=3.1.0";
+import { layoutViewport, pointerToTile } from "./viewport.js?v=3.1.0";
 
 const ATLAS = new Image();
 ATLAS.src = new URL(
@@ -41,13 +41,23 @@ export class DungeonRenderer {
     this.origin = { x: 0, y: 0 };
     this.hover = null;
     this.animations = [];
+    this.actionSnapshot = null;
+    this.feedbackTimer = null;
     this.run = null;
-    this.reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    this.motionQuery = matchMedia("(prefers-reduced-motion: reduce)");
+    this.reduced = this.motionQuery.matches;
+    this.onMotionChange = () => {
+      this.reduced = this.motionQuery.matches;
+      if (this.run && this.canvas.isConnected) this.draw(this.run);
+    };
+    this.motionQuery.addEventListener("change", this.onMotionChange);
     this.frame = null;
     this.onVisible = () => {
       if (document.hidden) {
         cancelAnimationFrame(this.frame);
+        clearTimeout(this.feedbackTimer);
         this.frame = null;
+        this.animations = [];
       } else if (this.run && this.canvas.isConnected) this.draw(this.run);
     };
     document.addEventListener("visibilitychange", this.onVisible);
@@ -129,6 +139,10 @@ export class DungeonRenderer {
   destroy() {
     this.destroyed = true;
     cancelAnimationFrame(this.frame);
+    clearTimeout(this.feedbackTimer);
+    this.motionQuery.removeEventListener("change", this.onMotionChange);
+    this.animations = [];
+    this.actionSnapshot = null;
     this.observer.disconnect();
     this.dprQuery?.removeEventListener("change", this.onDprChange);
     document.removeEventListener("visibilitychange", this.onVisible);
@@ -148,11 +162,149 @@ export class DungeonRenderer {
     );
   }
   effect(x, y, text, color = "#dbb66b") {
-    this.animations.push({ x, y, text, color, start: performance.now() });
+    this.addFeedback({ kind: "text", x, y, text, color, duration: 800 });
+  }
+  addFeedback(feedback) {
+    if (this.destroyed || document.hidden) return;
+    this.animations.push({ ...feedback, start: performance.now() });
+    // Long input bursts never accumulate an unbounded particle or text queue.
+    if (this.animations.length > 64) this.animations.splice(0, this.animations.length - 64);
+  }
+  captureAction(run) {
+    this.actionSnapshot = {
+      seed: run.seed,
+      floor: run.floor,
+      hp: run.player.hp,
+      energy: run.player.energy,
+      level: run.player.level,
+      player: { x: run.player.x, y: run.player.y },
+      visible: visibleTiles(run),
+      enemies: new Map(run.enemies.map((enemy) => [enemy.id, {
+        hp: enemy.hp, x: enemy.x, y: enemy.y,
+      }])),
+    };
+  }
+  resolveAction(run, action, consumed) {
+    const before = this.actionSnapshot;
+    this.actionSnapshot = null;
+    if (!before || !consumed) return;
+    if (before.seed !== run.seed || before.floor !== run.floor) {
+      this.animations = [];
+      return;
+    }
+    const visible = visibleTiles(run), player = run.player;
+    for (const enemy of run.enemies) {
+      const previous = before.enemies.get(enemy.id);
+      if (!previous || enemy.hp >= previous.hp) continue;
+      if (!visible.has(enemy.y * run.map.width + enemy.x) &&
+          !before.visible.has(previous.y * run.map.width + previous.x)) continue;
+      this.effect(enemy.x, enemy.y, `−${previous.hp - enemy.hp}`, "#f0d7a2");
+      this.addFeedback({
+        kind: enemy.hp === 0 ? "defeat" : "impact", id: enemy.id,
+        x: enemy.x, y: enemy.y, color: enemy.boss ? "#e8c67f" : "#dca66e",
+        duration: enemy.hp === 0 ? 600 : 260,
+        dx: Math.sign(enemy.x - before.player.x),
+        dy: Math.sign(enemy.y - before.player.y),
+      });
+    }
+    const hpDelta = player.hp - before.hp;
+    if (hpDelta !== 0) {
+      this.effect(player.x, player.y, `${hpDelta > 0 ? "+" : "−"}${Math.abs(hpDelta)}`, hpDelta > 0 ? "#a7dbc0" : "#ffb29c");
+      if (hpDelta < 0) this.addFeedback({
+        kind: "impact", id: "player", x: player.x, y: player.y,
+        color: "#e78976", duration: 260, dx: 0, dy: 0,
+      });
+    }
+    if (player.level > before.level) {
+      this.addFeedback({ kind: "text", x: player.x, y: player.y, text: `Nivel ${player.level}`,
+        color: "#f0d7a2", duration: 1100, lift: 18 });
+    }
+    if (action.type === "skill") {
+      const colors = { warden: "#e1bd76", ranger: "#a3d7b5", arcanist: "#cbb4e7", luminary: "#f0d99c" };
+      this.addFeedback({ kind: "skill", x: player.x, y: player.y,
+        color: colors[player.classId] || "#e1bd76", duration: 430 });
+    } else if (action.type === "dash") {
+      this.addFeedback({ kind: "dash", x: before.player.x, y: before.player.y,
+        toX: player.x, toY: player.y, color: "#a8cdb9", duration: 300 });
+    } else if ((action.type === "wait" || action.type === "guard") && player.energy > before.energy && hpDelta === 0) {
+      this.addFeedback({ kind: "text", x: player.x, y: player.y,
+        text: `+${player.energy - before.energy} energía`,
+        color: "#a7dbc0", duration: 650 });
+    }
+  }
+  spriteImpulse(id, now) {
+    if (this.reduced) return { x: 0, y: 0 };
+    const hit = this.animations.findLast((feedback) => feedback.kind === "impact" && feedback.id === id);
+    if (!hit) return { x: 0, y: 0 };
+    const progress = Math.min(1, (now - hit.start) / hit.duration);
+    const impulse = Math.sin(progress * Math.PI) * 3;
+    return { x: hit.dx * impulse, y: hit.dy * impulse };
+  }
+  drawWorldFeedback(now) {
+    const c = this.ctx, t = this.tile, o = this.origin;
+    c.save();
+    for (const feedback of this.animations) {
+      if (feedback.kind === "text") continue;
+      const progress = Math.min(1, (now - feedback.start) / feedback.duration);
+      const motion = this.reduced ? 0.4 : progress;
+      const x = (feedback.x - o.x + 0.5) * t, y = (feedback.y - o.y + 0.5) * t;
+      c.globalAlpha = this.reduced ? 0.7 : 1 - progress;
+      c.strokeStyle = feedback.color;
+      c.fillStyle = feedback.color;
+      c.lineWidth = 1.5;
+      if (feedback.kind === "dash") {
+        c.lineWidth = 3;
+        c.beginPath();
+        c.moveTo(x, y);
+        c.lineTo((feedback.toX - o.x + 0.5) * t, (feedback.toY - o.y + 0.5) * t);
+        c.stroke();
+      } else if (feedback.kind === "skill") {
+        c.beginPath();
+        c.ellipse(x, y + 7, t * (0.3 + motion * 1.8), t * (0.12 + motion * 0.7), 0, 0, Math.PI * 2);
+        c.stroke();
+      } else if (feedback.kind === "defeat") {
+        // Six deterministic embers: presentation never consumes the run's RNG.
+        for (let particle = 0; particle < 6; particle++) {
+          const angle = particle * Math.PI / 3;
+          const radius = 4 + motion * 19;
+          const size = 2.5 - motion;
+          c.fillRect(x + Math.cos(angle) * radius - size / 2,
+            y + Math.sin(angle) * radius * 0.6 - motion * 8, size, size);
+        }
+      } else {
+        c.beginPath();
+        c.ellipse(x, y + 7, 11 + motion * 8, 5 + motion * 3, 0, 0, Math.PI * 2);
+        c.stroke();
+      }
+    }
+    c.restore();
+  }
+  drawFloatingFeedback(now) {
+    const c = this.ctx, t = this.tile, o = this.origin;
+    c.save();
+    c.textAlign = "center";
+    c.textBaseline = "bottom";
+    c.font = "600 14px system-ui, sans-serif";
+    c.lineJoin = "round";
+    c.lineWidth = 3;
+    c.strokeStyle = "#101412";
+    for (const feedback of this.animations) {
+      if (feedback.kind !== "text") continue;
+      const progress = Math.min(1, (now - feedback.start) / feedback.duration);
+      const x = (feedback.x - o.x + 0.5) * t;
+      const y = (feedback.y - o.y) * t - 5 - (feedback.lift || 0) - (this.reduced ? 0 : progress * 18);
+      c.globalAlpha = this.reduced ? 1 : Math.min(1, (1 - progress) * 3);
+      c.fillStyle = feedback.color;
+      c.strokeText(feedback.text, x, y);
+      c.fillText(feedback.text, x, y);
+    }
+    c.restore();
   }
   draw(run) {
     if (this.destroyed) return;
     this.run = run;
+    const now = performance.now();
+    this.animations = this.animations.filter((feedback) => now - feedback.start < feedback.duration);
     this.resize();
     cancelAnimationFrame(this.frame);
     this.frame = null;
@@ -264,14 +416,25 @@ export class DungeonRenderer {
       c.stroke();
     }
     this.drawPath(m, vis);
+    this.drawWorldFeedback(now);
     for (const e of run.enemies) {
       if (e.hp <= 0 || !vis.has(e.y * m.width + e.x)) continue;
       const x = (e.x - o.x) * t,
         y = (e.y - o.y) * t;
+      if (e.boss) {
+        c.save();
+        c.strokeStyle = "#dbb66b";
+        c.lineWidth = 1.2;
+        c.beginPath();
+        c.ellipse(x + t / 2, y + t - 4, t * 0.58, t * 0.2, 0, 0, Math.PI * 2);
+        c.stroke();
+        c.restore();
+      }
+      const recoil = this.spriteImpulse(e.id, now);
       this.drawSprite(
         enemySprite(e.type),
-        x,
-        y,
+        x + recoil.x,
+        y + recoil.y,
         e.boss ? 1.5 : 1.15,
         ENEMIES[e.type]?.color || "#c77",
       );
@@ -331,19 +494,17 @@ export class DungeonRenderer {
     }
     this.drawDangerHints(run, vis);
     this.drawMini(run, vis);
-    const now = performance.now();
-    this.animations = this.animations.filter((a) => now - a.start < 850);
-    for (const a of this.animations) {
-      const age = (now - a.start) / 850;
-      c.globalAlpha = 1 - age;
-      c.font = "bold 17px sans-serif";
-      c.textAlign = "center";
-      c.fillStyle = a.color;
-      c.fillText(a.text, (a.x - o.x + 0.5) * t, (a.y - o.y) * t - age * 25);
-      c.globalAlpha = 1;
+    this.drawFloatingFeedback(now);
+    clearTimeout(this.feedbackTimer);
+    if (this.animations.length && !document.hidden) {
+      if (this.reduced) {
+        // Reduced motion keeps feedback still, then clears it without a frame loop.
+        const remaining = Math.min(...this.animations.map((feedback) => feedback.duration - (now - feedback.start)));
+        this.feedbackTimer = setTimeout(() => {
+          if (!this.destroyed && this.run && this.canvas.isConnected) this.draw(this.run);
+        }, Math.max(16, remaining + 1));
+      } else this.frame = requestAnimationFrame(() => this.draw(this.run));
     }
-    if (this.animations.length && !this.reduced && !document.hidden)
-      this.frame = requestAnimationFrame(() => this.draw(run));
   }
   drawPath(map, visible) {
     if (!this.path?.length) return;

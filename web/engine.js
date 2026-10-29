@@ -1,11 +1,12 @@
 import {
   CLASS_BY_ID,
+  OATH_BY_ID,
   ENEMIES,
   REGIONS,
   RELICS,
   TOTAL_FLOORS,
   UPGRADES,
-} from "./content.js?v=3.0.0";
+} from "./content.js?v=3.1.0";
 
 const WIDTH = 41;
 const HEIGHT = 29;
@@ -44,7 +45,7 @@ function regionFor(run) {
 }
 
 function effectTotals(run) {
-  const totals = {};
+  const totals = { ...(OATH_BY_ID[run.oathId]?.effect || {}) };
   for (const id of run.relics) {
     const relic = RELICS.find((item) => item.id === id);
     for (const [key, value] of Object.entries(relic?.effect || {})) {
@@ -58,19 +59,17 @@ export function getStats(run) {
   const bonus = effectTotals(run);
   const archetype = CLASS_BY_ID[run.player.classId] || CLASS_BY_ID.warden;
   const skillMultiplier = { warden: 1.7, luminary: 2.1 }[run.player.classId] || 2;
+  const attack = Math.max(1, run.player.attack + (bonus.attack || 0));
   return {
     ...bonus,
-    attack: run.player.attack + (bonus.attack || 0),
+    attack,
     armor: run.player.armor + (bonus.armor || 0),
-    maxHp: run.player.maxHp + (bonus.maxHp || 0),
-    maxEnergy: run.player.maxEnergy + (bonus.maxEnergy || 0),
+    maxHp: Math.max(1, run.player.maxHp + (bonus.maxHp || 0)),
+    maxEnergy: Math.max(1, run.player.maxEnergy + (bonus.maxEnergy || 0)),
     potionCapacity: run.player.potionCapacity ?? 3,
     skillCost: archetype.skillCost ?? archetype.skill?.cost ?? 3,
     skillDamage:
-      Math.round(
-        (run.player.attack + (bonus.attack || 0)) *
-          skillMultiplier,
-      ) + (bonus.skillDamage || 0),
+      Math.round(attack * skillMultiplier) + (bonus.skillDamage || 0),
     guard: run.player.statuses.includes("guard"),
   };
 }
@@ -309,10 +308,13 @@ function spawnFloor(run) {
 
 export function createRun({
   classId = "warden",
+  oathId = "lantern",
   seed = Date.now(),
   upgrades = {},
 } = {}) {
   if (!Object.hasOwn(CLASS_BY_ID, classId)) classId = "warden";
+  if (typeof oathId !== "string" || !Object.hasOwn(OATH_BY_ID, oathId))
+    oathId = "lantern";
   const definition = CLASS_BY_ID[classId];
   const level = (key) =>
     Math.max(
@@ -325,6 +327,7 @@ export function createRun({
   const run = {
     version: 1,
     campaignFloors: MAX_FLOOR,
+    oathId,
     seed: Number(seed) >>> 0,
     rng: Number(seed) >>> 0 || 0x9e3779b9,
     floor: 1,
@@ -358,12 +361,20 @@ export function createRun({
     shards: 0,
     bosses: [],
   };
+  run.player.hp = getStats(run).maxHp;
+  run.player.energy = getStats(run).maxEnergy;
   spawnFloor(run);
   log(
     run,
     "Explora, reúne reliquias y lee las señales de ataque. Cada paso cuenta.",
   );
   return run;
+}
+
+function damageAfterArmor(stats, amount, enemyType, guard = false) {
+  const pierce = Math.min(1, Math.max(0, ENEMIES[enemyType]?.pierceArmor || 0));
+  const armor = Math.floor(stats.armor * (1 - pierce)) + (guard ? 4 : 0);
+  return Math.max(1, Math.ceil(amount * 0.4), amount - armor);
 }
 
 function heal(run, amount) {
@@ -383,9 +394,7 @@ function hurtPlayer(run, amount, source, enemy = null) {
   }
   // Armor cannot turn endgame attacks into harmless one-point hits. Piercing is
   // part of an enemy's published identity; guard remains useful against it.
-  const pierce = Math.min(1, Math.max(0, ENEMIES[enemy?.type]?.pierceArmor || 0));
-  const armor = Math.floor(stats.armor * (1 - pierce)) + (stats.guard ? 4 : 0);
-  const damage = Math.max(1, Math.ceil(amount * 0.4), amount - armor);
+  const damage = damageAfterArmor(stats, amount, enemy?.type, stats.guard);
   run.player.hp = Math.max(0, run.player.hp - damage);
   log(run, `${source}: −${damage} vida${stats.guard ? " (bloqueo)" : ""}.`);
   if (run.player.hp <= 0) {
@@ -720,14 +729,45 @@ export function getThreats(run) {
     );
 }
 
-function finishTurn(run, regenerate = true) {
+/**
+ * Maximum announced damage if the player stays here and fails random dodge rolls.
+ * This deliberately excludes melee attacks and choices that have not been announced.
+ * Reading the forecast never consumes randomness or changes enemy intentions.
+ */
+export function forecastIncomingDamage(run) {
+  const stats = getStats(run);
+  const sources = run.phase !== "playing" || run.player.statuses.includes("dodge")
+    ? []
+    : run.enemies.filter((enemy) =>
+      enemy.hp > 0 && !(enemy.stunned > 0) &&
+      enemy.intent?.cells.some((cell) => same(cell, run.player)),
+    ).map((enemy) => ({
+      enemyId: enemy.id,
+      name: ENEMIES[enemy.type]?.name || enemy.type,
+      damage: damageAfterArmor(stats, enemy.intent.damage, enemy.type, stats.guard),
+      guardedDamage: damageAfterArmor(stats, enemy.intent.damage, enemy.type, true),
+    }));
+  const damage = sources.reduce((total, source) => total + source.damage, 0);
+  const guardedDamage = sources.reduce((total, source) => total + source.guardedDamage, 0);
+  return {
+    damage,
+    guardedDamage,
+    attacks: sources.length,
+    lethal: damage > 0 && damage >= run.player.hp,
+    guardedLethal: guardedDamage > 0 && guardedDamage >= run.player.hp,
+    uncertain: sources.length > 0 && (stats.dodge || 0) > 0,
+    sources,
+  };
+}
+
+function finishTurn(run, regeneration = 1) {
   run.turn++;
   if (run.phase === "playing") enemyTurn(run);
   run.player.statuses = [];
-  if (regenerate)
+  if (regeneration)
     run.player.energy = Math.min(
       getStats(run).maxEnergy,
-      run.player.energy + 1,
+      run.player.energy + Number(regeneration),
     );
   reveal(run);
 }
@@ -735,9 +775,20 @@ function finishTurn(run, regenerate = true) {
 function reward(run) {
   const pool = RELICS.filter((relic) => !run.relics.includes(relic.id));
   const selected = [];
+  const take = (candidates) => {
+    if (!candidates.length) return;
+    // Legendary power should remain a surprise, with better odds after a guardian.
+    const weight = (relic) => ({ common: 4, uncommon: 3, rare: run.floor % 3 === 0 ? 4 : 2 }[relic.rarity] || 1);
+    let roll = random(run) * candidates.reduce((sum, relic) => sum + weight(relic), 0);
+    const choice = candidates.find((relic) => (roll -= weight(relic)) < 0) || candidates.at(-1);
+    selected.push(choice.id);
+    pool.splice(pool.indexOf(choice), 1);
+  };
+  // Three different build directions make a draft a choice, rather than three stat variants.
+  for (const path of ["assault", "survival", "arcana"])
+    take(pool.filter((relic) => relic.path === path));
   while (pool.length && selected.length < 3) {
-    const choice = integer(run, 0, pool.length - 1);
-    selected.push(pool.splice(choice, 1)[0].id);
+    take(pool);
   }
   run.rewardChoices = selected;
   run.phase = "reward";
@@ -981,6 +1032,8 @@ export function act(run, action) {
     log(run, "Guardia: +4 armadura durante este turno y recuperas energía.");
     consumed = true;
   } else if (action.type === "wait") {
+    regenerate = 2;
+    log(run, "Concentración: recuperas 2 de energía, sin la protección de la guardia.");
     consumed = true;
   } else if (action.type === "potion") {
     const stats = getStats(run);
@@ -1046,6 +1099,9 @@ export function validateRun(value) {
     )
       return false;
     if (value.campaignFloors !== undefined && value.campaignFloors !== MAX_FLOOR)
+      return false;
+    if (value.oathId !== undefined &&
+      (typeof value.oathId !== "string" || !Object.hasOwn(OATH_BY_ID, value.oathId)))
       return false;
     if (!["playing", "reward", "dead", "won"].includes(value.phase))
       return false;

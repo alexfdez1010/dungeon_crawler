@@ -9,15 +9,26 @@ Una expansión del Dungeon Crawler original: un roguelite táctico de fantasía 
 - **18 plantas, 6 dominios:** Atrio de ceniza, Jardín sepultado, Archivo sumergido, Cámara del eclipse, Forja del sol muerto y Firmamento invertido. Mapas conectados, niebla de guerra y minimapa.
 - **6 guardianes:** cada tercera planta termina en un jefe con patrones propios, una segunda fase más peligrosa y ataques anunciados en el suelo. El descenso permanece sellado hasta derrotarlo.
 - **4 clases:** el Custodio empieza disponible; la Acechadora se desbloquea al derrotar al jefe de la planta 3 y el Arcanista al de la planta 6. La Portadora del alba se obtiene al derrotar a Ettin en la planta 12: su Cisma solar atraviesa armaduras. Sus habilidades interrumpen grupos, perforan enemigos o explotan en área.
-- **24 reliquias:** elige una de tres antes de cada nueva planta. Combina curación por baja, robo de vida, críticos, espinas, energía y daño de habilidad.
+- **24 reliquias, 3 sendas:** elige entre Ofensiva, Supervivencia y Canalización antes de cada nueva planta, mientras queden reliquias de cada senda. Las cartas comparan sus cambios con tus estadísticas actuales. Combina curación por baja, robo de vida, críticos, espinas, energía y daño de habilidad.
 - **Combate por turnos:** mueve, ataca, esquiva dos casillas, prepara una guardia o recupera energía. Los enemigos actúan después de tus acciones. Los movimientos inválidos no consumen turnos.
+- **Juramentos opcionales:** conserva los atributos con El farol, cambia vida por ataque con La brasa o ataque por energía con La marea. Cada alternativa muestra su beneficio y su coste antes de empezar.
+- **Semillas reutilizables:** introduce una semilla opcional en el refugio, cópiala desde la pausa o el diario y vuelve a intentarla al terminar una expedición.
 - **Exploración con recursos:** cofres, trampas, fuentes de un solo uso, oro, pociones y santuarios. Una ofrenda cuesta `20 + 3 × planta` de oro y otorga una bendición de ataque, vida o energía según la planta.
 - **Progreso permanente:** conserva fragmentos incluso al morir y compra cinco líneas de mejoras (27 rangos) para tus siguientes expediciones. La crónica registra tus guardianes derrotados y victorias.
-- **Ilustraciones originales:** portada y dos atlas con 17 personajes generados con ImageGen. Los prompts exactos están en [resources/art/prompts.md](resources/art/prompts.md) y dentro de los PNG.
+- **Ilustraciones originales:** portada, dos atlas con 17 personajes y seis escenas de dominio generados con ImageGen. Los prompts y la procedencia están documentados en [resources/art/prompts.md](resources/art/prompts.md), [resources/art/domains-prompt.md](resources/art/domains-prompt.md) y [resources/art/metadata.json](resources/art/metadata.json).
+- **Respuesta visual y sonora:** efectos de combate sobre el mapa y señales sonoras opcionales sintetizadas en el navegador. El sonido empieza desactivado, se activa desde el refugio y no descarga audio externo. Los efectos respetan la preferencia del sistema de reducir movimiento.
+
+## Preparar una expedición
+
+El juramento se elige en el refugio y dura toda la expedición. **El farol** es la opción neutral: no modifica atributos. **La brasa** añade 1 de ataque y resta 6 de vida máxima; **La marea** añade 2 de energía máxima y resta 1 de ataque. Son intercambios de atributos, no mejoras permanentes ni requisitos para avanzar. Puedes elegir otro juramento al comenzar de nuevo; las partidas anteriores sin juramento conservan el comportamiento de El farol.
+
+La semilla acepta números de `0` a `4294967295`; dejarla vacía genera una nueva. Para reproducir una expedición usa la misma versión del juego, semilla, clase, juramento y niveles de mejoras permanentes, y repite las mismas acciones y elecciones de reliquias. Copiar la semilla no copia el legado. **Repetir semilla** reinicia con las mejoras que tengas en ese momento: si compras otras, la partida puede cambiar. Esta función no requiere cuenta ni servidor.
 
 ## Dificultad y legado
 
-La campaña está pensada para varias expediciones. Las interrupciones repetidas encuentran resistencia; los jefes persiguen y contraatacan durante su recuperación. Atacar ya no restaura energía; retirarse con enemigos alertados a la vista tampoco. Los enemigos cierran distancias con dos pasos y obligan a elegir cuándo defenderse. La armadura reduce daño sin anular los golpes fuertes, y los enemigos finales tienen penetración propia. Las pociones curan un 30 % de vida y tienen una capacidad de 3, ampliable a 6 con provisiones. Las fuentes aparecen en las plantas de guardián. Las curas y el crecimiento por baja están contenidos para que las mejoras permanentes importen hasta el final.
+La campaña está pensada para varias expediciones. Las interrupciones repetidas encuentran resistencia; los jefes persiguen y contraatacan durante su recuperación. Atacar ya no restaura energía; retirarse con enemigos alertados a la vista tampoco. **Esperar recupera 2 de energía sin protección; Guardia recupera 1 y añade 4 de armadura durante ese turno**, siempre hasta el máximo de energía. Los enemigos cierran distancias con dos pasos y obligan a elegir cuándo defenderse. La armadura reduce daño sin anular los golpes fuertes, y los enemigos finales tienen penetración propia. Las pociones curan un 30 % de vida y tienen una capacidad de 3, ampliable a 6 con provisiones. Las fuentes aparecen en las plantas de guardián. Las curas y el crecimiento por baja están contenidos para que las mejoras permanentes importen hasta el final.
+
+Cuando un ataque anunciado alcanza tu casilla, el HUD muestra el daño máximo de esos ataques si permaneces allí, junto al valor con Guardia. La previsión incluye armadura y penetración, y supone que fallan las esquivas aleatorias. **No predice todo el turno:** excluye golpes cuerpo a cuerpo todavía no anunciados y puede cambiar si te mueves, esquivas, interrumpes o derrotas al atacante.
 
 Los guardados existentes conservan su legado. Vencer a Ettin desbloquea la Portadora del alba incluso en una victoria de la antigua campaña de 12 plantas; una nueva expedición recorre las 18.
 
@@ -28,10 +39,10 @@ Los guardados existentes conservan su legado. Vencer a Ettin desbloquea la Porta
 | Mover / atacar al enemigo contiguo | Flechas o WASD |
 | Habilidad de clase | Q |
 | Esquivar hacia donde miras, 2 energía | Espacio |
-| Guardia: +4 armadura durante el turno | F |
+| Guardia: +4 armadura durante el turno y +1 energía | F |
 | Beber poción | R |
 | Cofres, fuentes, santuarios y descenso | E |
-| Esperar / recuperar energía | X o punto |
+| Esperar: +2 energía sin protección | X o punto |
 | Ayuda | H |
 | Pausar y abrir el menú | Esc |
 | Diario y reliquias | J |
@@ -63,6 +74,8 @@ npm test
 
 Las pruebas verifican determinismo, conectividad en cientos de mapas, validación y recuperación de guardados, recompensas sin duplicación, reglas de combate, habilidades, economía, progresión completa de dieciocho plantas, patrones de los seis guardianes y simulaciones completas con las cuatro clases. GitHub Actions ejecuta estas comprobaciones en cada subida a `main` y `master`.
 
+La investigación y sus límites están en [docs/GAME_DESIGN_RESEARCH.md](docs/GAME_DESIGN_RESEARCH.md). El informe de la versión 3.1 está en [docs/BALANCE_REPORT.md](docs/BALANCE_REPORT.md); distingue simulaciones reproducibles de observaciones con jugadores. Los comandos y resultados de referencia de la campaña 3.0 se conservan en [BALANCE.md](BALANCE.md).
+
 - `web/simulation.js`: bot de partidas completas con niebla de guerra y políticas ingenua/táctica.
 - `scripts/simulate.mjs`: matriz reproducible por clase, mejoras y semilla; consulta [BALANCE.md](BALANCE.md).
 - `web/engine.js`: motor determinista, generación, combate y validación.
@@ -70,6 +83,7 @@ Las pruebas verifican determinismo, conectividad en cientos de mapas, validació
 - `web/storage.js`: guardado, respaldo y crédito del progreso.
 - `web/renderer.js`: mapa, personajes, minimapa y efectos.
 - `web/app.js`: refugio, HUD a pantalla completa, controles, diario, recompensas y copias.
+- `web/audio.js`: señales sonoras locales mediante Web Audio, activadas por el jugador.
 - `web/viewport.js`: cámara, densidad de píxeles y conversión de coordenadas.
 - `web/navigation.js`: rutas exploradas seguras y parada ante enemigos.
 
@@ -79,7 +93,7 @@ El proyecto nació a partir de *Hands-on Rust: Effective Learning through 2D Gam
 
 ## Publicación
 
-La raíz de `main` contiene la distribución completa: `index.html`, `style.css`, `web/` y `resources/`. No es necesario generar los archivos antes de publicarlos. GitHub Pages publica el juego desde la raíz de `main`.
+La raíz de `master` contiene la distribución completa: `index.html`, `style.css`, `web/` y `resources/`. No es necesario generar los archivos antes de publicarlos. La rama de entrega y el origen previsto de GitHub Pages es la raíz de `master`.
 
 La portada para compartir es `resources/art/yala-og.jpg` (1200 × 630). El HTML inicial incluye título, descripción, URL canónica, etiquetas de [Open Graph](https://ogp.me/) y Twitter Cards, además de datos estructurados [VideoGame](https://schema.org/VideoGame) y una presentación del juego disponible antes de cargar JavaScript. `sitemap.xml` enumera la única URL pública indexable y se puede enviar a Google Search Console. Si cambia el dominio o la ruta de publicación, actualiza las URL absolutas de `index.html` y `sitemap.xml`. GitHub Pages aloja este proyecto en una subruta: un `robots.txt` dentro del repositorio no controla el rastreo del dominio.
 

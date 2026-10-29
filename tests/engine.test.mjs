@@ -350,7 +350,7 @@ test("guard reduces a committed attack; dash avoids it and skips traps for exact
   assert.equal(dashed.objects[0].used, false);
   assert.deepEqual(dashed.player.statuses, []);
   act(dashed, { type: "wait" });
-  assert.equal(dashed.player.energy, energy - 1, "waiting restores energy");
+  assert.equal(dashed.player.energy, energy, "waiting restores two energy after a dash");
 });
 
 test("trap stepping, supply collection, fountain, shrine, and potion spending are persistent and single use", () => {

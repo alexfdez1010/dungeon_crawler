@@ -3,6 +3,38 @@ export const GAME_TITLE = "YALA";
 export const GAME_SUBTITLE = "Ecos del abismo";
 export const TOTAL_FLOORS = 18;
 
+/** Optional sidegrades: every oath gives up something, and the lantern stays neutral. */
+export const OATHS = [
+  {
+    id: "lantern",
+    name: "El farol",
+    description: "Una llama estable para aprender los secretos del abismo.",
+    tradeoff: "Sin cambios de atributos. Recomendado para tu primera expedición.",
+    effect: {},
+  },
+  {
+    id: "ember",
+    name: "La brasa",
+    description: "Golpea con fuerza y acepta una llama más frágil.",
+    tradeoff: "+1 ataque · −6 vida máxima",
+    effect: { attack: 1, maxHp: -6 },
+  },
+  {
+    id: "tide",
+    name: "La marea",
+    description: "Canaliza más habilidades a cambio de un filo menos afilado.",
+    tradeoff: "+2 energía máxima · −1 ataque",
+    effect: { maxEnergy: 2, attack: -1 },
+  },
+];
+export const OATH_BY_ID = Object.fromEntries(OATHS.map((oath) => [oath.id, oath]));
+
+export const RELIC_PATHS = {
+  assault: { name: "Ofensiva", description: "Golpes, críticos y represalias." },
+  survival: { name: "Supervivencia", description: "Vida, protección y recuperación." },
+  arcana: { name: "Canalización", description: "Energía y poder de habilidad." },
+};
+
 export const CLASSES = [
   {
     id: "warden",
@@ -549,16 +581,16 @@ export const RELICS = [
   {
     id: "oath_blade",
     name: "Hoja del juramento",
-    description: "+2 de ataque.",
+    description: "+2 de ataque y devuelve 1 de daño al recibir un golpe cuerpo a cuerpo.",
     rarity: "common",
-    effect: { attack: 2 },
+    effect: { attack: 2, thorns: 1 },
   },
   {
     id: "pilgrim_plate",
     name: "Placa del peregrino",
-    description: "+1 de armadura.",
+    description: "+2 de armadura.",
     rarity: "common",
-    effect: { armor: 1 },
+    effect: { armor: 2 },
   },
   {
     id: "star_vessel",
@@ -619,9 +651,9 @@ export const RELICS = [
   {
     id: "void_prism",
     name: "Prisma del vacío",
-    description: "Tu habilidad inflige 4 de daño adicional.",
+    description: "+4 al daño de habilidad y +2 de vida máxima.",
     rarity: "uncommon",
-    effect: { skillDamage: 4 },
+    effect: { skillDamage: 4, maxHp: 2 },
   },
   {
     id: "royal_seed",
@@ -654,16 +686,16 @@ export const RELICS = [
   {
     id: "copper_sinew",
     name: "Tendón de cobre",
-    description: "+2 de ataque y +4 de vida máxima.",
+    description: "+1 de ataque y +6 de vida máxima.",
     rarity: "uncommon",
-    effect: { attack: 2, maxHp: 4 },
+    effect: { attack: 1, maxHp: 6 },
   },
   {
     id: "furnace_coal",
     name: "Ascua cautiva",
-    description: "+5 al daño de habilidad.",
+    description: "+8 al daño de habilidad.",
     rarity: "rare",
-    effect: { skillDamage: 5 },
+    effect: { skillDamage: 8 },
   },
   {
     id: "tempered_seal",
@@ -682,9 +714,9 @@ export const RELICS = [
   {
     id: "comet_shard",
     name: "Esquirla de cometa",
-    description: "+1 de ataque y +3 al daño de habilidad.",
+    description: "+1 de ataque y +4 al daño de habilidad.",
     rarity: "uncommon",
-    effect: { attack: 1, skillDamage: 3 },
+    effect: { attack: 1, skillDamage: 4 },
   },
   {
     id: "astral_thread",
@@ -707,7 +739,14 @@ export const RELICS = [
     rarity: "rare",
     effect: { attack: 1, maxEnergy: 1, maxHp: 4 },
   },
-];
+].map((relic) => {
+  const assault = ["oath_blade", "briar_mantle", "glass_eye", "hunger_ring", "eclipse_fang", "copper_sinew", "comet_shard", "astral_thread"];
+  const survival = ["ember_heart", "pilgrim_plate", "blood_moss", "mist_cloak", "amber_flask", "royal_seed", "tempered_seal", "pilgrim_cup"];
+  return {
+    ...relic,
+    path: assault.includes(relic.id) ? "assault" : survival.includes(relic.id) ? "survival" : "arcana",
+  };
+});
 
 export const UPGRADES = [
   {

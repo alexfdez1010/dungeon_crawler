@@ -1,5 +1,8 @@
 import {
   TOTAL_FLOORS,
+  OATHS,
+  OATH_BY_ID,
+  RELIC_PATHS,
   CLASSES,
   CLASS_BY_ID,
   BIOMES,
@@ -9,34 +12,37 @@ import {
   floorInfo,
   classUnlocked,
   upgradeCost,
-} from "./content.js?v=3.0.0";
+} from "./content.js?v=3.1.0";
 import {
   createRun,
   act,
   chooseRelic,
   visibleTiles,
   getThreats,
+  forecastIncomingDamage,
   validateRun,
   getStats,
-} from "./engine.js?v=3.0.0";
+} from "./engine.js?v=3.1.0";
 import {
   loadProfile,
   saveProfile,
   syncProgress,
   validateProfile,
-} from "./storage.js?v=3.0.0";
+} from "./storage.js?v=3.1.0";
 import {
   DungeonRenderer,
   spriteStyle,
   enemySprite,
   classSprite,
-} from "./renderer.js?v=3.0.0";
+} from "./renderer.js?v=3.1.0";
 
 import {
   findExploredPath,
   shouldStopTravel,
   travelAction,
-} from "./navigation.js?v=3.0.0";
+} from "./navigation.js?v=3.1.0";
+
+import { GameAudio } from "./audio.js?v=3.1.0";
 
 const $ = (selector) => document.querySelector(selector);
 const app = $("#app"),
@@ -62,12 +68,14 @@ try {
 const loaded = loadProfile(storage, validateRun);
 let profile = loaded.profile,
   selectedClass = "warden",
+  selectedOath = "lantern",
+  expeditionSeed = "",
   view = "home",
   renderer = null,
   inspectedId = null,
   endShown = false;
 let lastFocus = null,
-  audioContext = null,
+  gameAudio = null,
   externalChanged = false;
 let travelTimer = null,
   travelQueue = [],
@@ -104,23 +112,17 @@ function persist() {
 }
 function tone(kind = "step") {
   if (!profile.settings.sound) return;
-  try {
-    audioContext ||= new (window.AudioContext || window.webkitAudioContext)();
-    if (audioContext.state === "suspended") audioContext.resume();
-    const o = audioContext.createOscillator(),
-      g = audioContext.createGain();
-    o.type = "sine";
-    o.frequency.value = kind === "hit" ? 110 : kind === "reward" ? 440 : 220;
-    g.gain.setValueAtTime(0.035, audioContext.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.13);
-    o.connect(g);
-    g.connect(audioContext.destination);
-    o.start();
-    o.stop(audioContext.currentTime + 0.14);
-  } catch {
-    /* Sound is optional; all feedback also appears visually. */
-  }
+  gameAudio ||= new GameAudio();
+  gameAudio.setEnabled(true);
+  gameAudio.play(kind);
 }
+function domainArtwork(biomeIndex, extra = "") {
+  return `<span class="domain-illustration ${extra}" style="--domain-x:${(biomeIndex % 3) * 50}%;--domain-y:${Math.floor(biomeIndex / 3) * 100}%" aria-hidden="true"></span>`;
+}
+function preparation() {
+  return `<section class="expedition-preparation" aria-labelledby="preparation-title"><div class="preparation-heading"><h2 id="preparation-title">Tu juramento</h2><p>Una forma distinta de descender. Sin coste permanente.</p></div><div class="oath-choices" role="group" aria-label="Juramento para la próxima expedición">${OATHS.map((oath) => `<button class="oath-choice ${selectedOath === oath.id ? "selected" : ""}" data-oath="${oath.id}" aria-pressed="${selectedOath === oath.id}"><span class="oath-mark">${icon(oath.id === "ember" ? "sword" : oath.id === "tide" ? "spark" : "lantern")}</span><span><strong>${esc(oath.name)}</strong><small>${esc(oath.tradeoff)}</small></span></button>`).join("")}</div><details class="seed-settings"><summary>Elegir semilla de expedición</summary><div><label for="expedition-seed">Semilla <span>(opcional)</span></label><input id="expedition-seed" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="10" placeholder="Aleatoria" value="${esc(expeditionSeed)}" aria-describedby="seed-description seed-error" /><p id="seed-description">La misma semilla repite el inicio. Tus decisiones cambian el resto.</p><p id="seed-error" class="field-error" role="status"></p></div></details></section>`;
+}
+
 function header() {
   return `<header class="site-header"><a class="brand" href="./" data-action="home" aria-label="Yala, volver al refugio">${icon("lantern")}<span>YALA</span></a><nav aria-label="Principal"><button class="nav-link ${view === "home" ? "current" : ""}" data-action="home">Refugio</button>${activeRun() ? '<button class="nav-link" data-action="resume">Expedición</button>' : ""}<button class="nav-link" data-action="chronicle">Crónica</button></nav><div class="header-end"><span class="shard-total" title="Fragmentos para mejoras permanentes">${icon("spark")} ${profile.meta.shards}<span class="desktop-only"> fragmentos</span></span><button class="icon-button" data-action="sound" aria-label="${profile.settings.sound ? "Desactivar" : "Activar"} sonido" aria-pressed="${profile.settings.sound}">${icon("sound")}<span class="sound-state">${profile.settings.sound ? "ON" : "OFF"}</span></button></div></header>`;
 }
@@ -139,7 +141,7 @@ function renderHome() {
     hasRun = activeRun();
   app.innerHTML = `<div class="shell">${header()}${saveWarning ? `<p class="notice" role="status">${esc(saveWarning)}</p>` : ""}
     <main id="main-content"><section class="refuge-hero" aria-labelledby="home-title"><div class="hero-art" role="img" aria-label="Un custodio con un farol ante la monumental puerta del abismo"></div><div class="hero-copy"><h1 id="home-title">YALA</h1><p class="hero-subtitle">Ecos del abismo</p><p class="hero-story">Combate por turnos. Dieciocho plantas.<br>Recupera el Amuleto de Yala.</p><div class="hero-actions"><button class="button primary" data-action="${hasRun ? "resume" : "start"}">${hasRun ? "Continuar expedición" : "Entrar al abismo"}${icon("arrow")}</button><button class="text-button" data-action="${hasRun ? "new" : "help"}">${hasRun ? "Nueva expedición" : "Cómo jugar"}${icon(hasRun ? "sword" : "book")}</button></div>${hasRun ? `<p class="hero-note">${esc(CLASS_BY_ID[profile.run.player.classId].name)} · Planta ${profile.run.floor} de ${TOTAL_FLOORS}</p>` : ""}</div></section>
-    <div class="refuge-columns"><section class="class-section" aria-labelledby="class-title"><div class="section-heading"><div><h2 id="class-title">Elige tu clase</h2></div></div><div class="class-list">${CLASSES.map(
+    ${preparation()}<div class="refuge-columns"><section class="class-section" aria-labelledby="class-title"><div class="section-heading"><div><h2 id="class-title">Elige tu clase</h2><p>Atributos base. Tu juramento y tu legado se suman al empezar.</p></div></div><div class="class-list">${CLASSES.map(
       (c) => {
         const unlocked = classUnlocked(c.id, m);
         return `<button class="class-choice ${selectedClass === c.id ? "selected" : ""} ${unlocked ? "" : "locked"}" data-class="${c.id}" ${unlocked ? "" : "disabled"} aria-pressed="${selectedClass === c.id}" aria-label="${esc(c.name)}${unlocked ? "" : `, se desbloquea al vencer al jefe de la planta ${c.unlockFloor - 1}`}">${portrait(classSprite(c.id))}<span class="class-copy"><strong>${c.name}</strong>${unlocked ? `<small>${c.hp} vida · ${c.attack} ataque · ${esc(c.skill.name)}</small>` : `<span>Vence al guardián de la planta ${c.unlockFloor - 1}</span>`}</span><span class="class-select-mark">${unlocked ? icon(selectedClass === c.id ? "spark" : "chevron") : icon("shield")}</span></button>`;
@@ -157,7 +159,7 @@ function renderHome() {
     ).join(
       "",
     )}</div></section></div>
-    <section class="descent-section" aria-labelledby="descent-title"><div class="section-heading"><div><h2 id="descent-title">El descenso</h2><p>Seis dominios. Un guardián cada tres plantas.</p></div><span class="best-depth">Mejor descenso <strong>${m.bestFloor ? String(m.bestFloor).padStart(2, "0") : "—"}</strong><span>/ ${TOTAL_FLOORS}</span></span></div><div class="biome-track">${BIOMES.map((b) => `<div class="biome-stop ${m.bestFloor >= b.floors[0] ? "reached" : ""}"><div class="floor-nodes">${b.floors.map((f) => `<span class="floor-node ${m.bestFloor >= f ? "reached" : ""} ${f % 3 === 0 ? "boss-node" : ""}" title="Planta ${f}${f % 3 === 0 ? " · Guardián" : ""}">${f % 3 === 0 ? icon("shield") : String(f).padStart(2, "0")}</span>`).join("")}</div><h3>${b.name}</h3></div>`).join("")}</div></section></main>${footer()}</div>`;
+    <section class="descent-section" aria-labelledby="descent-title"><div class="section-heading"><div><h2 id="descent-title">El descenso</h2><p>Seis dominios. Un guardián cada tres plantas.</p></div><span class="best-depth">Mejor descenso <strong>${m.bestFloor ? String(m.bestFloor).padStart(2, "0") : "—"}</strong><span>/ ${TOTAL_FLOORS}</span></span></div><div class="biome-track">${BIOMES.map((b, i) => `<div class="biome-stop ${m.bestFloor >= b.floors[0] ? "reached" : ""}">${domainArtwork(i)}<div class="floor-nodes">${b.floors.map((f) => `<span class="floor-node ${m.bestFloor >= f ? "reached" : ""} ${f % 3 === 0 ? "boss-node" : ""}" title="Planta ${f}${f % 3 === 0 ? " · Guardián" : ""}">${f % 3 === 0 ? icon("shield") : String(f).padStart(2, "0")}</span>`).join("")}</div><h3>${b.name}</h3></div>`).join("")}</div></section></main>${footer()}</div>`;
 }
 function requestGameFullscreen() {
   if (document.fullscreenElement || !document.documentElement.requestFullscreen)
@@ -293,7 +295,7 @@ function updateGame() {
   $("#region-name").textContent = info.biome.name;
   $("#floor-title").textContent = info.name;
   $("#depth-number").textContent = String(r.floor).padStart(2, "0");
-  $("#turn-counter").textContent = `Turno ${r.turn}`;
+  $("#turn-counter").textContent = `Turno ${r.turn} · ${OATH_BY_ID[r.oathId || "lantern"].name}`;
   $("#resources").innerHTML =
     `<div class="hud-character">${portrait(classSprite(c.id))}<div><strong>${c.name}</strong><span>Nivel ${p.level}<span class="hud-combat-stats">${icon("sword")}${s.attack} ${icon("shield")}${s.armor}</span></span></div></div><div class="hud-health"><div><span>${icon("heart")} Vida</span><strong>${p.hp}<small> / ${s.maxHp}</small></strong></div><div class="meter-track" role="meter" aria-label="Vida" aria-valuemin="0" aria-valuemax="${s.maxHp}" aria-valuenow="${p.hp}"><span style="width:${(p.hp / s.maxHp) * 100}%"></span></div></div><div class="hud-energy"><span>${icon("spark")} Energía</span><div class="energy-pips" aria-label="${p.energy} de ${s.maxEnergy} de energía">${Array.from({ length: s.maxEnergy }, (_, i) => `<span class="${i < p.energy ? "filled" : ""}"></span>`).join("")}</div><strong>${p.energy}<small>/${s.maxEnergy}</small></strong></div><div class="hud-currencies"><span title="Oro de esta expedición">${icon("coin")}${p.gold}</span><span title="Fragmentos permanentes" class="shard-total">${icon("spark")}${profile.meta.shards}</span><span title="Pociones: ${p.potions} de ${s.potionCapacity}">${icon("potion")}${p.potions}/${s.potionCapacity}</span><span class="save-light ${saveWarning ? "failed" : ""}" title="${saveWarning ? esc(saveWarning) : "Guardado automático activo"}" aria-label="${saveWarning ? "Guardado no disponible" : "Guardado automático activo"}"></span></div>`;
   const threats = getThreats(r),
@@ -309,7 +311,11 @@ function updateGame() {
       (e) => e.hp > 0 && Math.abs(e.x - p.x) + Math.abs(e.y - p.y) === 1,
     ),
     boss = r.enemies.find((e) => e.boss && e.hp > 0);
+  const forecast = forecastIncomingDamage(r);
   $("#danger-warning").hidden = !inDanger;
+  $("#danger-warning span").textContent = forecast.attacks
+    ? `Ataques anunciados: hasta ${forecast.damage} daño · con guardia ${forecast.guardedDamage}${forecast.lethal ? " · riesgo mortal" : ""}`
+    : "¡Sal de la casilla marcada antes de actuar!";
   const contextual = $("#context-action");
   contextual.hidden = true;
   contextual.disabled = false;
@@ -334,14 +340,14 @@ function updateGame() {
     (r.phase === "reward"
       ? "Elige una reliquia para continuar."
       : inDanger
-        ? "El ataque está preparado. Muévete fuera de la señal."
+        ? "Muévete fuera de la señal o esquiva. La previsión solo incluye ataques anunciados."
         : nearEnemy
           ? "Ataca, usa tu habilidad o esquiva. Tú eliges."
           : atExit && boss
             ? "El guardián mantiene el descenso sellado."
             : visibleEnemies.length
-              ? "Pulsa una dirección para moverte y atacar."
-              : "Toca una casilla para caminar. Explora y encuentra el descenso.");
+              ? "Elige tus batallas: no necesitas derrotarlos a todos para descender."
+              : (r.floor % 3 === 0 && boss ? `Objetivo: derrota a ${ENEMIES[boss.type].name} y encuentra el descenso.` : "Busca las escaleras doradas. No necesitas derrotarlos a todos."));
   $("#hud-event").textContent = r.turn > 0 ? r.log.at(-1) || "" : "";
   $("#hud-event").classList.toggle("event-danger", inDanger);
   const playing = r.phase === "playing",
@@ -372,10 +378,10 @@ function updateGame() {
       "guard",
       "Guardia",
       "F",
-      "+4 armadura",
+      "+4 arm. · +1 energía",
       false,
       "shield",
-      "Reduce el daño durante este turno y recupera energía.",
+      "Reduce el daño durante este turno con +4 armadura y recupera 1 de energía.",
     ],
     [
       "potion",
@@ -399,10 +405,10 @@ function updateGame() {
       "wait",
       "Esperar",
       "X",
-      "+1 energía",
+      "+2 energía",
       false,
       "eye",
-      "Espera un turno para recuperar energía. Los enemigos también actúan.",
+      "Recupera 2 de energía sin protección adicional. Los enemigos también actúan.",
     ],
   ];
   const focusedAction =
@@ -498,14 +504,14 @@ function showMap() {
 }
 function showPause() {
   openModal(
-    `<div class="pause-content">${icon("lantern")}<h2 id="modal-title">El abismo puede esperar.</h2><p class="modal-lead">Tu expedición está guardada. Aquí el tiempo se detiene.</p><p class="pause-wallet">${profile.run.player.gold} oro · ${profile.meta.shards} fragmentos · ${profile.run.player.potions}/${getStats(profile.run).potionCapacity} pociones</p><div class="pause-actions"><button class="button primary" data-action="close">Seguir jugando ${icon("arrow")}</button><button class="button secondary" data-action="fullscreen">${icon("expand")} Pantalla completa</button><div class="pause-zoom"><button class="button secondary" data-action="zoom-in">${icon("plus")} Acercar mapa</button><button class="button secondary" data-action="zoom-out">${icon("minus")} Alejar mapa</button></div><button class="button secondary" data-action="help">${icon("help")} Cómo jugar</button><button class="button secondary" data-action="journal">${icon("book")} Diario y reliquias</button><button class="text-button" data-action="home">Volver al refugio</button></div><p class="modal-note" id="save-status">${saveWarning ? esc(saveWarning) : "Guardado automático · todo tu progreso está a salvo en este navegador."}</p></div>`,
+    `<div class="pause-content">${icon("lantern")}<h2 id="modal-title">El abismo puede esperar.</h2><p class="modal-lead">Tu expedición está guardada. Aquí el tiempo se detiene.</p><p class="expedition-code">${esc(OATH_BY_ID[profile.run.oathId || "lantern"].name)} · Semilla ${profile.run.seed} <button class="text-button" data-action="copy-seed">Copiar</button></p><p class="pause-wallet">${profile.run.player.gold} oro · ${profile.meta.shards} fragmentos · ${profile.run.player.potions}/${getStats(profile.run).potionCapacity} pociones</p><div class="pause-actions"><button class="button primary" data-action="close">Seguir jugando ${icon("arrow")}</button><button class="button secondary" data-action="fullscreen">${icon("expand")} Pantalla completa</button><div class="pause-zoom"><button class="button secondary" data-action="zoom-in">${icon("plus")} Acercar mapa</button><button class="button secondary" data-action="zoom-out">${icon("minus")} Alejar mapa</button></div><button class="button secondary" data-action="help">${icon("help")} Cómo jugar</button><button class="button secondary" data-action="journal">${icon("book")} Diario y reliquias</button><button class="text-button" data-action="home">Volver al refugio</button></div><p class="modal-note" id="save-status">${saveWarning ? esc(saveWarning) : "Guardado automático · todo tu progreso está a salvo en este navegador."}</p></div>`,
   );
 }
 function showJournal() {
   const r = profile.run,
     info = floorInfo(r.floor);
   openModal(
-    `<h2 id="modal-title">Diario del descenso</h2><p class="modal-lead">Planta ${r.floor} · ${esc(info.name)}</p><blockquote class="journal-lore">${esc(info.story)}</blockquote><h3>Tu siguiente paso</h3><p class="journal-objective">${info.isBoss && r.enemies.some((e) => e.boss && e.hp > 0) ? `Derrota a ${esc(info.boss.name)} para abrir el descenso.` : "Explora y encuentra las escaleras doradas del minimapa."}</p><h3 class="journal-section-title">Reliquias · ${r.relics.length}</h3><div class="journal-relics">${
+    `<h2 id="modal-title">Diario del descenso</h2><p class="modal-lead">Planta ${r.floor} · ${esc(info.name)}</p><p class="expedition-code">${esc(OATH_BY_ID[r.oathId || "lantern"].name)} · Semilla ${r.seed} <button class="text-button" data-action="copy-seed">Copiar semilla</button></p><blockquote class="journal-lore">${esc(info.story)}</blockquote><h3>Tu siguiente paso</h3><p class="journal-objective">${info.isBoss && r.enemies.some((e) => e.boss && e.hp > 0) ? `Derrota a ${esc(info.boss.name)} para abrir el descenso.` : "Encuentra las escaleras doradas del minimapa. Los combates normales son opcionales."}</p><h3 class="journal-section-title">Reliquias · ${r.relics.length}</h3><div class="journal-relics">${
       r.relics.length
         ? r.relics
             .map((id) => {
@@ -535,17 +541,17 @@ function perform(action, { travelling = false } = {}) {
     action.dx = p.facing?.x || 0;
     action.dy = p.facing?.y || 0;
   }
+  renderer.captureAction(r, action);
   const consumed = act(r, action);
+  renderer.resolveAction(r, action, consumed);
   persist();
   if (p.hp < beforeHp) {
-    renderer.effect(p.x, p.y, `−${beforeHp - p.hp}`, "#e78976");
     tone("hit");
     $("#dungeon")?.classList.remove("hurt");
     requestAnimationFrame(() => $("#dungeon")?.classList.add("hurt"));
   } else if (r.kills > beforeKills) {
-    renderer.effect(p.x, p.y, "Derrotado", "#dbb66b");
     tone("reward");
-  } else if (consumed) tone("step");
+  } else if (consumed) tone(["skill", "dash", "guard", "potion"].includes(action.type) ? action.type : "step");
   updateGame();
   if (travelling && shouldStopTravel(r)) stopTravel();
   if (
@@ -560,8 +566,20 @@ function perform(action, { travelling = false } = {}) {
 function startRun() {
   if (externalChanged) return;
   if (!classUnlocked(selectedClass, profile.meta)) return;
+  const seedValue = expeditionSeed.trim();
+  if (seedValue && (!/^\d+$/.test(seedValue) || Number(seedValue) > 4294967295)) {
+    const error = $("#seed-error");
+    if (error) error.textContent = "Escribe un número entre 0 y 4294967295, o deja la semilla vacía.";
+    closeModal();
+    const settings = $(".seed-settings");
+    if (settings) settings.open = true;
+    $("#expedition-seed")?.focus();
+    return;
+  }
   profile.run = createRun({
     classId: selectedClass,
+    oathId: selectedOath,
+    ...(seedValue ? { seed: Number(seedValue) } : {}),
     upgrades: profile.meta.upgrades,
   });
   profile.meta.runs++;
@@ -581,29 +599,45 @@ function closeModal() {
   modal.close();
   lastFocus?.focus?.({ preventScroll: true });
 }
+function relicPreview(run, item) {
+  const current = getStats(run);
+  const next = getStats({ ...run, relics: [...run.relics, item.id] });
+  const labels = { attack: "Ataque", armor: "Armadura", maxHp: "Vida máxima", maxEnergy: "Energía", skillDamage: "Habilidad" };
+  const changes = Object.entries(labels)
+    .filter(([key]) => next[key] !== current[key])
+    .map(([key, label]) => `<span>${label}<strong>${current[key]} ${icon("arrow")} ${next[key]}</strong></span>`);
+  const percentageLabels = { critChance: "Crítico", dodge: "Esquiva", lifesteal: "Robo de vida" };
+  for (const [key, label] of Object.entries(percentageLabels)) {
+    if (item.effect?.[key]) changes.push(`<span>${label}<strong>${Math.round((current[key] || 0) * 100)} % ${icon("arrow")} ${Math.round((next[key] || 0) * 100)} %</strong></span>`);
+  }
+  return changes.length ? `<span class="relic-preview" aria-label="Cambios en tus estadísticas">${changes.join("")}</span>` : "";
+}
 function showRewards() {
-  const r = profile.run;
+  const r = profile.run,
+    next = floorInfo(r.floor + 1),
+    biomeIndex = BIOMES.indexOf(next.biome);
   openModal(
-    `<div class="reward-intro">${icon("spark")}<h2 id="modal-title">El abismo te ofrece un eco</h2><p>Elige una reliquia. Sus efectos te acompañan durante toda la expedición.</p></div><div class="reward-choices">${r.rewardChoices
+    `<div class="reward-intro">${icon("spark")}<h2 id="modal-title">El abismo te ofrece un eco</h2><p>Elige cómo crecer. La reliquia permanece durante toda la expedición.</p></div><div class="reward-choices">${r.rewardChoices
       .map((id) => {
-        const item = RELICS.find((i) => i.id === id);
-        return `<button class="reward-choice rarity-${item.rarity}" data-reward="${id}"><span class="relic-emblem">${icon("spark")}</span><small>${{ common: "ANTIGUO", uncommon: "EXCEPCIONAL", rare: "LEGENDARIO" }[item.rarity]}</small><h3>${item.name}</h3><p>${item.description}</p><span class="reward-pick">Elegir reliquia ${icon("arrow")}</span></button>`;
+        const item = RELICS.find((i) => i.id === id),
+          path = RELIC_PATHS[item.path],
+          companions = r.relics.filter((owned) => RELICS.find((relic) => relic.id === owned)?.path === item.path).length;
+        return `<button class="reward-choice rarity-${item.rarity}" data-reward="${id}"><span class="relic-emblem">${icon(item.path === "assault" ? "sword" : item.path === "survival" ? "shield" : "spark")}</span><small>${esc(path?.name || ({ assault: "Ofensiva", survival: "Supervivencia", arcana: "Arcanismo" }[item.path] || "Reliquia"))}</small><h3>${esc(item.name)}</h3><p>${esc(item.description)}</p>${relicPreview(r, item)}${companions ? `<span class="relic-companions">${companions} reliquia${companions === 1 ? "" : "s"} de esta senda en tu equipo</span>` : ""}<span class="reward-pick">Elegir reliquia ${icon("arrow")}</span></button>`;
       })
-      .join(
-        "",
-      )}</div><p class="modal-note">Después descenderás a la planta ${r.floor + 1}. Recuperas parte de tu vida y toda tu energía.</p>`,
+      .join("")}</div><div class="reward-destination">${domainArtwork(Math.max(0, biomeIndex))}<div><h3>${esc(next.biome.name)}</h3><p>Planta ${r.floor + 1} · ${esc(next.name)}</p><small>Recuperas parte de tu vida y toda tu energía al descender.</small></div></div>`,
   );
 }
+
 function showEnd() {
   const r = profile.run,
     won = r.phase === "won";
   openModal(
-    `<div class="end-result">${icon(won ? "spark" : "lantern")}<p class="end-title-note">${won ? "EL AMULETO VUELVE A LA LUZ" : "TU ECO PERMANECE"}</p><h2 id="modal-title">${won ? "El abismo recuerda<br>tu victoria." : "La luz se apaga.<br>Tu legado sigue."}</h2><p>${won ? "Has recuperado el Amuleto de Yala. Los seis dominios conocen tu nombre." : "Cada descenso deja algo atrás. Usa tus fragmentos en el refugio y vuelve con más fuerza."}</p><div class="result-stats"><span><strong>${r.floor}<small>/${TOTAL_FLOORS}</small></strong>Planta alcanzada</span><span><strong>${r.kills}</strong>Enemigos vencidos</span><span><strong>${r.shards}</strong>Fragmentos ganados</span></div><button class="button primary" data-action="return">Volver al refugio ${icon("arrow")}</button></div>`,
+    `<div class="end-result">${icon(won ? "spark" : "lantern")}<p class="end-title-note">${won ? "EL AMULETO VUELVE A LA LUZ" : "TU ECO PERMANECE"}</p><h2 id="modal-title">${won ? "El abismo recuerda<br>tu victoria." : "La luz se apaga.<br>Tu legado sigue."}</h2><p>${won ? "Has recuperado el Amuleto de Yala. Los seis dominios conocen tu nombre." : "Cada descenso deja algo atrás. Usa tus fragmentos en el refugio y vuelve con más fuerza."}</p><div class="result-stats"><span><strong>${r.floor}<small>/${TOTAL_FLOORS}</small></strong>Planta alcanzada</span><span><strong>${r.kills}</strong>Enemigos vencidos</span><span><strong>${r.shards}</strong>Fragmentos ganados</span></div><div class="end-actions"><button class="button primary" data-action="return">Volver al refugio ${icon("arrow")}</button><button class="text-button" data-action="replay-seed">Repetir semilla ${icon("arrow")}</button></div><p class="expedition-code">Semilla ${r.seed} · ${esc(OATH_BY_ID[r.oathId || "lantern"].name)}</p></div>`,
   );
 }
 function showHelp() {
   openModal(
-    `<h2 id="modal-title">Cada paso cuenta.</h2><p class="modal-lead">El tiempo solo avanza cuando actúas. Observa, decide y sobrevive.</p><div class="help-grid"><section><h3>Explora</h3><p><kbd>WASD</kbd> o <kbd>↑↓←→</kbd> para moverte. Camina hacia un enemigo para atacarlo. También puedes tocar una casilla explorada para caminar hasta ella; el movimiento se detiene al aparecer un enemigo. Usa la cruceta en combate.</p><p><kbd>E</kbd> abre cofres, activa santuarios y desciende. Los objetos deben estar a tu lado. Las escaleras son doradas en el minimapa.</p></section><section><h3>Combate</h3><p><kbd>Q</kbd> usa tu habilidad de clase. <kbd>Espacio</kbd> esquiva hacia donde miras y cuesta 2 de energía. <kbd>F</kbd> prepara la guardia y recupera energía.</p><p>Las casillas rojas anuncian dónde golpeará el enemigo en el siguiente turno. Muévete fuera o esquiva. Recuperas 1 de energía al esperar o preparar guardia. Moverte sólo la recupera sin enemigos alertados a la vista; el ataque básico no la recupera. Los enemigos resisten las interrupciones repetidas y pueden avanzar dos casillas. Los guardianes contraatacan durante su recuperación si sigues a su lado.</p></section><section><h3>Sobrevive</h3><p><kbd>R</kbd> bebe una poción: cura el 30 % de tu vida máxima. Puedes llevar 3; las provisiones del refugio amplían esa capacidad hasta 6. Las pociones que no caben quedan en el suelo. <kbd>X</kbd> espera y recupera energía. Las fuentes restauran un 30 % de tu vida máxima y toda tu energía una vez. Los santuarios cuestan 20 + 3 × planta de oro y recuperan 5 de vida: alternan +1 ataque, +4 vida máxima y +1 energía máxima cada tres plantas.</p><p>El oro solo dura esta expedición. Los fragmentos se conservan para las mejoras del refugio.</p></section><section><h3>Deja un legado</h3><p>Elige una reliquia antes de cada nueva planta. Derrota a los guardianes de las plantas 3, 6, 9, 12, 15 y 18. Los guardianes 3, 6 y 12 desbloquean nuevas clases.</p><p>Guardado automático tras cada acción. <kbd>Esc</kbd> pausa la partida. El menú permite volver al refugio. <kbd>J</kbd> abre el diario. El botón de pantalla completa oculta los controles del navegador cuando está disponible. Exporta una copia desde la crónica para cambiar de navegador.</p></section></div><button class="button primary" data-action="close">Entendido ${icon("arrow")}</button>`,
+    `<h2 id="modal-title">Cada paso cuenta.</h2><p class="modal-lead">El tiempo solo avanza cuando actúas. Observa, decide y sobrevive.</p><div class="help-grid"><section><h3>Explora</h3><p><kbd>WASD</kbd> o <kbd>↑↓←→</kbd> para moverte. Camina hacia un enemigo para atacarlo. También puedes tocar una casilla explorada para caminar hasta ella; el movimiento se detiene al aparecer un enemigo. Usa la cruceta en combate.</p><p><kbd>E</kbd> abre cofres, activa santuarios y desciende. Los objetos deben estar a tu lado. Las escaleras son doradas en el minimapa.</p></section><section><h3>Combate</h3><p><kbd>Q</kbd> usa tu habilidad de clase. <kbd>Espacio</kbd> esquiva hacia donde miras y cuesta 2 de energía. <kbd>F</kbd> prepara la guardia y recupera energía.</p><p>Las casillas rojas anuncian dónde golpeará el enemigo en el siguiente turno. Muévete fuera o esquiva. Esperar recupera 2 de energía sin protección; la guardia recupera 1 y añade 4 de armadura durante ese turno. Moverte sólo la recupera sin enemigos alertados a la vista; el ataque básico no la recupera. Los enemigos resisten las interrupciones repetidas y pueden avanzar dos casillas. Los guardianes contraatacan durante su recuperación si sigues a su lado.</p></section><section><h3>Sobrevive</h3><p><kbd>R</kbd> bebe una poción: cura el 30 % de tu vida máxima. Puedes llevar 3; las provisiones del refugio amplían esa capacidad hasta 6. Las pociones que no caben quedan en el suelo. <kbd>X</kbd> espera y recupera 2 de energía. Las fuentes restauran un 30 % de tu vida máxima y toda tu energía una vez. Los santuarios cuestan 20 + 3 × planta de oro y recuperan 5 de vida: alternan +1 ataque, +4 vida máxima y +1 energía máxima cada tres plantas.</p><p>El juramento del refugio cambia tus estadísticas iniciales: El farol no impone desventajas, La brasa cambia vida por ataque y La marea cambia ataque por energía. Puedes elegir otro en cada expedición.</p><p>El oro solo dura esta expedición. Los fragmentos se conservan para las mejoras del refugio.</p></section><section><h3>Deja un legado</h3><p>Elige una reliquia antes de cada nueva planta. Derrota a los guardianes de las plantas 3, 6, 9, 12, 15 y 18. Los guardianes 3, 6 y 12 desbloquean nuevas clases.</p><p>Guardado automático tras cada acción. <kbd>Esc</kbd> pausa la partida. El menú permite volver al refugio. <kbd>J</kbd> abre el diario. El botón de pantalla completa oculta los controles del navegador cuando está disponible. Exporta una copia desde la crónica para cambiar de navegador.</p></section></div><button class="button primary" data-action="close">Entendido ${icon("arrow")}</button>`,
   );
 }
 function showChronicle() {
@@ -612,6 +646,12 @@ function showChronicle() {
     `<h2 id="modal-title">La memoria del abismo</h2><p class="modal-lead">No todos regresan. Ningún descenso se olvida.</p><div class="chronicle-stats"><span><strong>${m.runs}</strong>Expediciones</span><span><strong>${m.wins}</strong>Victorias</span><span><strong>${m.kills}</strong>Enemigos vencidos</span><span><strong>${m.lifetimeShards}</strong>Fragmentos reunidos</span></div><div class="boss-record">${BIOMES.map((b) => `<div class="${m.bosses.includes(b.bossId) ? "defeated" : ""}">${icon("shield")}<span><strong>${b.boss.name}</strong><small>${m.bosses.includes(b.bossId) ? "Sello roto" : `Guardián de la planta ${b.floors.at(-1)}`}</small></span></div>`).join("")}</div><div class="save-tools"><h3>Tu progreso viaja contigo</h3><p>Guardado en este navegador. Exporta una copia para conservarla o continuar en otro dispositivo.</p><div><button class="button secondary" data-action="export">Exportar progreso</button><button class="text-button" data-action="import">Importar una copia</button></div><p id="import-message" role="status"></p></div>`,
   );
 }
+app.addEventListener("input", (event) => {
+  if (event.target.id === "expedition-seed") {
+    expeditionSeed = event.target.value;
+    $("#seed-error").textContent = "";
+  }
+});
 app.addEventListener("click", handleClick);
 modal.addEventListener("click", handleClick);
 function handleClick(event) {
@@ -626,6 +666,12 @@ function handleClick(event) {
     selectedClass = b.dataset.class;
     renderHome();
     $(`[data-class="${selectedClass}"]`).focus({ preventScroll: true });
+    return;
+  }
+  if (b.dataset.oath && Object.hasOwn(OATH_BY_ID, b.dataset.oath)) {
+    selectedOath = b.dataset.oath;
+    renderHome();
+    $(`[data-oath="${selectedOath}"]`).focus({ preventScroll: true });
     return;
   }
   if (b.dataset.upgrade) {
@@ -682,6 +728,20 @@ function handleClick(event) {
     $("#dungeon")?.focus({ preventScroll: true });
   }
   if (action === "start") startRun();
+  if (action === "replay-seed" && ["dead", "won"].includes(profile.run?.phase)) {
+    expeditionSeed = String(profile.run.seed);
+    selectedClass = profile.run.player.classId;
+    selectedOath = profile.run.oathId || "lantern";
+    startRun();
+  }
+  if (action === "copy-seed" && profile.run) {
+    const seed = String(profile.run.seed);
+    navigator.clipboard?.writeText(seed).then(
+      () => { b.textContent = "Copiada"; b.setAttribute("aria-label", `Semilla ${seed} copiada`); toast(`Semilla ${seed} copiada.`); },
+      () => toast(`Tu semilla es ${seed}. Puedes anotarla y repetirla desde el refugio.`),
+    );
+    if (!navigator.clipboard) toast(`Tu semilla es ${seed}.`);
+  }
   if (action === "pause") showPause();
   if (action === "journal") showJournal();
   if (action === "fullscreen") {
@@ -709,6 +769,7 @@ function handleClick(event) {
   if (action === "sound") {
     profile.settings.sound = !profile.settings.sound;
     persist();
+    gameAudio?.setEnabled(profile.settings.sound);
     tone("reward");
     b.setAttribute("aria-pressed", String(profile.settings.sound));
     b.setAttribute(
@@ -851,7 +912,10 @@ window.addEventListener("pagehide", () => {
   persist();
 });
 document.addEventListener("visibilitychange", () => {
-  if (document.hidden) stopTravel();
+  if (document.hidden) {
+    stopTravel();
+    gameAudio?.suspend();
+  }
 });
 document.addEventListener("fullscreenchange", () => {
   const button = $("#fullscreen-toggle");

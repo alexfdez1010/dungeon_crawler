@@ -1,4 +1,4 @@
-import { getThreats, visibleTiles } from "./engine.js?v=3.0.0";
+import { getThreats, visibleTiles } from "./engine.js?v=3.1.0";
 
 const directions = [
   [1, 0],

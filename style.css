@@ -328,11 +328,91 @@ small {
   color: var(--secondary);
   margin-top: 14px;
 }
+/* Expedition choices are sidegrades; the refuge keeps its open journal layout. */
+.expedition-preparation {
+  padding: 28px 0 8px;
+  border-top: 1px solid var(--line);
+}
+.preparation-heading {
+  display: flex;
+  align-items: baseline;
+  gap: 20px;
+  margin-bottom: 17px;
+}
+.preparation-heading h2 { font-size: 24px; }
+.preparation-heading p { color: var(--secondary); font-size: 12px; }
+.oath-choices {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+.oath-choice {
+  display: flex;
+  gap: 13px;
+  align-items: center;
+  min-height: 76px;
+  text-align: left;
+  padding: 13px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--bg);
+}
+.oath-choice.selected { border-color: #9c8755; background: #dbb66b0d; }
+.oath-choice:hover { border-color: var(--gold); }
+.oath-choice strong { display: block; font-family: Georgia, serif; font-size: 18px; font-weight: 400; }
+.oath-choice small { display: block; margin-top: 4px; font-size: 12px; color: var(--secondary); line-height: 1.45; }
+.oath-mark { color: var(--gold); display: flex; }
+.oath-mark .icon { width: 23px; height: 23px; }
+.seed-settings { margin-top: 15px; color: var(--secondary); font-size: 12px; }
+.seed-settings summary { cursor: pointer; width: fit-content; padding: 6px 0; }
+.seed-settings summary:hover { color: var(--gold); }
+.seed-settings > div { display: grid; grid-template-columns: auto minmax(100px, 190px) 1fr; align-items: center; gap: 10px 16px; padding: 12px 0 4px; }
+.seed-settings label { color: var(--text); }
+.seed-settings label span { color: var(--secondary); }
+.seed-settings input {
+  width: 100%;
+  min-height: 42px;
+  padding: 8px 12px;
+  color: var(--text);
+  caret-color: var(--gold);
+  background: var(--deep);
+  border: 1px solid #59624e;
+  border-radius: var(--radius);
+  font-variant-numeric: tabular-nums;
+}
+.seed-settings input::placeholder { color: var(--secondary); }
+.seed-settings input:focus-visible, .seed-settings summary:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
+.field-error { grid-column: 1 / -1; color: var(--danger); }
+.field-error:empty { display: none; }
+.domain-illustration {
+  display: block;
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 2 / 1;
+  background: var(--deep);
+}
+.domain-illustration::before {
+  content: "";
+  position: absolute;
+  width: 100%;
+  aspect-ratio: 1;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  background-image: url("resources/art/yala-domains.png"), url("resources/art/yala-keyart.png");
+  background-size: 300% 200%;
+  background-position: var(--domain-x) var(--domain-y);
+  background-repeat: no-repeat;
+}
+.biome-stop > .domain-illustration { margin-bottom: 17px; border-radius: 3px; }
 .refuge-columns {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 64px;
   padding: 48px 0;
+}
+.refuge-columns > section {
+  min-width: 0;
 }
 .section-heading {
   display: flex;
@@ -391,6 +471,7 @@ small {
 }
 .class-copy {
   display: flex;
+  min-width: 0;
   flex-direction: column;
   gap: 2px;
 }
@@ -450,6 +531,7 @@ small {
 }
 .upgrade-copy {
   flex: 1;
+  min-width: 0;
 }
 .upgrade-copy h3 {
   font-size: 13px;
@@ -1277,6 +1359,25 @@ dialog > p:not([class]) {
 .reward-pick > .icon {
   width: 15px;
 }
+.relic-preview {
+  display: grid;
+  gap: 6px;
+  margin: 0 0 17px;
+  padding-top: 12px;
+  border-top: 1px solid #46513d;
+}
+.relic-preview > span { display: flex; justify-content: space-between; gap: 8px; color: var(--secondary); font-size: 11px; }
+.relic-preview strong { display: inline-flex; align-items: center; gap: 5px; font-weight: 500; color: var(--text); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.relic-preview .icon { width: 12px; height: 12px; color: var(--jade); }
+.relic-companions { display: block; margin-bottom: 14px; color: var(--jade); font-size: 10px; line-height: 1.5; }
+.reward-destination { display: flex; align-items: center; gap: 18px; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line); }
+.reward-destination .domain-illustration { width: 120px; height: 88px; flex: none; border-radius: 3px; }
+.reward-destination h3 { font-family: Georgia, serif; font-size: 20px; font-weight: 400; }
+.reward-destination p { font-size: 12px; color: var(--secondary); margin-top: 3px; }
+.reward-destination small { display: block; font-size: 11px; color: var(--secondary); margin-top: 7px; }
+.end-actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px 24px; align-items: center; }
+.expedition-code { color: var(--secondary); font-size: 12px; font-variant-numeric: tabular-nums; margin: 14px 0; }
+.expedition-code .text-button { padding: 3px 6px; color: var(--gold); }
 .end-result {
   text-align: center;
   padding: 18px 0;
@@ -3547,7 +3648,7 @@ html:has(body.is-playing) {
   }
   .hud-action small {
     font-size: 8px;
-    white-space: nowrap;
+    white-space: normal;
     letter-spacing: -0.02em;
   }
 }
@@ -3609,4 +3710,33 @@ html:has(body.is-playing) {
   width: 15px;
   height: 15px;
   color: var(--gold);
+}
+
+@media (max-width: 900px) {
+  .preparation-heading { align-items: flex-start; flex-direction: column; gap: 5px; }
+  .oath-choice { padding: 12px; gap: 10px; }
+  .oath-choice strong { font-size: 17px; }
+  .oath-choice small { font-size: 11px; }
+  .seed-settings > div { grid-template-columns: auto minmax(100px, 190px); }
+  #seed-description { grid-column: 1 / -1; }
+}
+@media (max-width: 640px) {
+  .expedition-preparation { padding-top: 24px; }
+  .preparation-heading h2 { font-size: 26px; }
+  .oath-choices { grid-template-columns: 1fr; gap: 8px; }
+  .oath-choice { min-height: 65px; padding: 10px 14px; gap: 14px; }
+  .oath-choice strong { font-size: 18px; }
+  .oath-choice small { font-size: 12px; margin-top: 2px; }
+  .seed-settings > div { grid-template-columns: 1fr minmax(100px, 160px); }
+  .seed-settings label { font-size: 11px; }
+  .reward-choice .relic-preview, .reward-choice .relic-companions { grid-column: 2; }
+  .reward-choice .relic-preview { margin-bottom: 11px; padding-top: 8px; }
+  .reward-choice .relic-companions { margin-bottom: 9px; }
+  .reward-choice .relic-emblem { align-self: start; padding-top: 4px; }
+  .reward-destination { gap: 12px; margin-top: 18px; padding-top: 16px; }
+  .reward-destination .domain-illustration { width: 80px; height: 84px; }
+  .reward-destination h3 { font-size: 18px; }
+  .reward-destination p, .reward-destination small { font-size: 11px; }
+  .danger-warning span { max-width: 100%; }
+  .expedition-code { font-size: 11px; }
 }
