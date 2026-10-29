@@ -1,5 +1,7 @@
 # Equilibrado reproducible
 
+La comparación actual de la revisión 3.2 (320 expediciones) está en [docs/BALANCE_3_2.md](docs/BALANCE_3_2.md) y [resources/balance3.2.0.json](resources/balance3.2.0.json). Las cifras 3.0 siguientes conservan su revisión histórica.
+
 El simulador ejecuta expediciones completas mediante las mismas funciones `createRun`, `act` y `chooseRelic` que usa la interfaz. No ajusta estadísticas, no elimina enemigos, no cambia posiciones y no fuerza descensos. Cada acción aceptada produce un turno real; elegir una reliquia usa la transición real entre plantas.
 
 ## Ejecutar

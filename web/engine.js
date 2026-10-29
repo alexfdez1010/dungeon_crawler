@@ -6,7 +6,7 @@ import {
   RELICS,
   TOTAL_FLOORS,
   UPGRADES,
-} from "./content.js?v=3.1.0";
+} from "./content.js?v=3.2.0";
 
 const WIDTH = 41;
 const HEIGHT = 29;
@@ -71,6 +71,9 @@ export function getStats(run) {
     skillDamage:
       Math.round(attack * skillMultiplier) + (bonus.skillDamage || 0),
     guard: run.player.statuses.includes("guard"),
+    opening: run.player.opening === true,
+    openingDamage:
+      run.player.opening === true ? Math.round(attack * 1.35) - attack : 0,
   };
 }
 
@@ -206,6 +209,7 @@ function spawnFloor(run) {
   run.player.y = run.map.start.y;
   run.player.energy = getStats(run).maxEnergy;
   run.player.statuses = [];
+  run.player.opening = false;
   run.enemies = [];
   run.objects = [];
   const occupied = new Set([
@@ -350,6 +354,7 @@ export function createRun({
       level: 1,
       facing: { x: 1, y: 0 },
       statuses: [],
+      opening: false,
     },
     map: null,
     enemies: [],
@@ -411,7 +416,9 @@ function damageEnemy(run, enemy, damage, playerHit = true, armorPiercing = 0) {
   const critical = playerHit && random(run) < (stats.critChance || 0);
   const dealt = Math.max(
     1,
-    Math.round(damage * (critical ? 1.75 : 1)) -
+    Math.round(
+      damage * (critical ? 1.75 : 1) * (playerHit && stats.opening ? 1.35 : 1),
+    ) -
       Math.floor((enemy.armor || 0) * (1 - armorPiercing)),
   );
   const actualDamage = Math.min(enemy.hp, dealt);
@@ -517,22 +524,35 @@ function attackCells(run, enemy, kind) {
     )
       cells.push({ x, y });
   };
-  if (kind === "nova") {
+  if (kind === "melee") {
+    add(enemy.x + 1, enemy.y);
+    add(enemy.x - 1, enemy.y);
+    add(enemy.x, enemy.y + 1);
+    add(enemy.x, enemy.y - 1);
+  } else if (kind === "nova") {
     for (let y = enemy.y - 2; y <= enemy.y + 2; y++) {
       for (let x = enemy.x - 2; x <= enemy.x + 2; x++) {
         if (
           Math.abs(x - enemy.x) + Math.abs(y - enemy.y) <= 3 &&
-          (x !== enemy.x || y !== enemy.y)
+          (x !== enemy.x || y !== enemy.y) &&
+          lineOfSight(run, enemy, { x, y })
         )
           add(x, y);
       }
     }
   } else if (kind === "cross") {
-    for (let i = 1; i <= 6; i++) {
-      add(enemy.x + i, enemy.y);
-      add(enemy.x - i, enemy.y);
-      add(enemy.x, enemy.y + i);
-      add(enemy.x, enemy.y - i);
+    for (const [dx, dy] of [
+      [1, 0],
+      [-1, 0],
+      [0, 1],
+      [0, -1],
+    ]) {
+      for (let i = 1; i <= 6; i++) {
+        const x = enemy.x + dx * i;
+        const y = enemy.y + dy * i;
+        if (!walkable(run, x, y)) break;
+        add(x, y);
+      }
     }
   } else if (kind === "roots") {
     add(run.player.x, run.player.y);
@@ -606,11 +626,14 @@ function enemyTurn(run) {
           ENEMIES[enemy.type]?.name || "Ataque",
           enemy,
         );
-      else
+      else {
         log(
           run,
           `El ataque de ${definition.name || enemy.type} golpea el suelo.`,
         );
+        // A missed strike maintains pressure without adding an unannounced hit.
+        if (intent.kind === "melee") advanceEnemy(run, enemy, 1);
+      }
       // A charge closes distance rather than behaving like another stationary bow.
       if (intent.kind === "charge") {
         for (const cell of intent.cells) {
@@ -621,7 +644,7 @@ function enemyTurn(run) {
       }
       if (!enemy.boss && definition.behavior === "ranged" && distance(enemy, run.player) > 2)
         advanceEnemy(run, enemy);
-      enemy.cooldown = enemy.boss ? 1 : 0;
+      enemy.cooldown = enemy.boss && intent.kind !== "melee" ? 1 : 0;
       continue;
     }
     const separation = distance(enemy, run.player);
@@ -635,14 +658,15 @@ function enemyTurn(run) {
       enemy.cooldown--;
       // The recovery window allows a counterattack, but does not freeze a boss.
       if (enemy.boss) {
-        if (separation === 1)
-          hurtPlayer(
-            run,
-            Math.ceil(enemy.attack * 0.65),
-            `${definition.name}: represalia`,
-            enemy,
-          );
-        else {
+        if (separation === 1) {
+          enemy.intent = {
+            kind: "melee",
+            cells: attackCells(run, enemy, "melee"),
+            damage: Math.ceil(enemy.attack * 0.65),
+            turn: run.turn,
+          };
+          log(run, `${definition.name} prepara una represalia cercana.`);
+        } else {
           advanceEnemy(run, enemy);
         }
       }
@@ -710,7 +734,13 @@ function enemyTurn(run) {
       enemy.pattern = (enemy.pattern || 0) + 1;
       log(run, `${definition.name || enemy.type} fija tu posición.`);
     } else if (separation === 1) {
-      hurtPlayer(run, enemy.attack, definition.name || enemy.type, enemy);
+      enemy.intent = {
+        kind: "melee",
+        cells: attackCells(run, enemy, "melee"),
+        damage: enemy.attack,
+        turn: run.turn,
+      };
+      log(run, `${definition.name || enemy.type} prepara un golpe cercano.`);
     } else {
       advanceEnemy(run, enemy);
     }
@@ -731,7 +761,7 @@ export function getThreats(run) {
 
 /**
  * Maximum announced damage if the player stays here and fails random dodge rolls.
- * This deliberately excludes melee attacks and choices that have not been announced.
+ * Includes committed close strikes; excludes choices not announced yet.
  * Reading the forecast never consumes randomness or changes enemy intentions.
  */
 export function forecastIncomingDamage(run) {
@@ -949,6 +979,7 @@ function skill(run) {
       `${run.player.classId === "luminary" ? "Cisma solar" : "Estallido arcano"}: ${blast.length} objetivo${blast.length === 1 ? "" : "s"}.`,
     );
   }
+  run.player.opening = false;
   return true;
 }
 
@@ -957,6 +988,9 @@ export function act(run, action) {
     return false;
   let consumed = false;
   let regenerate = true;
+  const origin = { x: run.player.x, y: run.player.y };
+  const announced = getThreats(run);
+  const wasThreatened = announced.some((cell) => same(cell, origin));
   if (action.type === "move" || action.type === "dash") {
     const dx = Number(action.dx);
     const dy = Number(action.dy);
@@ -1010,6 +1044,7 @@ export function act(run, action) {
       const target = enemyAt(run, x, y);
       if (target) {
         damageEnemy(run, target, getStats(run).attack);
+        run.player.opening = false;
         regenerate = false;
       }
       else {
@@ -1043,7 +1078,20 @@ export function act(run, action) {
     log(run, "Bebes una poción de vida.");
     consumed = true;
   } else if (action.type === "interact") consumed = interact(run);
-  if (consumed) finishTurn(run, regenerate);
+  if (consumed) {
+    const earnedOpening =
+      wasThreatened &&
+      !same(origin, run.player) &&
+      !announced.some((cell) => same(cell, run.player));
+    finishTurn(run, regenerate);
+    if (earnedOpening && run.phase === "playing" && !run.player.opening) {
+      run.player.opening = true;
+      log(
+        run,
+        "¡Apertura! Tu próximo ataque o habilidad inflige un 35% más de daño.",
+      );
+    }
+  }
   return consumed;
 }
 
@@ -1106,6 +1154,8 @@ export function validateRun(value) {
     if (!["playing", "reward", "dead", "won"].includes(value.phase))
       return false;
     const player = value.player;
+    if (player?.opening !== undefined && typeof player.opening !== "boolean")
+      return false;
     if (
       !player ||
       !Object.hasOwn(CLASS_BY_ID, player.classId) ||

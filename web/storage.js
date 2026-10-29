@@ -1,5 +1,5 @@
-import { UPGRADES, TOTAL_FLOORS, REGIONS } from "./content.js?v=3.1.0";
-import { validateRun as validateSavedRun } from "./engine.js?v=3.1.0";
+import { UPGRADES, TOTAL_FLOORS, REGIONS } from "./content.js?v=3.2.0";
+import { validateRun as validateSavedRun } from "./engine.js?v=3.2.0";
 
 export const SAVE_KEY = "yala.save.v1";
 export const BACKUP_KEY = "yala.backup.v1";

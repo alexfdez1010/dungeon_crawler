@@ -404,6 +404,17 @@ small {
   background-position: var(--domain-x) var(--domain-y);
   background-repeat: no-repeat;
 }
+.domain-panorama::before {
+  aspect-ratio: 1672 / 941;
+  background-image: url("resources/art/yala-biomes.webp");
+  background-size: 200% 200%;
+}
+.journal-panorama {
+  width: 100%;
+  max-height: 230px;
+  margin: 0 0 26px;
+  border-radius: var(--radius);
+}
 .biome-stop > .domain-illustration { margin-bottom: 17px; border-radius: 3px; }
 .refuge-columns {
   display: grid;
@@ -2511,8 +2522,9 @@ html:has(body.is-playing) {
   background: #0b100d;
 }
 .hud-minimap > div {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px 8px;
   margin-top: 7px;
   font-size: 9px;
   color: #c1cbb4;
@@ -2653,6 +2665,40 @@ html:has(body.is-playing) {
 .danger-warning .icon {
   width: 16px;
   height: 16px;
+}
+.tactical-state {
+  width: fit-content;
+  max-width: 100%;
+  margin: 0 auto 7px;
+  padding: 6px 12px;
+  border: 1px solid #88bfa8;
+  border-radius: var(--radius);
+  color: #d6efdf;
+  background: #172c22f5;
+  font-size: 12px;
+  line-height: 1.4;
+}
+.tactical-state.opening-ready {
+  border-color: var(--gold);
+  color: #f2d89e;
+  background: #292719f5;
+}
+.aiming-dash .dpad button,
+.hud-action[aria-pressed="true"] {
+  border-color: #a7dbc0;
+  color: #d6efdf;
+  background: #294533;
+}
+.hud-action.opening-ready {
+  border-color: #f2d89e;
+  color: #f2d89e;
+}
+.hud-action small > span {
+  display: inline-block;
+  white-space: nowrap;
+}
+.aiming-dash .context-action {
+  display: none;
 }
 .hud-controls {
   display: flex;
@@ -3697,6 +3743,7 @@ html:has(body.is-playing) {
   display: flex;
   justify-content: center;
   gap: 25px;
+  flex-wrap: wrap;
   color: var(--secondary);
   font-size: 12px;
   margin-bottom: 24px;
@@ -3722,6 +3769,10 @@ html:has(body.is-playing) {
 }
 @media (max-width: 640px) {
   .expedition-preparation { padding-top: 24px; }
+  .journal-panorama { max-height: 150px; margin-bottom: 20px; }
+  .tactical-state { font-size: 11px; padding: 5px 9px; }
+  .hud-action small { white-space: normal; overflow-wrap: anywhere; }
+  .overview-legend { gap: 8px 18px; }
   .preparation-heading h2 { font-size: 26px; }
   .oath-choices { grid-template-columns: 1fr; gap: 8px; }
   .oath-choice { min-height: 65px; padding: 10px 14px; gap: 14px; }

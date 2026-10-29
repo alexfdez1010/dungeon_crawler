@@ -50,13 +50,29 @@ test("full simulation trace replays solely through real engine actions", () => {
   assert.equal(result.floors.reduce((sum, floor) => sum + floor.turns, 0), result.turns);
 });
 
-test("the initial character cannot clear the campaign on the fixed balance seeds", () => {
-  for (const seed of [1, 2, 3]) {
-    const result = simulateRun({ seed, classId: "warden", upgrades: upgradePreset("zero"), policy: "tactical" });
-    assert.equal(result.outcome, "dead", `initial seed ${seed} must end in a real defeat, not a bot limit`);
+test("preparation improves paired campaign outcomes while allowing an exceptional unprepared victory", () => {
+  for (const classId of ["warden", "luminary"]) {
+    const unprepared = [];
+    const prepared = [];
+    for (const seed of [1, 2, 3]) {
+      for (const [preset, results] of [["zero", unprepared], ["max", prepared]]) {
+        const result = simulateRun({ seed, classId, upgrades: upgradePreset(preset), policy: "tactical" });
+        assert(["won", "dead"].includes(result.outcome), `${classId}/${preset}/${seed} must reach a real outcome`);
+        results.push(result);
+      }
+    }
+    assert(unprepared.some((result) => result.outcome === "dead"), `${classId}: preparation remains meaningful`);
+    assert(
+      prepared.filter((result) => result.outcome === "won").length >
+        unprepared.filter((result) => result.outcome === "won").length,
+      `${classId}: upgrades improve victories over the same seeds and decisions`,
+    );
+    assert(
+      prepared.reduce((total, result) => total + result.floor, 0) >=
+        unprepared.reduce((total, result) => total + result.floor, 0),
+      `${classId}: preparation also preserves or improves total campaign reach`,
+    );
   }
-  const unpreparedVeteran = simulateRun({ seed: 1, classId: "luminary", upgrades: upgradePreset("zero"), policy: "tactical" });
-  assert.equal(unpreparedVeteran.outcome, "dead", "the advanced class still needs upgrades on the same seed that its max-upgraded replay wins");
 });
 
 test("upgrade matrices use purchasable levels, and report limits as stalled", () => {

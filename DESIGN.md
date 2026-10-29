@@ -301,3 +301,13 @@ The hero keeps the key art, Yala title and subtitle, a factual two-line introduc
 ## Depths expansion · 3.0
 
 The six-domain descent track retains the existing type, spacing and progress nodes, in three desktop columns and two mobile columns. The new Portadora del alba and eight endgame enemies use `resources/art/yala-depths-atlas.png`, a transparent 3 × 3 atlas. Existing portraits retain the original 4 × 2 atlas. The canvas adds sparse amber fissures in the furnace and pale-gold constellations in the astral domain; terrain stays legible beneath threat markers. Help and HUD totals follow the eighteen-floor campaign.
+
+## Tactical feedback · 3.2
+
+Contact strikes and boss reprisals use the same announced threat cells as ranged attacks. The danger warning includes their mitigated damage. Leaving every committed threat grants one Apertura; a quiet gold status above the action dock and gold skill border identify its +35% next-attack bonus. The status has text as well as color.
+
+Dodge now asks for direction before spending a turn. Space or Esquivar selects targeting; the directional pad changes to jade and labels its directions as dodges. The persistent status explains selection and cancellation; the contextual attack is hidden during targeting. A direction confirms, Space or Escape cancels, and Shift plus a direction executes directly. Blocked choices retain targeting without consuming time or energy. Paused overlays and other actions cancel targeting.
+
+Four new panoramic paintings in `resources/art/yala-biomes.webp` (2 × 2, 1672 × 941) illustrate the first four domains, their reward destination and the journal. Furnace and astral retain the six-domain atlas. The journal uses a 230px maximum-height panorama, 150px on mobile. No extra image is loaded by the renderer.
+
+The minimap adds resources only on explored cells and hostiles only while visible, with a four-item legend. World detail differentiates the original four biomes, while damage markers and enemy recovery states reinforce tactical reading. Sounds distinguish a normal attack, defeat, Apertura and a level; all remain optional. Existing palette, fonts, viewport composition and reduced-motion rules apply.

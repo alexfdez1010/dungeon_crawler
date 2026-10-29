@@ -12,7 +12,7 @@ import {
   floorInfo,
   classUnlocked,
   upgradeCost,
-} from "./content.js?v=3.1.0";
+} from "./content.js?v=3.2.0";
 import {
   createRun,
   act,
@@ -22,27 +22,27 @@ import {
   forecastIncomingDamage,
   validateRun,
   getStats,
-} from "./engine.js?v=3.1.0";
+} from "./engine.js?v=3.2.0";
 import {
   loadProfile,
   saveProfile,
   syncProgress,
   validateProfile,
-} from "./storage.js?v=3.1.0";
+} from "./storage.js?v=3.2.0";
 import {
   DungeonRenderer,
   spriteStyle,
   enemySprite,
   classSprite,
-} from "./renderer.js?v=3.1.0";
+} from "./renderer.js?v=3.2.0";
 
 import {
   findExploredPath,
   shouldStopTravel,
   travelAction,
-} from "./navigation.js?v=3.1.0";
+} from "./navigation.js?v=3.2.0";
 
-import { GameAudio } from "./audio.js?v=3.1.0";
+import { GameAudio } from "./audio.js?v=3.2.0";
 
 const $ = (selector) => document.querySelector(selector);
 const app = $("#app"),
@@ -79,6 +79,7 @@ let lastFocus = null,
   externalChanged = false;
 let travelTimer = null,
   travelQueue = [],
+  aimingDash = false,
   toastTimer = null,
   lastMovement = 0;
 let saveWarning =
@@ -117,6 +118,8 @@ function tone(kind = "step") {
   gameAudio.play(kind);
 }
 function domainArtwork(biomeIndex, extra = "") {
+  if (biomeIndex < 4)
+    return `<span class="domain-illustration domain-panorama ${extra}" style="--domain-x:${(biomeIndex % 2) * 100}%;--domain-y:${Math.floor(biomeIndex / 2) * 100}%" aria-hidden="true"></span>`;
   return `<span class="domain-illustration ${extra}" style="--domain-x:${(biomeIndex % 3) * 50}%;--domain-y:${Math.floor(biomeIndex / 3) * 100}%" aria-hidden="true"></span>`;
 }
 function preparation() {
@@ -131,6 +134,7 @@ function footer() {
 }
 function renderHome() {
   stopTravel();
+  aimingDash = false;
   document.body.classList.remove("is-playing");
   if (document.fullscreenElement) document.exitFullscreen?.().catch(() => {});
   view = "home";
@@ -182,6 +186,15 @@ function walkTo(target) {
   stopTravel();
   const r = profile.run;
   if (modal.open || !r || r.phase !== "playing") return;
+  if (aimingDash) {
+    const dx = target.x - r.player.x, dy = target.y - r.player.y;
+    if ((dx === 0) === (dy === 0)) {
+      toast("Elige una dirección con la cruceta o una casilla en tu misma fila o columna.");
+      return;
+    }
+    perform({ type: "dash", dx: Math.sign(dx), dy: Math.sign(dy) });
+    return;
+  }
   const adjacent =
     Math.abs(target.x - r.player.x) + Math.abs(target.y - r.player.y) === 1;
   if (adjacent) {
@@ -254,6 +267,7 @@ function showGame() {
     return;
   }
   stopTravel();
+  aimingDash = false;
   view = "game";
   renderer?.destroy();
   inspectedId = null;
@@ -265,10 +279,10 @@ function showGame() {
     <canvas id="dungeon" tabindex="0" role="img" aria-label="Mapa de la mazmorra. Usa las flechas o WASD para moverte. Toca una casilla para caminar. H abre la ayuda."></canvas>
     <div class="hud-top"><section class="hud-vitals hud-surface" aria-label="Tu personaje" id="resources"></section>
     <section class="hud-location" aria-label="Localización"><p><span id="region-name"></span><span class="hud-depth">PLANTA <strong id="depth-number"></strong> / ${TOTAL_FLOORS}</span></p><h1 id="floor-title"></h1><span id="turn-counter"></span></section>
-    <aside class="hud-cartography"><nav class="hud-tools hud-surface" aria-label="Menú de la partida"><button data-action="journal" aria-label="Abrir diario y reliquias" title="Diario · J">${icon("book")}</button><button data-action="help" aria-label="Cómo jugar" title="Ayuda · H">${icon("help")}</button><button data-action="fullscreen" id="fullscreen-toggle" aria-label="Activar pantalla completa" title="Pantalla completa">${icon("expand")}</button><button data-action="pause" aria-label="Pausar la expedición" title="Pausa · Esc">${icon("pause")}</button></nav><button class="minimap-toggle" data-action="map" aria-haspopup="dialog" aria-controls="modal">${icon("map")}<span>Mapa</span></button><section class="hud-minimap hud-surface" id="hud-minimap" aria-label="Mapa explorado"><canvas id="minimap" aria-label="Minimapa de las zonas exploradas"></canvas><div><span>${icon("lantern")} Tú</span><span>${icon("stairs")} Descenso</span></div></section></aside></div>
+    <aside class="hud-cartography"><nav class="hud-tools hud-surface" aria-label="Menú de la partida"><button data-action="journal" aria-label="Abrir diario y reliquias" title="Diario · J">${icon("book")}</button><button data-action="help" aria-label="Cómo jugar" title="Ayuda · H">${icon("help")}</button><button data-action="fullscreen" id="fullscreen-toggle" aria-label="Activar pantalla completa" title="Pantalla completa">${icon("expand")}</button><button data-action="pause" aria-label="Pausar la expedición" title="Pausa · Esc">${icon("pause")}</button></nav><button class="minimap-toggle" data-action="map" aria-haspopup="dialog" aria-controls="modal">${icon("map")}<span>Mapa</span></button><section class="hud-minimap hud-surface" id="hud-minimap" aria-label="Mapa explorado"><canvas id="minimap" aria-label="Minimapa de las zonas exploradas"></canvas><div><span>${icon("lantern")} Tú</span><span>${icon("stairs")} Descenso</span><span>${icon("spark")} Recursos</span><span>${icon("sword")} Hostiles</span></div></section></aside></div>
     <section id="enemy-inspector" class="hud-enemy hud-surface" aria-label="Enemigo seleccionado" hidden></section>
     <div class="hud-toast hud-surface" id="hud-toast" role="status" hidden></div><div class="map-tooltip hud-surface" id="map-tooltip" hidden></div>
-    <div class="hud-bottom"><div class="hud-feedback"><div id="danger-warning" class="danger-warning" role="status" hidden>${icon("shield")}<span>¡Sal de la casilla roja antes de actuar!</span></div><p id="map-caption"></p><button id="context-action" class="context-action" data-action="interact" hidden></button><p class="hud-event" id="hud-event" aria-live="polite"></p></div>
+    <div class="hud-bottom"><div class="hud-feedback"><p id="tactical-state" class="tactical-state" role="status" hidden></p><div id="danger-warning" class="danger-warning" role="status" hidden>${icon("shield")}<span>¡Sal de la casilla roja antes de actuar!</span></div><p id="map-caption"></p><button id="context-action" class="context-action" data-action="interact" hidden></button><p class="hud-event" id="hud-event" aria-live="polite"></p></div>
     <div class="hud-controls"><section class="hud-movement" aria-label="Movimiento"><div class="dpad"><button data-move="0,-1" class="dpad-up" aria-label="Mover arriba">${icon("arrow")}</button><button data-move="-1,0" class="dpad-left" aria-label="Mover izquierda">${icon("arrow")}</button><span class="dpad-center" aria-hidden="true">${icon("cursor")}</span><button data-move="1,0" class="dpad-right" aria-label="Mover derecha">${icon("arrow")}</button><button data-move="0,1" class="dpad-down" aria-label="Mover abajo">${icon("arrow")}</button></div><p><kbd>WASD</kbd> / flechas</p></section><section class="hud-action-dock hud-surface" aria-label="Acciones de combate"><div id="action-bar" class="hud-actions"></div><p class="hud-control-note"><span>Los enemigos esperan tu turno.</span><span>Clic para caminar · <kbd>Esc</kbd> pausa</span></p></section><div class="hud-zoom hud-surface" aria-label="Tamaño del mapa"><button data-action="zoom-in" aria-label="Acercar el mapa" title="Acercar">${icon("plus")}</button><button data-action="zoom-out" aria-label="Alejar el mapa" title="Alejar">${icon("minus")}</button></div></div></div>
   </main>`;
   renderer = new DungeonRenderer($("#dungeon"), $("#minimap"));
@@ -312,6 +326,18 @@ function updateGame() {
     ),
     boss = r.enemies.find((e) => e.boss && e.hp > 0);
   const forecast = forecastIncomingDamage(r);
+  $("#playfield").classList.toggle("aiming-dash", aimingDash);
+  const tacticalState = $("#tactical-state");
+  tacticalState.hidden = !aimingDash && !s.opening;
+  tacticalState.classList.toggle("opening-ready", !aimingDash && s.opening);
+  tacticalState.textContent = aimingDash
+    ? "Elige una dirección para esquivar · vuelve a pulsar para cancelar"
+    : `Apertura · +35 % en tu próximo ataque`;
+  for (const direction of document.querySelectorAll("[data-move]")) {
+    const name = direction.className.replace("dpad-", "");
+    const label = { up: "arriba", down: "abajo", left: "izquierda", right: "derecha" }[name];
+    direction.setAttribute("aria-label", `${aimingDash ? "Esquivar" : "Mover"} ${label}`);
+  }
   $("#danger-warning").hidden = !inDanger;
   $("#danger-warning span").textContent = forecast.attacks
     ? `Ataques anunciados: hasta ${forecast.damage} daño · con guardia ${forecast.guardedDamage}${forecast.lethal ? " · riesgo mortal" : ""}`
@@ -322,7 +348,7 @@ function updateGame() {
   if (nearEnemy) {
     contextual.hidden = false;
     contextual.dataset.action = "attack";
-    contextual.innerHTML = `${icon("sword")} Atacar <span>${esc(ENEMIES[nearEnemy.type].name)}</span><kbd>Enter</kbd>`;
+    contextual.innerHTML = `${icon("sword")} ${s.opening ? "Contraatacar" : "Atacar"} <span>${esc(ENEMIES[nearEnemy.type].name)}</span><kbd>Enter</kbd>`;
   } else if (atExit && !boss) {
     contextual.hidden = false;
     contextual.dataset.action = "interact";
@@ -332,6 +358,7 @@ function updateGame() {
     contextual.dataset.action = "interact";
     contextual.innerHTML = `${icon("lantern")} ${nearObject.type === "chest" ? "Abrir cofre" : nearObject.type === "fountain" ? "Beber de la fuente" : `Bendición · ${20 + r.floor * 3} oro`}<kbd>E</kbd>`;
   }
+  if (aimingDash) contextual.hidden = true;
   const visibleEnemies = r.enemies.filter(
     (e) => e.hp > 0 && vis.has(e.y * r.map.width + e.x),
   );
@@ -340,15 +367,20 @@ function updateGame() {
     (r.phase === "reward"
       ? "Elige una reliquia para continuar."
       : inDanger
-        ? "Muévete fuera de la señal o esquiva. La previsión solo incluye ataques anunciados."
+        ? "Sal de todas las marcas para preparar un contraataque con +35 % de daño."
+        : s.opening
+          ? "Elige entre un golpe y tu habilidad de clase."
         : nearEnemy
           ? "Ataca, usa tu habilidad o esquiva. Tú eliges."
           : atExit && boss
             ? "El guardián mantiene el descenso sellado."
             : visibleEnemies.length
               ? "Elige tus batallas: no necesitas derrotarlos a todos para descender."
-              : (r.floor % 3 === 0 && boss ? `Objetivo: derrota a ${ENEMIES[boss.type].name} y encuentra el descenso.` : "Busca las escaleras doradas. No necesitas derrotarlos a todos."));
+              : r.turn < 4
+                ? "Muévete con la cruceta o WASD. Toca suelo explorado para caminar."
+                : (r.floor % 3 === 0 && boss ? `Objetivo: derrota a ${ENEMIES[boss.type].name} y encuentra el descenso.` : "Busca las escaleras doradas. No necesitas derrotarlos a todos."));
   $("#hud-event").textContent = r.turn > 0 ? r.log.at(-1) || "" : "";
+  $("#hud-event").hidden = s.opening && r.log.at(-1)?.startsWith("¡Apertura!");
   $("#hud-event").classList.toggle("event-danger", inDanger);
   const playing = r.phase === "playing",
     range = p.classId === "warden" ? 2 : p.classId === "ranger" ? 6 : p.classId === "luminary" ? 5 : 4,
@@ -367,12 +399,12 @@ function updateGame() {
     ],
     [
       "dash",
-      "Esquivar",
+      aimingDash ? "Dirección" : "Esquivar",
       "Espacio",
-      "2 energía",
+      aimingDash ? "Elige rumbo" : "2 energía",
       p.energy < 2,
       "boot",
-      "Avanza dos casillas en la dirección hacia la que miras e ignora ataques durante el turno.",
+      "Elige Esquivar y después una dirección. Avanza hasta dos casillas e ignora ataques durante el turno. También Mayús + dirección.",
     ],
     [
       "guard",
@@ -416,7 +448,7 @@ function updateGame() {
   $("#action-bar").innerHTML = buttons
     .map(
       ([id, label, key, note, disabled, ico, description]) =>
-        `<button data-action="${id}" class="hud-action ${id === "skill" ? "skill-action" : ""}" ${!playing || disabled ? "disabled" : ""} aria-label="${esc(label)}. ${esc(note)}" title="${esc(description)}"><kbd>${key}</kbd>${icon(ico)}<strong>${esc(label)}</strong><small>${esc(note)}</small></button>`,
+        `<button data-action="${id}" class="hud-action ${id === "skill" ? "skill-action" : ""} ${id === "skill" && s.opening ? "opening-ready" : ""}" ${!playing || disabled ? "disabled" : ""} ${id === "dash" ? `aria-pressed="${aimingDash}"` : ""} aria-label="${esc(label)}. ${esc(note)}" title="${esc(description)}"><kbd>${key}</kbd>${icon(ico)}<strong>${esc(label)}</strong><small>${id === "guard" ? "<span>+4 arm.</span> <span>+1 energía</span>" : esc(note)}</small></button>`,
     )
     .join("");
   if (focusedAction)
@@ -426,7 +458,7 @@ function updateGame() {
   updateInspector();
   renderer.draw(r);
   $("#announcer").textContent =
-    `Vida ${p.hp} de ${s.maxHp}. ${inDanger ? "Ataque inminente. " : ""}${r.log.at(-1) || ""}`;
+    `Vida ${p.hp} de ${s.maxHp}. ${inDanger ? "Ataque inminente. " : ""}${s.opening ? "Apertura preparada. " : ""}${r.log.at(-1) || ""}`;
   if (r.phase === "reward" && !modal.open) showRewards();
   if (["dead", "won"].includes(r.phase) && !endShown) {
     endShown = true;
@@ -454,7 +486,13 @@ function updateInspector() {
   if (!enemy) return;
   const d = ENEMIES[enemy.type],
     distance = Math.abs(enemy.x - r.player.x) + Math.abs(enemy.y - r.player.y);
-  node.innerHTML = `${portrait(enemySprite(enemy.type))}<div class="hud-enemy-copy"><h2>${esc(d.name)}</h2><div class="enemy-health"><span style="width:${(enemy.hp / enemy.maxHp) * 100}%"></span></div><p><span>${enemy.hp} / ${enemy.maxHp} vida</span><span>${distance === 1 ? "A tu lado" : `${distance} pasos`}${enemy.resolve > 0 ? ` · Temple ${enemy.resolve}` : ""}</span></p><span class="enemy-intent ${enemy.intent ? "danger-text" : ""}">${enemy.intent ? "Ataque preparado. Evita las marcas rojas." : enemy.boss && enemy.cooldown > 0 ? "Recuperación: contraataca si te quedas a su lado." : esc(d.intention)}</span></div>`;
+  const intent = enemy.intent
+    ? `${enemy.intent.kind === "melee" ? "Golpe cercano" : "Ataque preparado"} · ${enemy.intent.damage} daño antes de defensas. Evita las marcas.`
+    : enemy.stunned > 0 ? "Interrumpido: aprovecha para atacar."
+      : enemy.cooldown > 0 ? "Recuperación: busca tu siguiente posición."
+        : distance === 1 ? "Prepara su golpe. Ataca o busca una salida."
+          : d.intention;
+  node.innerHTML = `${portrait(enemySprite(enemy.type))}<div class="hud-enemy-copy"><h2>${esc(d.name)}</h2><div class="enemy-health"><span style="width:${(enemy.hp / enemy.maxHp) * 100}%"></span></div><p><span>${enemy.hp} / ${enemy.maxHp} vida</span><span>${distance === 1 ? "A tu lado" : `${distance} pasos`}${enemy.resolve > 0 ? ` · Temple ${enemy.resolve}` : ""}</span></p><span class="enemy-intent ${enemy.intent ? "danger-text" : ""}">${esc(intent)}</span></div>`;
 }
 function inspectMap(event) {
   if (!renderer || !profile.run || modal.open) return;
@@ -494,7 +532,7 @@ function inspectMap(event) {
 }
 function showMap() {
   openModal(
-    `<h2 id="modal-title">Mapa de la planta ${profile.run.floor}</h2><p class="modal-lead">El tiempo se detiene mientras consultas el mapa.</p><canvas id="overview-map" class="overview-map" aria-label="Mapa de las casillas exploradas, con tu posición y el descenso descubierto"></canvas><p class="overview-legend"><span>${icon("lantern")} Tu posición</span><span>${icon("stairs")} Descenso</span></p><button class="button primary" data-action="close">Volver a jugar ${icon("arrow")}</button>`,
+    `<h2 id="modal-title">Mapa de la planta ${profile.run.floor}</h2><p class="modal-lead">El tiempo se detiene mientras consultas el mapa.</p><canvas id="overview-map" class="overview-map" aria-label="Mapa explorado con tu posición, descenso, objetos descubiertos y enemigos visibles"></canvas><p class="overview-legend"><span>${icon("lantern")} Tú</span><span>${icon("stairs")} Descenso</span><span>${icon("spark")} Recursos</span><span>${icon("sword")} Hostiles</span></p><button class="button primary" data-action="close">Volver a jugar ${icon("arrow")}</button>`,
   );
   const source = $("#minimap"),
     target = $("#overview-map");
@@ -511,7 +549,7 @@ function showJournal() {
   const r = profile.run,
     info = floorInfo(r.floor);
   openModal(
-    `<h2 id="modal-title">Diario del descenso</h2><p class="modal-lead">Planta ${r.floor} · ${esc(info.name)}</p><p class="expedition-code">${esc(OATH_BY_ID[r.oathId || "lantern"].name)} · Semilla ${r.seed} <button class="text-button" data-action="copy-seed">Copiar semilla</button></p><blockquote class="journal-lore">${esc(info.story)}</blockquote><h3>Tu siguiente paso</h3><p class="journal-objective">${info.isBoss && r.enemies.some((e) => e.boss && e.hp > 0) ? `Derrota a ${esc(info.boss.name)} para abrir el descenso.` : "Encuentra las escaleras doradas del minimapa. Los combates normales son opcionales."}</p><h3 class="journal-section-title">Reliquias · ${r.relics.length}</h3><div class="journal-relics">${
+    `${domainArtwork(BIOMES.indexOf(info.biome), "journal-panorama")}<h2 id="modal-title">Diario del descenso</h2><p class="modal-lead">Planta ${r.floor} · ${esc(info.name)}</p><p class="expedition-code">${esc(OATH_BY_ID[r.oathId || "lantern"].name)} · Semilla ${r.seed} <button class="text-button" data-action="copy-seed">Copiar semilla</button></p><blockquote class="journal-lore">${esc(info.story)}</blockquote><h3>Tu siguiente paso</h3><p class="journal-objective">${info.isBoss && r.enemies.some((e) => e.boss && e.hp > 0) ? `Derrota a ${esc(info.boss.name)} para abrir el descenso.` : "Encuentra las escaleras doradas del minimapa. Los combates normales son opcionales."}</p><h3 class="journal-section-title">Reliquias · ${r.relics.length}</h3><div class="journal-relics">${
       r.relics.length
         ? r.relics
             .map((id) => {
@@ -527,6 +565,17 @@ function showJournal() {
       .join("")}</ol>`,
   );
 }
+function requestDash() {
+  if (externalChanged || view !== "game" || modal.open || profile.run?.phase !== "playing") return;
+  stopTravel();
+  if (profile.run.player.energy < 2) {
+    toast("Necesitas 2 de energía. Espera para recuperar 2 o defiéndete para recuperar 1.");
+    return;
+  }
+  aimingDash = !aimingDash;
+  updateGame();
+  $("#dungeon")?.focus({ preventScroll: true });
+}
 function perform(action, { travelling = false } = {}) {
   if (!travelling) stopTravel();
   if (externalChanged || view !== "game" || !profile.run || modal.open) return;
@@ -534,23 +583,37 @@ function perform(action, { travelling = false } = {}) {
     p = r.player,
     beforeHp = p.hp,
     beforeKills = r.kills,
+    beforeLevel = p.level,
+    beforeOpening = p.opening === true,
     beforeEnergy = p.energy,
     beforeFloor = r.floor,
     beforeLog = r.log.length;
+  if (aimingDash && action.type === "move") action = { ...action, type: "dash" };
+  const attacking = action.type === "move" && r.enemies.some(
+    (enemy) => enemy.hp > 0 && enemy.x === p.x + action.dx && enemy.y === p.y + action.dy,
+  );
   if (action.type === "dash") {
-    action.dx = p.facing?.x || 0;
-    action.dy = p.facing?.y || 0;
-  }
+    action.dx ??= p.facing?.x || 0;
+    action.dy ??= p.facing?.y || 0;
+  } else aimingDash = false;
   renderer.captureAction(r, action);
   const consumed = act(r, action);
+  if (consumed) aimingDash = false;
   renderer.resolveAction(r, action, consumed);
   persist();
   if (p.hp < beforeHp) {
     tone("hit");
     $("#dungeon")?.classList.remove("hurt");
     requestAnimationFrame(() => $("#dungeon")?.classList.add("hurt"));
+  } else if (p.level > beforeLevel) {
+    tone("level");
   } else if (r.kills > beforeKills) {
-    tone("reward");
+    tone("kill");
+  } else if (!beforeOpening && p.opening) {
+    tone("opening");
+    renderer.effect(p.x, p.y, "Apertura +35 %", "#dbb66b");
+  } else if (attacking && consumed) {
+    tone("attack");
   } else if (consumed) tone(["skill", "dash", "guard", "potion"].includes(action.type) ? action.type : "step");
   updateGame();
   if (travelling && shouldStopTravel(r)) stopTravel();
@@ -560,7 +623,9 @@ function perform(action, { travelling = false } = {}) {
     p.energy === beforeEnergy &&
     r.floor === beforeFloor
   ) {
-    toast("No puedes realizar esa acción desde aquí.");
+    toast(action.type === "dash"
+      ? "Esa dirección está bloqueada. Elige otra con la cruceta."
+      : "No puedes realizar esa acción desde aquí.");
   }
 }
 function startRun() {
@@ -590,6 +655,10 @@ function startRun() {
 }
 function openModal(html) {
   stopTravel();
+  if (aimingDash) {
+    aimingDash = false;
+    updateGame();
+  }
   if (modal.open) modal.close();
   lastFocus = document.activeElement;
   modal.innerHTML = `${view === "game" && profile.run?.phase === "reward" ? "" : `<button class="modal-close icon-button" data-action="close" aria-label="Cerrar">${icon("close")}</button>`}${html}`;
@@ -637,7 +706,7 @@ function showEnd() {
 }
 function showHelp() {
   openModal(
-    `<h2 id="modal-title">Cada paso cuenta.</h2><p class="modal-lead">El tiempo solo avanza cuando actúas. Observa, decide y sobrevive.</p><div class="help-grid"><section><h3>Explora</h3><p><kbd>WASD</kbd> o <kbd>↑↓←→</kbd> para moverte. Camina hacia un enemigo para atacarlo. También puedes tocar una casilla explorada para caminar hasta ella; el movimiento se detiene al aparecer un enemigo. Usa la cruceta en combate.</p><p><kbd>E</kbd> abre cofres, activa santuarios y desciende. Los objetos deben estar a tu lado. Las escaleras son doradas en el minimapa.</p></section><section><h3>Combate</h3><p><kbd>Q</kbd> usa tu habilidad de clase. <kbd>Espacio</kbd> esquiva hacia donde miras y cuesta 2 de energía. <kbd>F</kbd> prepara la guardia y recupera energía.</p><p>Las casillas rojas anuncian dónde golpeará el enemigo en el siguiente turno. Muévete fuera o esquiva. Esperar recupera 2 de energía sin protección; la guardia recupera 1 y añade 4 de armadura durante ese turno. Moverte sólo la recupera sin enemigos alertados a la vista; el ataque básico no la recupera. Los enemigos resisten las interrupciones repetidas y pueden avanzar dos casillas. Los guardianes contraatacan durante su recuperación si sigues a su lado.</p></section><section><h3>Sobrevive</h3><p><kbd>R</kbd> bebe una poción: cura el 30 % de tu vida máxima. Puedes llevar 3; las provisiones del refugio amplían esa capacidad hasta 6. Las pociones que no caben quedan en el suelo. <kbd>X</kbd> espera y recupera 2 de energía. Las fuentes restauran un 30 % de tu vida máxima y toda tu energía una vez. Los santuarios cuestan 20 + 3 × planta de oro y recuperan 5 de vida: alternan +1 ataque, +4 vida máxima y +1 energía máxima cada tres plantas.</p><p>El juramento del refugio cambia tus estadísticas iniciales: El farol no impone desventajas, La brasa cambia vida por ataque y La marea cambia ataque por energía. Puedes elegir otro en cada expedición.</p><p>El oro solo dura esta expedición. Los fragmentos se conservan para las mejoras del refugio.</p></section><section><h3>Deja un legado</h3><p>Elige una reliquia antes de cada nueva planta. Derrota a los guardianes de las plantas 3, 6, 9, 12, 15 y 18. Los guardianes 3, 6 y 12 desbloquean nuevas clases.</p><p>Guardado automático tras cada acción. <kbd>Esc</kbd> pausa la partida. El menú permite volver al refugio. <kbd>J</kbd> abre el diario. El botón de pantalla completa oculta los controles del navegador cuando está disponible. Exporta una copia desde la crónica para cambiar de navegador.</p></section></div><button class="button primary" data-action="close">Entendido ${icon("arrow")}</button>`,
+    `<h2 id="modal-title">Cada paso cuenta.</h2><p class="modal-lead">El tiempo solo avanza cuando actúas. Observa, decide y sobrevive.</p><div class="help-grid"><section><h3>Explora</h3><p><kbd>WASD</kbd> o <kbd>↑↓←→</kbd> para moverte. Camina hacia un enemigo para atacarlo. También puedes tocar una casilla explorada para caminar hasta ella; el movimiento se detiene al aparecer un enemigo. Usa la cruceta en combate.</p><p><kbd>E</kbd> abre cofres, activa santuarios y desciende. Los objetos deben estar a tu lado. Las escaleras son doradas en el minimapa.</p></section><section><h3>Combate</h3><p><kbd>Q</kbd> usa tu habilidad de clase. <kbd>Espacio</kbd> o el botón Esquivar prepara la evasión: elige después una dirección con las flechas, WASD o la cruceta. Cuesta 2 de energía al moverte. <kbd>Mayús</kbd> + dirección esquiva directamente. Vuelve a pulsar Esquivar o <kbd>Esc</kbd> para cancelar sin gastar el turno.</p><p>Las marcas rojas anuncian los ataques del siguiente turno, también los golpes cercanos. Sal de todas las marcas para ganar una <strong>Apertura: +35 % en tu próximo golpe o habilidad</strong>. No se acumula. <kbd>X</kbd> recupera 2 de energía sin protección; <kbd>F</kbd> recupera 1 y añade 4 de armadura durante ese turno.</p><p>Los ataques básicos no recuperan energía. Caminar la recupera sólo fuera del combate. Los enemigos pueden avanzar dos casillas; su temple impide interrumpirlos sin descanso. Aprovecha las pausas de los guardianes, pero observa su siguiente golpe.</p></section><section><h3>Sobrevive</h3><p><kbd>R</kbd> bebe una poción: cura el 30 % de tu vida máxima. Puedes llevar 3; las provisiones del refugio amplían esa capacidad hasta 6. Las pociones que no caben quedan en el suelo. <kbd>X</kbd> espera y recupera 2 de energía. Las fuentes restauran un 30 % de tu vida máxima y toda tu energía una vez. Los santuarios cuestan 20 + 3 × planta de oro y recuperan 5 de vida: alternan +1 ataque, +4 vida máxima y +1 energía máxima cada tres plantas.</p><p>El juramento del refugio cambia tus estadísticas iniciales: El farol no impone desventajas, La brasa cambia vida por ataque y La marea cambia ataque por energía. Puedes elegir otro en cada expedición.</p><p>El oro solo dura esta expedición. Los fragmentos se conservan para las mejoras del refugio.</p></section><section><h3>Deja un legado</h3><p>Elige una reliquia antes de cada nueva planta. Derrota a los guardianes de las plantas 3, 6, 9, 12, 15 y 18. Los guardianes 3, 6 y 12 desbloquean nuevas clases.</p><p>Guardado automático tras cada acción. <kbd>Esc</kbd> pausa la partida. El menú permite volver al refugio. <kbd>J</kbd> abre el diario. El botón de pantalla completa oculta los controles del navegador cuando está disponible. Exporta una copia desde la crónica para cambiar de navegador.</p></section></div><button class="button primary" data-action="close">Entendido ${icon("arrow")}</button>`,
   );
 }
 function showChronicle() {
@@ -711,6 +780,10 @@ function handleClick(event) {
   const action = b.dataset.action;
   if (!action) return;
   event.preventDefault();
+  if (action === "dash") {
+    requestDash();
+    return;
+  }
   if (
     ["skill", "dash", "guard", "potion", "interact", "wait"].includes(action)
   ) {
@@ -843,6 +916,12 @@ window.addEventListener("keydown", (event) => {
   )
     return;
   if (event.key === "Escape") {
+    if (aimingDash && !modal.open) {
+      event.preventDefault();
+      aimingDash = false;
+      updateGame();
+      return;
+    }
     if (!modal.open && view === "game") {
       event.preventDefault();
       showPause();
@@ -893,7 +972,7 @@ window.addEventListener("keydown", (event) => {
   event.preventDefault();
   if (event.repeat) {
     if (
-      !moves[k] ||
+      !moves[k] || event.shiftKey ||
       shouldStopTravel(profile.run) ||
       performance.now() - lastMovement < 130
     )
@@ -904,7 +983,8 @@ window.addEventListener("keydown", (event) => {
     showRewards();
     return;
   }
-  if (moves[k]) perform({ type: "move", dx: moves[k][0], dy: moves[k][1] });
+  if (moves[k]) perform({ type: event.shiftKey ? "dash" : "move", dx: moves[k][0], dy: moves[k][1] });
+  else if (command === "dash") requestDash();
   else perform({ type: command });
 });
 window.addEventListener("pagehide", () => {

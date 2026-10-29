@@ -7,6 +7,7 @@ import {
   nextFloor,
   visibleTiles,
   getThreats,
+  forecastIncomingDamage,
   validateRun,
   getStats,
 } from "../web/engine.js";
@@ -235,6 +236,8 @@ test("lethal damage creates a valid, terminal save and subsequent input cannot c
   run.player.hp = 1;
   enemy(run, "ash_guard", 11, 10, { attack: 100 });
   act(run, { type: "wait" });
+  assert.equal(run.phase, "playing", "even lethal melee attacks announce first");
+  act(run, { type: "wait" });
   assert.equal(run.phase, "dead");
   assert.equal(run.player.hp, 0);
   assert.equal(validateRun(run), true);
@@ -455,6 +458,7 @@ test("lethal damage cannot be reversed by thorns kill healing or a retaliation l
   run.relics = ["briar_mantle", "blood_moss"];
   const attacker = enemy(run, "ashling", 11, 10, { hp: 1, attack: 100 });
   act(run, { type: "wait" });
+  act(run, { type: "wait" });
   assert.equal(
     attacker.hp,
     0,
@@ -561,6 +565,8 @@ test("repeated rupture cannot permanently interrupt an enemy", () => {
   assert(target.resolve > 0);
   run.player.energy = getStats(run).maxEnergy;
   act(run, { type: "skill" });
+  assert(target.intent, "poise allows the enemy to commit a strike through repeated rupture");
+  act(run, { type: "guard" });
   assert(run.player.hp < initialHp, "an enemy with poise retaliates even when rupture is recast");
   const restored = JSON.parse(JSON.stringify(run));
   assert.equal(validateRun(restored), true, "poise survives save restoration");
@@ -574,6 +580,8 @@ test("armor cannot erase late attacks and piercing weakens armor without removin
   const target = enemy(run, "ash_guard", 11, 10, { attack: 10 });
   const hp = run.player.hp;
   act(run, { type: "guard" });
+  assert.equal(run.player.hp, hp, "armor is tested only after the warned attack resolves");
+  act(run, { type: "guard" });
   assert.equal(hp - run.player.hp, 4, "even heavy armor takes 40 percent of the hit");
   target.hp = 0;
 });
@@ -585,6 +593,9 @@ test("boss recovery pursues distant players and threatens adjacent counterattack
   assert.equal(boss.x, 11, "recovery closes distance");
   boss.cooldown = 1;
   const hp = run.player.hp;
+  act(run, { type: "wait" });
+  assert.equal(run.player.hp, hp, "the recovery swing is announced before damage");
+  assert.equal(boss.intent.kind, "melee");
   act(run, { type: "wait" });
   assert(run.player.hp < hp, "the adjacent recovery swing is dangerous");
 });
@@ -678,6 +689,9 @@ test("piercing reduces ordinary armor, while guard still absorbs damage", () => 
   act(physical, { type: "wait" });
   act(piercing, { type: "wait" });
   act(guarded, { type: "guard" });
+  act(physical, { type: "wait" });
+  act(piercing, { type: "wait" });
+  act(guarded, { type: "guard" });
   assert(piercing.player.hp < physical.player.hp);
   assert(guarded.player.hp > piercing.player.hp);
 });
@@ -710,6 +724,9 @@ test("alerted enemies close two tiles without receiving a free attack on arrival
   assert.equal(target.x, 11);
   assert.equal(run.player.hp, hp, "movement and attacking remain separate actions");
   act(run, { type: "wait" });
+  assert.equal(run.player.hp, hp, "arrival is followed by a full warning turn");
+  assert.equal(target.intent.kind, "melee");
+  act(run, { type: "wait" });
   assert(run.player.hp < hp);
 });
 
@@ -737,4 +754,102 @@ test("potion capacity preserves full caches, scales with supplies, and accepts l
   act(run, { type: "move", dx: 1, dy: 0 });
   assert.equal(run.player.potions, 14);
   assert.equal(run.objects[1].used, false);
+});
+
+test("melee announces every adjacent strike, then pursues a missed target without a free hit", () => {
+  const run = arena();
+  const attacker = enemy(run, "ash_guard", 11, 10);
+  const hp = run.player.hp;
+  act(run, { type: "wait" });
+  assert.equal(run.player.hp, hp);
+  assert.equal(attacker.intent.kind, "melee");
+  const forecast = forecastIncomingDamage(run);
+  assert.equal(forecast.attacks, 1);
+  assert.equal(forecast.damage, attacker.attack - getStats(run).armor);
+  assert.deepEqual(
+    new Set(getThreats(run).map(({ x, y }) => `${x},${y}`)),
+    new Set(["10,10", "12,10", "11,9", "11,11"]),
+  );
+  act(run, { type: "move", dx: 0, dy: 1 });
+  assert.equal(run.player.hp, hp);
+  assert.equal(attacker.intent, null);
+  assert.equal(
+    Math.abs(attacker.x - run.player.x) + Math.abs(attacker.y - run.player.y),
+    1,
+    "the enemy follows instead of idling through an endless retreat",
+  );
+  assert.equal(getStats(run).opening, true);
+  act(run, { type: "wait" });
+  assert.equal(run.player.hp, hp, "the follow-up still grants a full warning turn");
+  act(run, { type: "wait" });
+  assert.equal(run.player.hp, hp - (attacker.attack - getStats(run).armor));
+});
+
+test("opening rewards leaving a real threat, survives saving, and enhances exactly one whole attack", () => {
+  for (const classId of Object.keys(CLASS_BY_ID)) {
+    const run = arena(classId);
+    enemy(run, "bone_archer", 13, 10);
+    act(run, { type: "wait" });
+    act(run, { type: "move", dx: 0, dy: 1 });
+    assert.equal(getStats(run).opening, true, classId);
+    assert.equal(validateRun(run), true);
+    const restored = JSON.parse(JSON.stringify(run));
+    assert.equal(getStats(restored).opening, true);
+    run.enemies = [];
+    const a = enemy(run, "ash_guard", 11, 11, { hp: 50, maxHp: 50 });
+    const b = enemy(run, "ash_guard", 12, 11, { hp: 50, maxHp: 50 });
+    const base = getStats(run).skillDamage;
+    const effectiveArmor = classId === "luminary" ? Math.floor(a.armor * 0.6) : a.armor;
+    assert.equal(act(run, { type: "skill" }), true);
+    assert.equal(a.hp, 50 - (Math.round(base * 1.35) - effectiveArmor), classId);
+    assert.equal(b.hp, 50 - (Math.round(base * 1.35) - effectiveArmor), classId);
+    assert.equal(getStats(run).opening, false, "all targets share one empowered skill");
+    assert.equal(getStats(run).openingDamage, 0);
+    run.player.energy = getStats(run).maxEnergy;
+    assert.equal(act(run, { type: "skill" }), true);
+    assert.equal(a.hp, 50 - (Math.round(base * 1.35) - effectiveArmor) - (base - effectiveArmor));
+  }
+});
+
+test("opening cannot be farmed by safe travel, failed actions, or moving into another announced hit", () => {
+  const run = arena();
+  act(run, { type: "move", dx: 0, dy: 1 });
+  assert.equal(getStats(run).opening, false);
+  const attacker = enemy(run, "bone_archer", 13, 11);
+  act(run, { type: "wait" });
+  run.player.energy = 0;
+  assert.equal(act(run, { type: "dash", dx: 0, dy: 1 }), false);
+  assert.equal(getStats(run).opening, false);
+  act(run, { type: "move", dx: 1, dy: 0 });
+  assert.equal(getStats(run).opening, false, "advancing along the firing line is still dangerous");
+  assert.equal(attacker.intent, null);
+  run.player.opening = true;
+  const hp = attacker.hp;
+  run.player.x = attacker.x - 1;
+  run.player.y = attacker.y;
+  const stats = getStats(run);
+  act(run, { type: "move", dx: 1, dy: 0 });
+  assert.equal(attacker.hp, Math.max(0, hp - Math.round(stats.attack * 1.35)));
+  assert.equal(getStats(run).opening, false);
+  const legacy = arena();
+  delete legacy.player.opening;
+  assert.equal(validateRun(legacy), true, "older saves do not require the new state");
+  assert.equal(getStats(legacy).opening, false);
+  legacy.player.opening = "yes";
+  assert.equal(validateRun(legacy), false);
+});
+
+test("stone cover stops a guardian's close shockwave and every arm of its cross", () => {
+  for (const [type, pattern, kind] of [
+    ["cinder_warden", 0, "nova"],
+    ["briar_queen", 1, "cross"],
+  ]) {
+    const run = arena();
+    const boss = enemy(run, type, 12, 10, { pattern });
+    run.map.tiles[10 * run.map.width + 13] = 0;
+    act(run, { type: "wait" });
+    assert.equal(boss.intent.kind, kind);
+    assert(getThreats(run).some(({ x, y }) => x === 11 && y === 10));
+    assert(!getThreats(run).some(({ x, y }) => x === 14 && y === 10), kind);
+  }
 });

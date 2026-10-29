@@ -28,7 +28,7 @@ export class GameAudio {
     if (!this.context) {
       this.context = new AudioContext();
       this.master = this.context.createGain();
-      this.master.gain.value = 0.3;
+      this.master.gain.value = 0.22;
       this.master.connect(this.context.destination);
       // A fixed noise pattern avoids touching the engine's random generator.
       this.noise = this.context.createBuffer(1, Math.ceil(this.context.sampleRate * 0.2), this.context.sampleRate);
@@ -43,7 +43,7 @@ export class GameAudio {
     return this.context.state !== "closed";
   }
   note(frequency, delay, length, volume, type = "sine", endFrequency = frequency) {
-    if (this.voices.size >= 24) return;
+    if (this.voices.size >= 12) return;
     const context = this.context, start = context.currentTime + delay;
     const oscillator = context.createOscillator(), envelope = context.createGain();
     oscillator.type = type;
@@ -62,7 +62,7 @@ export class GameAudio {
     oscillator.stop(start + length + 0.015);
   }
   texture(frequency, length, volume) {
-    if (this.voices.size >= 24) return;
+    if (this.voices.size >= 12) return;
     const context = this.context, start = context.currentTime;
     const source = context.createBufferSource(), filter = context.createBiquadFilter(), envelope = context.createGain();
     source.buffer = this.noise;
@@ -86,9 +86,23 @@ export class GameAudio {
         this.lastStep = now;
         this.texture(420, 0.045, 0.045);
         this.note(145, 0, 0.055, 0.025, "triangle", 92);
+      } else if (kind === "attack") {
+        this.texture(1100, 0.055, 0.06);
+        this.note(310, 0, 0.09, 0.075, "triangle", 105);
       } else if (kind === "hit") {
         this.texture(1600, 0.09, 0.12);
         this.note(120, 0, 0.17, 0.18, "triangle", 48);
+      } else if (kind === "kill") {
+        this.texture(760, 0.07, 0.05);
+        this.note(220, 0, 0.12, 0.055, "triangle");
+        this.note(293.66, 0.045, 0.16, 0.07);
+        this.note(440, 0.09, 0.22, 0.045);
+      } else if (kind === "opening") {
+        this.note(392, 0, 0.15, 0.06);
+        this.note(587.33, 0.065, 0.2, 0.04, "triangle");
+      } else if (kind === "level") {
+        for (const [i, frequency] of [261.63, 329.63, 392, 523.25].entries())
+          this.note(frequency, i * 0.065, 0.28 + i * 0.025, 0.055);
       } else if (kind === "reward") {
         for (const [i, frequency] of [392, 493.88, 587.33, 783.99].entries())
           this.note(frequency, i * 0.055, 0.32, 0.055, "sine");
@@ -96,13 +110,13 @@ export class GameAudio {
         this.note(196, 0, 0.25, 0.08, "triangle", 392);
         this.note(587.33, 0.07, 0.28, 0.05, "sine", 783.99);
         this.texture(2200, 0.13, 0.035);
-      } else if (kind === "dash") {
+      } else if (kind === "dash" || kind === "dodge") {
         this.texture(850, 0.11, 0.06);
         this.note(290, 0, 0.12, 0.035, "sine", 110);
       } else if (kind === "guard") {
         this.note(174.61, 0, 0.2, 0.06, "triangle");
         this.note(261.63, 0.035, 0.14, 0.035, "sine");
-      } else if (kind === "potion") {
+      } else if (kind === "potion" || kind === "heal") {
         this.note(329.63, 0, 0.2, 0.045);
         this.note(493.88, 0.07, 0.25, 0.045);
       }

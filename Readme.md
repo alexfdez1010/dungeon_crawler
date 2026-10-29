@@ -15,7 +15,7 @@ Una expansión del Dungeon Crawler original: un roguelite táctico de fantasía 
 - **Semillas reutilizables:** introduce una semilla opcional en el refugio, cópiala desde la pausa o el diario y vuelve a intentarla al terminar una expedición.
 - **Exploración con recursos:** cofres, trampas, fuentes de un solo uso, oro, pociones y santuarios. Una ofrenda cuesta `20 + 3 × planta` de oro y otorga una bendición de ataque, vida o energía según la planta.
 - **Progreso permanente:** conserva fragmentos incluso al morir y compra cinco líneas de mejoras (27 rangos) para tus siguientes expediciones. La crónica registra tus guardianes derrotados y victorias.
-- **Ilustraciones originales:** portada, dos atlas con 17 personajes y seis escenas de dominio generados con ImageGen. Los prompts y la procedencia están documentados en [resources/art/prompts.md](resources/art/prompts.md), [resources/art/domains-prompt.md](resources/art/domains-prompt.md) y [resources/art/metadata.json](resources/art/metadata.json).
+- **Ilustraciones originales:** portada, dos atlas con 17 personajes y diez escenas de dominio generados con ImageGen. Los prompts y la procedencia están documentados en [resources/art/prompts.md](resources/art/prompts.md), [resources/art/domains-prompt.md](resources/art/domains-prompt.md), [resources/art/biomes.md](resources/art/biomes.md) y [resources/art/metadata.json](resources/art/metadata.json).
 - **Respuesta visual y sonora:** efectos de combate sobre el mapa y señales sonoras opcionales sintetizadas en el navegador. El sonido empieza desactivado, se activa desde el refugio y no descarga audio externo. Los efectos respetan la preferencia del sistema de reducir movimiento.
 
 ## Preparar una expedición
@@ -28,7 +28,7 @@ La semilla acepta números de `0` a `4294967295`; dejarla vacía genera una nuev
 
 La campaña está pensada para varias expediciones. Las interrupciones repetidas encuentran resistencia; los jefes persiguen y contraatacan durante su recuperación. Atacar ya no restaura energía; retirarse con enemigos alertados a la vista tampoco. **Esperar recupera 2 de energía sin protección; Guardia recupera 1 y añade 4 de armadura durante ese turno**, siempre hasta el máximo de energía. Los enemigos cierran distancias con dos pasos y obligan a elegir cuándo defenderse. La armadura reduce daño sin anular los golpes fuertes, y los enemigos finales tienen penetración propia. Las pociones curan un 30 % de vida y tienen una capacidad de 3, ampliable a 6 con provisiones. Las fuentes aparecen en las plantas de guardián. Las curas y el crecimiento por baja están contenidos para que las mejoras permanentes importen hasta el final.
 
-Cuando un ataque anunciado alcanza tu casilla, el HUD muestra el daño máximo de esos ataques si permaneces allí, junto al valor con Guardia. La previsión incluye armadura y penetración, y supone que fallan las esquivas aleatorias. **No predice todo el turno:** excluye golpes cuerpo a cuerpo todavía no anunciados y puede cambiar si te mueves, esquivas, interrumpes o derrotas al atacante.
+Cuando un ataque anunciado alcanza tu casilla, el HUD muestra el daño máximo de esos ataques si permaneces allí, junto al valor con Guardia. La previsión incluye armadura y penetración, y supone que fallan las esquivas aleatorias. **Incluye los golpes cercanos y las represalias ya anunciadas.** Puede cambiar si te mueves, esquivas, interrumpes o derrotas al atacante. Salir de todas las marcas mediante movimiento o esquiva prepara una **Apertura: +35 % de daño en el siguiente ataque o habilidad**, sin acumulación. Se conserva hasta atacar o cambiar de planta.
 
 Los guardados existentes conservan su legado. Vencer a Ettin desbloquea la Portadora del alba incluso en una victoria de la antigua campaña de 12 plantas; una nueva expedición recorre las 18.
 
@@ -38,7 +38,8 @@ Los guardados existentes conservan su legado. Vencer a Ettin desbloquea la Porta
 | --- | --- |
 | Mover / atacar al enemigo contiguo | Flechas o WASD |
 | Habilidad de clase | Q |
-| Esquivar hacia donde miras, 2 energía | Espacio |
+| Preparar esquiva y elegir dirección, 2 energía | Espacio, después dirección |
+| Esquivar directamente en una dirección | Mayús + dirección |
 | Guardia: +4 armadura durante el turno y +1 energía | F |
 | Beber poción | R |
 | Cofres, fuentes, santuarios y descenso | E |
@@ -72,7 +73,7 @@ Abre `http://127.0.0.1:8765/`. También puedes servir la raíz con cualquier ser
 npm test
 ```
 
-Las pruebas verifican determinismo, conectividad en cientos de mapas, validación y recuperación de guardados, recompensas sin duplicación, reglas de combate, habilidades, economía, progresión completa de dieciocho plantas, patrones de los seis guardianes y simulaciones completas con las cuatro clases. GitHub Actions ejecuta estas comprobaciones en cada subida a `main` y `master`.
+Las pruebas verifican determinismo, conectividad en cientos de mapas, validación y recuperación de guardados, recompensas sin duplicación, reglas de combate, habilidades, economía, progresión completa de dieciocho plantas, patrones de los seis guardianes y simulaciones completas con las cuatro clases. GitHub Actions ejecuta estas comprobaciones en cada subida a `main` y `main`.
 
 La investigación y sus límites están en [docs/GAME_DESIGN_RESEARCH.md](docs/GAME_DESIGN_RESEARCH.md). El informe de la versión 3.1 está en [docs/BALANCE_REPORT.md](docs/BALANCE_REPORT.md); distingue simulaciones reproducibles de observaciones con jugadores. Los comandos y resultados de referencia de la campaña 3.0 se conservan en [BALANCE.md](BALANCE.md).
 
@@ -93,10 +94,16 @@ El proyecto nació a partir de *Hands-on Rust: Effective Learning through 2D Gam
 
 ## Publicación
 
-La raíz de `master` contiene la distribución completa: `index.html`, `style.css`, `web/` y `resources/`. No es necesario generar los archivos antes de publicarlos. La rama de entrega y el origen previsto de GitHub Pages es la raíz de `master`.
+La raíz de `main` contiene la distribución completa: `index.html`, `style.css`, `web/` y `resources/`. No es necesario generar los archivos antes de publicarlos. La rama de entrega y el origen previsto de GitHub Pages es la raíz de `main`.
 
 La portada para compartir es `resources/art/yala-og.jpg` (1200 × 630). El HTML inicial incluye título, descripción, URL canónica, etiquetas de [Open Graph](https://ogp.me/) y Twitter Cards, además de datos estructurados [VideoGame](https://schema.org/VideoGame) y una presentación del juego disponible antes de cargar JavaScript. `sitemap.xml` enumera la única URL pública indexable y se puede enviar a Google Search Console. Si cambia el dominio o la ruta de publicación, actualiza las URL absolutas de `index.html` y `sitemap.xml`. GitHub Pages aloja este proyecto en una subruta: un `robots.txt` dentro del repositorio no controla el rastreo del dominio.
 
 ## Licencia
 
 MIT. Consulta [LICENSE](LICENSE).
+
+## Revisión táctica 3.2
+
+Todos los golpes de contacto se anuncian, las cruces y ondas respetan la cobertura y una evasión bien elegida prepara un contraataque. Esquivar permite elegir dirección sin consumir turno hasta confirmar; Escape cancela. El minimapa muestra recursos descubiertos y hostiles visibles. Cuatro panoramas nuevos ilustran el descenso y el diario. Golpes, bajas, Apertura y subida de nivel tienen sonidos propios, opcionales.
+
+[Investigación y decisiones](docs/game-design.md) · [Comparación de 320 expediciones](docs/BALANCE_3_2.md). La entrega está en `main`, la rama que publica GitHub Pages.

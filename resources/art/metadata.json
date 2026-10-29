@@ -80,5 +80,23 @@
     "promptFile": "domains-prompt.md",
     "source": "original generation; no reference images",
     "sha256": "91a89c1d570e1ff4c59988aab4e2dfeb6c83c22d54f6d0eabd58712321187930"
+  },
+  "biomePanoramas": {
+    "file": "yala-biomes.webp",
+    "generatedOn": "2026-10-29",
+    "generator": "built-in image_gen",
+    "width": 1672,
+    "height": 941,
+    "alpha": false,
+    "columns": 2,
+    "rows": 2,
+    "order": [
+      "ash",
+      "briar",
+      "tide",
+      "eclipse"
+    ],
+    "promptFile": "biomes.md",
+    "sha256": "c97ff4558a8a255d07e7220445826495cf7698fc21632021f341bebc8ded4564"
   }
 }

@@ -1,6 +1,6 @@
-import { floorInfo, ENEMIES } from "./content.js?v=3.1.0";
-import { visibleTiles, getThreats } from "./engine.js?v=3.1.0";
-import { layoutViewport, pointerToTile } from "./viewport.js?v=3.1.0";
+import { floorInfo, ENEMIES } from "./content.js?v=3.2.0";
+import { visibleTiles, getThreats } from "./engine.js?v=3.2.0";
+import { layoutViewport, pointerToTile } from "./viewport.js?v=3.2.0";
 
 const ATLAS = new Image();
 ATLAS.src = new URL(
@@ -355,6 +355,13 @@ export class DungeonRenderer {
           c.fillRect(sx * t + 1, sy * t + 1, t - 2, 2);
           c.fillStyle = "#00000035";
           c.fillRect(sx * t + (((y % 2) * 12 + 8) % 28), sy * t + 4, 1, t - 12);
+          // The lit lip makes the boundary with walkable stone easy to read.
+          if (y + 1 < m.height && m.tiles[i + m.width] === 1) {
+            c.fillStyle = theme.color + "26";
+            c.fillRect(sx * t + 1, sy * t + t - 8, t - 2, 1);
+            c.fillStyle = "#05080775";
+            c.fillRect(sx * t, sy * t + t - 2, t, 2);
+          }
         } else {
           c.fillStyle = theme.floorColor;
           c.fillRect(sx * t, sy * t, t, t);
@@ -381,6 +388,7 @@ export class DungeonRenderer {
             c.fillStyle = theme.color + "40";
             c.fillRect(sx * t + 3, sy * t + 3, 3, 3);
           }
+          this.drawFloorDetail(sx * t, sy * t, n, theme.biomeId);
         }
         c.restore();
       }
@@ -401,19 +409,30 @@ export class DungeonRenderer {
       if (!obj.used && (vis.has(i) || m.explored[i]))
         this.drawObject(obj.type, obj.x, obj.y, vis.has(i) ? 1 : 0.25);
     }
+    const threatCells = new Set();
     for (const target of getThreats(run)) {
       const i = target.y * m.width + target.x;
-      if (!vis.has(i)) continue;
+      if (!vis.has(i) || threatCells.has(i)) continue;
+      threatCells.add(i);
       const x = (target.x - o.x) * t,
         y = (target.y - o.y) * t;
       c.fillStyle = "#df72584c";
       c.fillRect(x + 1, y + 1, t - 2, t - 2);
+      c.lineWidth = 1;
+      c.strokeStyle = "#160e0c";
+      c.strokeRect(x + 1.5, y + 1.5, t - 3, t - 3);
       c.strokeStyle = "#e78976";
       c.strokeRect(x + 2.5, y + 2.5, t - 5, t - 5);
       c.beginPath();
       c.moveTo(x + 5, y + t - 5);
       c.lineTo(x + t - 5, y + 5);
       c.stroke();
+      // Corner cuts remain legible beneath a sprite or an area attack.
+      c.fillStyle = "#ffc0a2";
+      c.fillRect(x + 3, y + 3, 4, 2);
+      c.fillRect(x + 3, y + 3, 2, 4);
+      c.fillRect(x + t - 7, y + t - 5, 4, 2);
+      c.fillRect(x + t - 5, y + t - 7, 2, 4);
     }
     this.drawPath(m, vis);
     this.drawWorldFeedback(now);
@@ -421,12 +440,12 @@ export class DungeonRenderer {
       if (e.hp <= 0 || !vis.has(e.y * m.width + e.x)) continue;
       const x = (e.x - o.x) * t,
         y = (e.y - o.y) * t;
-      if (e.boss) {
+      if (e.boss || e.intent) {
         c.save();
-        c.strokeStyle = "#dbb66b";
+        c.strokeStyle = e.intent ? "#e78976" : "#dbb66b";
         c.lineWidth = 1.2;
         c.beginPath();
-        c.ellipse(x + t / 2, y + t - 4, t * 0.58, t * 0.2, 0, 0, Math.PI * 2);
+        c.ellipse(x + t / 2, y + t - 4, t * (e.boss ? 0.58 : 0.38), t * 0.2, 0, 0, Math.PI * 2);
         c.stroke();
         c.restore();
       }
@@ -444,18 +463,15 @@ export class DungeonRenderer {
         c.fillStyle = e.boss ? "#dbb66b" : "#e78976";
         c.fillRect(x + 1, y + 1, (t - 2) * Math.max(0, e.hp / e.maxHp), 3);
       }
-      if (e.intent) {
-        c.fillStyle = "#e78976";
-        c.font = "bold 16px sans-serif";
-        c.textAlign = "right";
-        c.fillText("!", x + t, y + 12);
-      }
+      this.drawEnemyState(e, x, y);
     }
-    c.strokeStyle = "#dbb66baa";
-    c.lineWidth = 1;
+    const inDanger = threatCells.has(p.y * m.width + p.x);
+    c.strokeStyle = inDanger ? "#ffc0a2" : "#dbb66baa";
+    c.lineWidth = inDanger ? 2 : 1;
     c.beginPath();
     c.ellipse(px, py + 11, 13, 5, 0, 0, Math.PI * 2);
     c.stroke();
+    c.lineWidth = 1;
     this.drawSprite(
       classSprite(p.classId),
       (p.x - o.x) * t,
@@ -504,6 +520,80 @@ export class DungeonRenderer {
           if (!this.destroyed && this.run && this.canvas.isConnected) this.draw(this.run);
         }, Math.max(16, remaining + 1));
       } else this.frame = requestAnimationFrame(() => this.draw(this.run));
+    }
+  }
+  drawFloorDetail(x, y, seed, biome) {
+    const c = this.ctx;
+    c.save();
+    c.lineWidth = 1;
+    if (biome === "briar" && seed % 5 === 0) {
+      // Sparse roots and moss belong to the buried garden, never to hazards.
+      c.strokeStyle = "#75916840";
+      c.beginPath();
+      c.moveTo(x + 2, y + 28);
+      c.lineTo(x + 7, y + 23);
+      c.lineTo(x + 5, y + 17);
+      c.moveTo(x + 7, y + 23);
+      c.lineTo(x + 13, y + 24);
+      c.stroke();
+      c.fillStyle = "#96ac6d35";
+      c.fillRect(x + 3, y + 16, 3, 2);
+      c.fillRect(x + 12, y + 22, 3, 2);
+    } else if (biome === "tide" && seed % 4 === 0) {
+      c.fillStyle = "#7eb5bd0d";
+      c.fillRect(x + 2, y + 19, 27, 10);
+      c.strokeStyle = "#91c5cd35";
+      c.beginPath();
+      c.moveTo(x + 4, y + 24);
+      c.lineTo(x + 12, y + 24);
+      c.moveTo(x + 17, y + 21);
+      c.lineTo(x + 27, y + 21);
+      c.stroke();
+    } else if (biome === "eclipse" && seed % 7 === 0) {
+      c.strokeStyle = "#c3a2d13b";
+      c.beginPath();
+      c.moveTo(x + 5, y + 20);
+      c.lineTo(x + 10, y + 17);
+      c.lineTo(x + 12, y + 10);
+      c.moveTo(x + 10, y + 17);
+      c.lineTo(x + 16, y + 21);
+      c.stroke();
+      c.fillStyle = "#c5a1d751";
+      c.fillRect(x + 10, y + 14, 2, 2);
+    } else if (biome === "ash" && seed % 5 === 0) {
+      c.fillStyle = "#b3a18c22";
+      c.fillRect(x + 6, y + 22, 5, 2);
+      c.fillRect(x + 16, y + 25, 3, 1);
+      c.fillStyle = "#d7a37433";
+      c.fillRect(x + 22, y + 14, 2, 1);
+    }
+    c.restore();
+  }
+  drawEnemyState(enemy, x, y) {
+    const c = this.ctx;
+    if (enemy.intent) {
+      const label = `! ${enemy.intent.damage}`;
+      c.font = "bold 9px sans-serif";
+      c.textAlign = "center";
+      c.textBaseline = "middle";
+      const width = Math.max(20, c.measureText(label).width + 6);
+      c.fillStyle = "#261713";
+      c.fillRect(x + 32 - width, y + 19, width, 12);
+      c.strokeStyle = "#e78976";
+      c.strokeRect(x + 32.5 - width, y + 19.5, width - 1, 11);
+      c.fillStyle = "#ffceb5";
+      c.fillText(label, x + 32 - width / 2, y + 25.5);
+      c.textBaseline = "alphabetic";
+    } else if (enemy.stunned > 0 || enemy.cooldown > 0) {
+      c.strokeStyle = "#bac9b1";
+      c.lineWidth = 1.5;
+      c.beginPath();
+      c.moveTo(x + 23, y + 8);
+      c.lineTo(x + 23, y + 13);
+      c.moveTo(x + 27, y + 8);
+      c.lineTo(x + 27, y + 13);
+      c.stroke();
+      c.lineWidth = 1;
     }
   }
   drawPath(map, visible) {
@@ -736,9 +826,26 @@ export class DungeonRenderer {
           m.tiles[i] === 0 ? "#29352c" : vis.has(i) ? "#7a8972" : "#3e4e40";
         c.fillRect((i % m.width) * s, Math.floor(i / m.width) * s, s, s);
       }
+    for (const object of run.objects) {
+      const i = object.y * m.width + object.x;
+      if (
+        object.used ||
+        !(m.explored[i] || vis.has(i)) ||
+        object.type === "trap"
+      )
+        continue;
+      const x = object.x * s, y = object.y * s;
+      c.fillStyle = object.type === "fountain" ? "#82c7b0" : "#dbb66b";
+      c.fillRect(x, y, s, s);
+    }
     if (m.explored[m.exit.y * m.width + m.exit.x]) {
       c.fillStyle = "#dbb66b";
       c.fillRect(m.exit.x * s, m.exit.y * s, s, s);
+    }
+    for (const enemy of run.enemies) {
+      if (enemy.hp <= 0 || !vis.has(enemy.y * m.width + enemy.x)) continue;
+      c.fillStyle = enemy.boss ? "#ffc29b" : "#e78976";
+      c.fillRect(enemy.x * s, enemy.y * s, s, s);
     }
     c.fillStyle = "#f4df9b";
     c.fillRect(run.player.x * s - 1, run.player.y * s - 1, 5, 5);
